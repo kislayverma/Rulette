@@ -53,6 +53,12 @@ public class Rule {
 	public boolean evaluate(Map<String, String> inputMap) {
     	// For each input column in order, get the value from the rule and compare against input.
     	for (String colName : this.inputColumnList) {
+    		if (colName.equals(RuleSystem.UNIQUE_ID_COLUMN_NAME) ||
+    			colName.equals(RuleSystem.UNIQUE_OUTPUT_COLUMN_NAME))
+    		{
+    			continue;
+    		}
+
     		String inputValue = inputMap.get(colName);
     		if (inputValue == null) {
         		System.out.println("Input doesn't contain field '" + colName + "'. Assuming 'Any'.");
@@ -64,7 +70,7 @@ public class Rule {
         		System.out.println("Rule doesn't contain field '" + colName + "'. Assuming 'Any'.");
         		ruleValue = "";
     		}
-    		
+ 
     		// Actual comparison handling 'Any' cases.
     		if (ruleValue.isEmpty() || ruleValue.equals(inputValue)) {
     			continue;

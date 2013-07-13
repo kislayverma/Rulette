@@ -1,9 +1,13 @@
 package rulesystem;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -42,8 +46,10 @@ public class RuleSystem {
     // This list is to keep the order (priority order) of inputs
     private List<String> inputColumnList;
 
-    private static final String UNIQUE_ID_COLUMN_NAME = "rule_id";
-    private static final String UNIQUE_OUTPUT_COLUMN_NAME = "rule_output_id";
+    private String ruleFileName;
+
+    public static final String UNIQUE_ID_COLUMN_NAME = "rule_id";
+    public static final String UNIQUE_OUTPUT_COLUMN_NAME = "rule_output_id";
 
     /*
      * This class is used to sort lists of eligible rules to get the best fitting rule.
@@ -60,7 +66,13 @@ public class RuleSystem {
         @Override
         public int compare(Rule rule1, Rule rule2) {
             for (String colName : inputColumnList) {
-                String colValue1 = rule1.getValueForColumn(colName);
+        		if (colName.equals(RuleSystem.UNIQUE_ID_COLUMN_NAME) ||
+            		colName.equals(RuleSystem.UNIQUE_OUTPUT_COLUMN_NAME))
+            	{
+            		continue;
+            	}
+
+        		String colValue1 = rule1.getValueForColumn(colName);
                 colValue1 = (colValue1 == null) ? "" : colValue1;
                 String colValue2 = rule1.getValueForColumn(colName);
                 colValue2 = (colValue2 == null) ? "" : colValue2;
@@ -142,6 +154,65 @@ public class RuleSystem {
     }
 
     /**
+     * This method adds a new rule to the rule system. There is no need to provide the rule_id 
+     * field in the input - it will be auto-populated. 
+     * 
+     * @param inputMap
+     * @return the added rule if there are no overlapping rules
+     *         null if there are overlapping rules
+     *         null if the input constitutes an invalid rule as per the validation policy in use.
+     */
+    public Rule addRule(Map<String, String> inputMap) {
+    	Rule newRule = new Rule(this.inputColumnList, inputMap);
+    	return addRule(newRule);
+    }
+
+    /**
+     * This method adds the given rule to the rule system with a new rule id.
+     * 
+     * @param newRule
+     * @return the added rule if there are no overlapping rules
+     *         null if there are overlapping rules
+     *         null if the input constitutes an invalid rule as per the validation policy in use.
+     */
+    public Rule addRule(Rule newRule) {
+    	if (! this.validator.isValid(newRule)) {
+        	System.err.println("Invalid input.");
+    		return null;
+    	}
+
+    	List<Rule> overlappingRules = getConflictingRules(newRule);
+    	if (overlappingRules.isEmpty()) {
+    		if (saveRule(newRule)) {
+        		// Cache the rule
+        		this.allRules.add(newRule);
+        		return newRule;
+    		}
+    	}
+
+		return null;
+    }
+
+    /**
+     * This method returns a list of rules conflicting with the given rule.
+     * 
+     * @param rule {@link Rule} object
+     * @return List of conflicting rules if any, empty list otherwise.
+     */
+    public List<Rule> getConflictingRules(Rule rule) {
+    	List<Rule> conflictingRules = new ArrayList<Rule>();
+    	Comparator<Rule> ruleComp = new RuleComparator();
+
+    	for (Rule r : this.allRules) {
+    		if (ruleComp.compare(r, rule) == 0) {
+    			conflictingRules.add(r);
+    		}
+    	}
+
+    	return conflictingRules;
+    }
+
+    /**
      * This method returns the next rule that will be applicable to the inputs if 
      * the current rule applicable to the were to be deleted.
      * 
@@ -171,8 +242,9 @@ public class RuleSystem {
         }
 
         Collections.sort(eligibleRules, new RuleComparator());
-           System.out.println(eligibleRules.size() + " eligible rules.");
-           return eligibleRules;
+        System.out.println(eligibleRules.size() + " eligible rules.");
+
+        return eligibleRules;
     }
 
     private void initRuleSystem(String ruleSystemInitFile) {
@@ -191,6 +263,7 @@ public class RuleSystem {
     			this.name = fieldValue;
     		}
     		else if ("rule_file_path".equalsIgnoreCase(fieldName)) {
+    			this.ruleFileName = fieldName;
     			try {
 	    			List<Rule> rules = getRulesFromRuleFile(fieldValue);
 	    	        for (Rule rule : rules) {
@@ -224,24 +297,58 @@ public class RuleSystem {
     	return fileFieldMap;
     }
 
-    private List<Rule> getRulesFromRuleFile(String ruleFie) throws IOException {
+    private List<Rule> getRulesFromRuleFile(String ruleFile) throws IOException {
     	List<Rule> rules = new ArrayList<Rule>();
 
-    	BufferedReader br = new BufferedReader(new FileReader(ruleFie));
+    	BufferedReader br = new BufferedReader(new FileReader(ruleFile));
         String row;
 
+        boolean headerRow = true;
         while ((row = br.readLine()) != null) {
             if (row.isEmpty()) {
                 continue;
             }
 
             String[] fields = row.split(",");
-        	//TODO - Put logic for conversion to Rule here
+
+            // The first row contains field names in order of priority as inputs.
+            if (headerRow) {
+            	for (String field : fields) {
+                    this.inputColumnList = Arrays.asList(field);
+            	}
+
+            	headerRow = false;
+            }
+            else {
+            	Map<String, String> inputMap = new HashMap<String, String>();
+            	for (int i = 1; i < this.inputColumnList.size() - 1; i++) {
+            		inputMap.put(this.inputColumnList.get(i), fields[i]);
+            	}
+
+            	Rule rule = new Rule(this.inputColumnList, inputMap);
+            	rules.add(rule);
+            }
         }
 
     	return rules;
     }
 
+    private boolean saveRule(Rule rule) {
+		String ruleId = rule.getValueForColumn(UNIQUE_ID_COLUMN_NAME);
+		Integer newRuleId = Integer.valueOf(this.allRules.size() + 1);
+		ruleId = newRuleId.toString();
+
+		try {
+    	    PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("outfilename", true)));
+    	    out.println("the text");
+    	    out.close();
+    	} catch (IOException e) {
+    		e.printStackTrace();
+    		return false;
+    	}
+
+		return true;
+    }
     public String getName() {
     	return this.name;
     }
