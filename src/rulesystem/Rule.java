@@ -18,14 +18,14 @@ public class Rule {
 	private List<String> inputColumnList;
 
 	/**
-	 * This package scoped constructor takes the list of columns in the rule system and a map
+	 * This constructor takes the list of columns in the rule system and a map
 	 * of value to populate the fields of this rule. Any fields missing in the input are set to 
 	 * blank (meaning 'Any').
 	 * 
 	 * @param colNames
 	 * @param inputMap
 	 */
-	Rule(List<String> colNames, Map<String, String> inputMap) {
+	public Rule(List<String> colNames, Map<String, String> inputMap) {
 		this.inputColumnList = colNames;
 		fieldMap = new HashMap<String, String>();
 		for (String colName: colNames) {

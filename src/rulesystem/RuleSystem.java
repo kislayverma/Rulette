@@ -1,19 +1,13 @@
 package rulesystem;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import rulesystem.dao.RuleSystemDao;
+import rulesystem.dao.RuleSystemDaoMySqlImpl;
 import rulesystem.validator.DefaultValidator;
 import rulesystem.validator.Validator;
 
@@ -39,14 +33,13 @@ import rulesystem.validator.Validator;
  */
 public class RuleSystem {
     private final Validator validator;
+    private RuleSystemDao dao;
     private String name;
 
     private List<Rule> allRules;
 
     // This list is to keep the order (priority order) of inputs
     private List<String> inputColumnList;
-
-    private String ruleFileName;
 
     public static final String UNIQUE_ID_COLUMN_NAME = "rule_id";
     public static final String UNIQUE_OUTPUT_COLUMN_NAME = "rule_output_id";
@@ -98,11 +91,15 @@ public class RuleSystem {
      * 1. Name of the rule system
      * 2. Full path of the file containing the rules
      * 
-     * @param ruleSystemDirectoryPath
+     * @param ruleSystemName
+     * @param validator
      */
-    public RuleSystem(String ruleSystemInitFile, Validator validator) {
-          this.validator = (validator != null) ? validator : new DefaultValidator();
-          initRuleSystem(ruleSystemInitFile);
+    public RuleSystem(String ruleSystemName, Validator validator) {
+    	this.name = ruleSystemName;
+        this.validator = (validator != null) ? validator : new DefaultValidator();
+        this.dao = new RuleSystemDaoMySqlImpl(ruleSystemName);
+
+        initRuleSystem(ruleSystemName);
     }
 
     /**
@@ -183,7 +180,8 @@ public class RuleSystem {
 
     	List<Rule> overlappingRules = getConflictingRules(newRule);
     	if (overlappingRules.isEmpty()) {
-    		if (saveRule(newRule)) {
+    		newRule = dao.saveRule(newRule);
+    		if (newRule != null) {
         		// Cache the rule
         		this.allRules.add(newRule);
         		return newRule;
@@ -247,108 +245,22 @@ public class RuleSystem {
         return eligibleRules;
     }
 
-    private void initRuleSystem(String ruleSystemInitFile) {
-    	Map<String, String> initFileFieldMap = new HashMap<String, String>();
-    	try {
-			initFileFieldMap= readInitFile(ruleSystemInitFile);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+    /*
+     * 1. Get rule system inputs from rule_system..rule_input table.
+     * 2. Get rules from the table specified for this rule system in the 
+     *    rule_system..rule_system table
+     */
+    private void initRuleSystem(String ruleSystemName) {
+    	this.inputColumnList = dao.getInputs(ruleSystemName);
 
-    	for (Map.Entry<String, String> entry : initFileFieldMap.entrySet()) {
-    		String fieldName = entry.getKey();
-    		String fieldValue = entry.getValue();
-
-    		if ("name".equalsIgnoreCase(fieldName)) {
-    			this.name = fieldValue;
-    		}
-    		else if ("rule_file_path".equalsIgnoreCase(fieldName)) {
-    			this.ruleFileName = fieldName;
-    			try {
-	    			List<Rule> rules = getRulesFromRuleFile(fieldValue);
-	    	        for (Rule rule : rules) {
-	    	            if (this.validator.isValid(rule)) {
-	    	                this.allRules.add(rule);
-	    	            }
-	    	        }
-    			}
-    	        catch (IOException e) {
-    				e.printStackTrace();
-    	        }
-    		}
-    	}
-    }
-
-    private Map<String, String> readInitFile(String ruleSystemInitFile) throws IOException {
-    	Map<String,String> fileFieldMap = new HashMap<String, String>();
-
-    	BufferedReader br = new BufferedReader(new FileReader(ruleSystemInitFile));
-        String row;
-
-        while ((row = br.readLine()) != null) {
-            if (row.isEmpty()) {
-                continue;
-            }
-
-            String[] valueArr = row.split(":");
-            fileFieldMap.put(valueArr[0].trim(), valueArr[1].trim());
-        }
-
-    	return fileFieldMap;
-    }
-
-    private List<Rule> getRulesFromRuleFile(String ruleFile) throws IOException {
-    	List<Rule> rules = new ArrayList<Rule>();
-
-    	BufferedReader br = new BufferedReader(new FileReader(ruleFile));
-        String row;
-
-        boolean headerRow = true;
-        while ((row = br.readLine()) != null) {
-            if (row.isEmpty()) {
-                continue;
-            }
-
-            String[] fields = row.split(",");
-
-            // The first row contains field names in order of priority as inputs.
-            if (headerRow) {
-            	for (String field : fields) {
-                    this.inputColumnList = Arrays.asList(field);
-            	}
-
-            	headerRow = false;
-            }
-            else {
-            	Map<String, String> inputMap = new HashMap<String, String>();
-            	for (int i = 1; i < this.inputColumnList.size() - 1; i++) {
-            		inputMap.put(this.inputColumnList.get(i), fields[i]);
-            	}
-
-            	Rule rule = new Rule(this.inputColumnList, inputMap);
-            	rules.add(rule);
+    	List<Rule> rules = dao.getAllRules(ruleSystemName);
+        for (Rule rule : rules) {
+            if (this.validator.isValid(rule)) {
+                this.allRules.add(rule);
             }
         }
-
-    	return rules;
     }
 
-    private boolean saveRule(Rule rule) {
-		String ruleId = rule.getValueForColumn(UNIQUE_ID_COLUMN_NAME);
-		Integer newRuleId = Integer.valueOf(this.allRules.size() + 1);
-		ruleId = newRuleId.toString();
-
-		try {
-    	    PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("outfilename", true)));
-    	    out.println("the text");
-    	    out.close();
-    	} catch (IOException e) {
-    		e.printStackTrace();
-    		return false;
-    	}
-
-		return true;
-    }
     public String getName() {
     	return this.name;
     }
