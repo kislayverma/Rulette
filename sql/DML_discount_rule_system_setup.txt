@@ -2,7 +2,7 @@ use rule_system;
 
 INSERT INTO rule_system VALUES ("discount_rule_system", "rule_system..discount_rule_system");
 
-INSERT INTO rule_system..rule_input 
+INSERT INTO rule_input 
 (name, rule_system_id, priority)
 VALUES
 ("brand", 1, 1);
@@ -25,12 +25,12 @@ VALUES
 INSERT INTO rule_input 
 (name, rule_system_id, priority)
 VALUES
-("is_active", 1, 5);
+("style_id", 1, 5);
 
 INSERT INTO rule_input 
 (name, rule_system_id, priority)
 VALUES
-("is_active", 1, 5);
+("is_active", 1, 6);
 
 INSERT INTO discount_rule_system
 (brand, article_type, fashion_type, year, style_id, is_active, rule_output_id)

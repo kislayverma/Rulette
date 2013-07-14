@@ -299,12 +299,20 @@ public class RuleSystem {
     	List<Rule> rules = dao.getAllRules(ruleSystemName);
         for (Rule rule : rules) {
             if (this.validator.isValid(rule)) {
-                this.allRules.add(rule);
+            	if (this.allRules == null) {
+            		this.allRules = new ArrayList<>();
+            	}
+
+            	this.allRules.add(rule);
             }
         }
     }
 
     public String getName() {
     	return this.name;
+    }
+
+    public static void main(String[] args) {
+    	RuleSystem rs = new RuleSystem("discount_rule_system", null);
     }
 }

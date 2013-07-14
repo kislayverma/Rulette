@@ -21,7 +21,15 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
     private List<String> inputColumnList;
 
     public RuleSystemDaoMySqlImpl(String ruleSystemName) {
-    	initDatabaseConnection();
+        // This will load the MySQL driver
+        try {
+			Class.forName("com.mysql.jdbc.Driver").newInstance();
+		}
+        catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+
+        initDatabaseConnection();
     	Map<String, String> rsDetailMap = getRuleSystemDetails(ruleSystemName);
     	this.tableName = rsDetailMap.get("table_name");
     }
@@ -30,8 +38,6 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
     private void initDatabaseConnection() {
     	if (this.connection == null) {
       	    try {
-    	        // This will load the MySQL driver
-    	        Class.forName("com.mysql.jdbc.Driver");
       	        // Setup the connection with the DB
     	        this.connection = DriverManager.getConnection(connString);
     	    }
@@ -46,11 +52,9 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
     	Map<String, String> rsDetailMap = new HashMap<>();
 
     	try {
-			PreparedStatement preparedStatement =
-			    connection.prepareStatement("SELECT * FROM rule_sytem..rule_system WHERE name LIKE '?'");
-			preparedStatement.setString(1, ruleSystemName);
-
-			ResultSet resultSet = preparedStatement.executeQuery();
+    		Statement statement = connection.createStatement();
+			ResultSet resultSet =
+				statement.executeQuery("SELECT * FROM rule_system WHERE name LIKE '" + ruleSystemName + "'");
 
 	        while (resultSet.next()) {
 	            // It is possible to get the columns via name
@@ -59,7 +63,7 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
 	            // e.g. resultSet.getSTring(2);
 	        	rsDetailMap.put("id", resultSet.getString("id"));
 	        	rsDetailMap.put("name", resultSet.getString("name"));
-	        	this.tableName = resultSet.getString("table_name");
+	        	rsDetailMap.put("table_name", resultSet.getString("table_name"));
 	        }
 	    } catch (SQLException e) {
 			e.printStackTrace();
@@ -73,16 +77,14 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
 		List<String> inputs = new ArrayList<>();
 
 		try {
-			PreparedStatement preparedStatement =
-			    connection.prepareStatement("SELECT b.* "
-			    		                  + "FROM rule_sytem..rule_system AS a"
-			    		                  + "JOIN rule_system..rule_input AS b "
-			    		                  + "    ON b.rule_system_id = a.id"
-			    		                  + "WHERE a.name LIKE '?'"
-			    		                  + "ORDER BY b.priority ASC");
-			preparedStatement.setString(1, ruleSystemName);
-
-			ResultSet resultSet = preparedStatement.executeQuery();
+    		Statement statement = connection.createStatement();
+			ResultSet resultSet =
+				statement.executeQuery("SELECT b.* " +
+			                           "FROM rule_system AS a " +
+						               "JOIN rule_input AS b " +
+			                           "    ON b.rule_system_id = a.id " +
+						               "WHERE a.name LIKE '" + ruleSystemName + "' " +
+			                           "ORDER BY b.priority ASC ");
 
 	        while (resultSet.next()) {
 	        	inputs.add(resultSet.getString("name"));
@@ -101,9 +103,9 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
 		List<Rule> rules = new ArrayList<>();
 
 		try {
-			PreparedStatement preparedStatement =
-			    connection.prepareStatement("SELECT * " + " FROM " + this.tableName);
-			ResultSet resultSet = preparedStatement.executeQuery();
+    		Statement statement = connection.createStatement();
+			ResultSet resultSet =
+				statement.executeQuery("SELECT * " + " FROM " + this.tableName);
 
 	        rules = convertToRules(resultSet);
 	    } catch (SQLException e) {
