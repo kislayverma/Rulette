@@ -10,4 +10,5 @@ public interface RuleSystemDao {
 	List<String> getInputs(String ruleSystemName);
 	List<Rule> getAllRules(String ruleSystemName);
 	Rule saveRule(Rule rule);
+	boolean deleteRule(Rule rule);
 }

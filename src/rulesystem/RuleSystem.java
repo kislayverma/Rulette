@@ -24,7 +24,6 @@ import rulesystem.validator.Validator;
  * Rule addRule(Map<String, String>)
  * Rule deleteRule(Rule)
  * Rule deleteRule(Integer rule_id)
- * Rule deleteRule(Map<String, String>)
  * List<Rule> getConflictingRules(Rule)
  * Rule getNextApplicableRule(Map<String, String>)
  * 
@@ -109,7 +108,7 @@ public class RuleSystem {
      * 
      */
     public List<Rule> getAllRules() {
-        // Return rules defensively so it wont be modified accidentally otside the system
+        // Return rules defensively so they won't be modified accidentally otside the system
         List<Rule> allRuleClone = new ArrayList<Rule>();
         Collections.copy(allRuleClone, this.allRules);
 
@@ -141,7 +140,7 @@ public class RuleSystem {
      */
     public Rule getRule(Integer ruleId) {
     	for (Rule rule : this.allRules) {
-    		Integer id = Integer.parseInt(rule.getValueForColumn("rule_id"));
+    		Integer id = Integer.parseInt(rule.getValueForColumn(UNIQUE_ID_COLUMN_NAME));
     		if (id.equals(ruleId)) {
     			return rule;
     		}
@@ -189,6 +188,50 @@ public class RuleSystem {
     	}
 
 		return null;
+    }
+
+    /**
+     * This method deletes an existing rule from the rule system.
+     * 
+     * @param ruleId Unique id of the rule to be deleted
+     * @return true if the rule with given rule id was successfully deleted
+     *         false if the given rule does not exist
+     *         false if the given rule could not be deleted (for whatever reason).
+     */
+    public boolean deleteRule(Integer ruleId) {
+    	if (ruleId != null) {
+        	Rule rule = getRule(ruleId);
+        	return deleteRule(rule);
+    	}
+
+    	return false;
+    }
+
+    /**
+     * This method deleted the given rule from the rule system.
+     * 
+     * @param rule The {@link Rule} to be deleted.
+     * @return true if the given rule was successfully deleted
+     *         false if the given rule does not exist
+     *         false if the given rule could not be deleted (for whatever reason).
+     */
+
+    public boolean deleteRule(Rule rule) {
+		boolean status = dao.deleteRule(rule);
+		if (status) {
+			List<Rule> newList = new ArrayList<>();
+    		// Remove the rule from the cache
+			for (Rule r : this.allRules) {
+				if (! r.getValueForColumn(UNIQUE_ID_COLUMN_NAME).equals(rule.getValueForColumn(UNIQUE_ID_COLUMN_NAME))) {
+					newList.add(r);
+				}
+			}
+    		this.allRules = newList;
+
+    		return true;
+		}
+
+		return false;
     }
 
     /**

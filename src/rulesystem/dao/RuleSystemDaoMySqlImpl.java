@@ -30,7 +30,7 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
     private void initDatabaseConnection() {
     	if (this.connection == null) {
       	    try {
-    	        // This will load the MySQL driver, each DB has its own driver
+    	        // This will load the MySQL driver
     	        Class.forName("com.mysql.jdbc.Driver");
       	        // Setup the connection with the DB
     	        this.connection = DriverManager.getConnection(connString);
@@ -79,7 +79,7 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
 			    		                  + "JOIN rule_system..rule_input AS b "
 			    		                  + "    ON b.rule_system_id = a.id"
 			    		                  + "WHERE a.name LIKE '?'"
-			    		                  + "ORDER BY b.priority DESC");
+			    		                  + "ORDER BY b.priority ASC");
 			preparedStatement.setString(1, ruleSystemName);
 
 			ResultSet resultSet = preparedStatement.executeQuery();
@@ -149,28 +149,49 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
 		sqlBuilder.append("INSERT INTO ")
 		          .append(this.tableName)
 		          .append(" (").append(nameListBuilder.toString().substring(0, -1)).append(") ")
-		          .append("VALUES (").append(valueListBuilder.toString().substring(0, -1)).append(") ");
+		          .append(" VALUES (").append(valueListBuilder.toString().substring(0, -1)).append(") ");
 		try {
-			// Save the rule
 			PreparedStatement preparedStatement =
 			    connection.prepareStatement("SELECT * " + " FROM " + this.tableName);
-			int rowCount =
-				preparedStatement.executeUpdate(sqlBuilder.toString(), Statement.RETURN_GENERATED_KEYS);
 
-			// Get the rule object for returning using LAST_INSERT_ID() MySql function.
-			// This id is maintained per connection so multiple instances inserting rows 
-			// isn't a problem.
-			preparedStatement =
-				    connection.prepareStatement("SELECT * " + " FROM " + this.tableName + 
-				    		                    " WHERE rule_id = LAST_INSERT_ID()");
-			ResultSet resultSet = preparedStatement.executeQuery();
+			if (preparedStatement.executeUpdate(
+					sqlBuilder.toString(), Statement.RETURN_GENERATED_KEYS) > 0)
+			{
+				// Get the rule object for returning using LAST_INSERT_ID() MySql function.
+				// This id is maintained per connection so multiple instances inserting rows 
+				// isn't a problem.
+				preparedStatement =
+					    connection.prepareStatement("SELECT * FROM " + this.tableName + 
+					    		                    " WHERE rule_id = LAST_INSERT_ID()");
+				ResultSet resultSet = preparedStatement.executeQuery();
 
-			return convertToRules(resultSet).get(0);
+				return convertToRules(resultSet).get(0);
+			}
+
 		}
 		catch (Exception e) {
 			e.printStackTrace();
 		}
 
 		return null;
+	}
+
+	@Override
+	public boolean deleteRule(Rule rule) {
+		try {
+			String sql = "DELETE FROM " + this.tableName +
+    				     " WHERE rule_id = ?";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			preparedStatement.setString(1, rule.getValueForColumn(RuleSystem.UNIQUE_ID_COLUMN_NAME));
+
+			if (preparedStatement.executeUpdate() > 0) {
+				return true;
+			}
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return false;
 	}
 }
