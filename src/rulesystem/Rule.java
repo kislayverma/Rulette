@@ -4,6 +4,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import rulesystem.ruleinput.RuleInput;
+import rulesystem.ruleinput.RuleInputMetaData;
+import rulesystem.ruleinput.RuleInputMetaData.DataType;
+
 /**
  * This class models a rule in the rule system. It has input columns and an output value
  * which the rule system maps these inputs to.
@@ -12,10 +16,13 @@ import java.util.Map;
  *
  */
 public class Rule {
-	private Map<String, String> fieldMap;
+	private Map<String, RuleInput> fieldMap;
 
 	// This list is to keep the order (priority order) of inputs
-	private List<String> inputColumnList;
+	private List<RuleInputMetaData> inputColumnList;
+
+	private static final int UNIQUE_ID_INPUT_ID = -1;
+	private static final int UNIQUE_OUTPUT_ID_INPUT_ID = -2;
 
 	/**
 	 * This constructor takes the list of columns in the rule system and a map
@@ -24,19 +31,40 @@ public class Rule {
 	 * 
 	 * @param colNames
 	 * @param inputMap
+	 * @throws Exception 
 	 */
-	public Rule(List<String> colNames, Map<String, String> inputMap) {
-		this.inputColumnList = colNames;
-		fieldMap = new HashMap<String, String>();
-		for (String colName: colNames) {
-			String inputVal = inputMap.get(colName);
-			this.fieldMap.put(colName, ((inputVal == null) ? "" : inputVal ));
+	public Rule(List<RuleInputMetaData> columns, Map<String, String> inputMap) throws Exception {
+		this.inputColumnList = columns;
+
+		fieldMap = new HashMap<String, RuleInput>();
+		for (RuleInputMetaData col: columns) {
+			String inputVal = inputMap.get(col.getName());
+			this.fieldMap.put(col.getName(),
+					          RuleInput.createRuleInput(col.getId(),
+					        		                    col.getRuleSystemId(),
+					        		                    col.getName(),
+					        		                    col.getPriority(),
+					        		                    col.getDataType(),
+					        		                    ((inputVal == null) ? "" : inputVal )));
 		}
 
+		String ruleId = inputMap.get(RuleSystem.UNIQUE_ID_COLUMN_NAME);
 		this.fieldMap.put(RuleSystem.UNIQUE_ID_COLUMN_NAME,
-			inputMap.get(RuleSystem.UNIQUE_ID_COLUMN_NAME));
+		          RuleInput.createRuleInput(UNIQUE_ID_INPUT_ID,
+		                    inputColumnList.get(0).getRuleSystemId(),
+		                    RuleSystem.UNIQUE_ID_COLUMN_NAME,
+		                    UNIQUE_ID_INPUT_ID,
+		                    DataType.VALUE,
+		                    ((ruleId == null) ? "" : ruleId)));
+
+		String ruleOutputId = inputMap.get(RuleSystem.UNIQUE_OUTPUT_COLUMN_NAME);
 		this.fieldMap.put(RuleSystem.UNIQUE_OUTPUT_COLUMN_NAME,
-			inputMap.get(RuleSystem.UNIQUE_OUTPUT_COLUMN_NAME));
+		          RuleInput.createRuleInput(UNIQUE_OUTPUT_ID_INPUT_ID,
+		                    inputColumnList.get(0).getRuleSystemId(),
+		                    RuleSystem.UNIQUE_OUTPUT_COLUMN_NAME,
+		                    UNIQUE_OUTPUT_ID_INPUT_ID,
+		                    DataType.VALUE,
+		                    ((ruleOutputId == null) ? "" : ruleOutputId)));
 	}
 
 	private Rule() {}
@@ -57,7 +85,9 @@ public class Rule {
 	 */
 	public boolean evaluate(Map<String, String> inputMap) {
     	// For each input column in order, get the value from the rule and compare against input.
-    	for (String colName : this.inputColumnList) {
+    	for (RuleInputMetaData col : this.inputColumnList) {
+    		String colName = col.getName();
+
     		if (colName.equals(RuleSystem.UNIQUE_ID_COLUMN_NAME) ||
     			colName.equals(RuleSystem.UNIQUE_OUTPUT_COLUMN_NAME))
     		{
@@ -69,13 +99,10 @@ public class Rule {
         		inputValue = "";
     		}
 
-    		String ruleValue = this.getValueForColumn(colName);
-    		if (ruleValue == null) {
-        		ruleValue = "";
-    		}
+    		RuleInput ruleInput = this.fieldMap.get(colName);
  
-    		// Actual comparison handling 'Any' cases.
-    		if (ruleValue.isEmpty() || ruleValue.equals(inputValue)) {
+    		// Actual comparison is determined by the input types. So over to them.
+    		if (ruleInput.evaluate(inputValue)) {
     			continue;
     		}
     		else {
@@ -87,20 +114,29 @@ public class Rule {
 	}
 
 	public String getValueForColumn(String colName) {
-		return this.fieldMap.get(colName);
+		return this.fieldMap.get(colName).getValue();
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("\n");
-		builder.append(RuleSystem.UNIQUE_ID_COLUMN_NAME).append(":").append(getValueForColumn(RuleSystem.UNIQUE_ID_COLUMN_NAME)).append("\t");
+		builder.append(RuleSystem.UNIQUE_ID_COLUMN_NAME)
+		       .append(":")
+		       .append(getValueForColumn(RuleSystem.UNIQUE_ID_COLUMN_NAME))
+		       .append("\t");
 
-		for (String colName : this.inputColumnList) {
-			builder.append(colName).append(":").append(getValueForColumn(colName)).append("\t");
+		for (RuleInputMetaData col : this.inputColumnList) {
+			builder.append(col.getName())
+			       .append(":")
+			       .append(getValueForColumn(col.getName()))
+			       .append("\t");
 		}
 
-		builder.append(RuleSystem.UNIQUE_OUTPUT_COLUMN_NAME).append(":").append(getValueForColumn(RuleSystem.UNIQUE_OUTPUT_COLUMN_NAME)).append("\t");
+		builder.append(RuleSystem.UNIQUE_OUTPUT_COLUMN_NAME)
+		       .append(":")
+		       .append(getValueForColumn(RuleSystem.UNIQUE_OUTPUT_COLUMN_NAME))
+		       .append("\t");
 
 		return builder.toString();
 	}

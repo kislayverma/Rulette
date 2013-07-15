@@ -9,6 +9,7 @@ import java.util.Map;
 
 import rulesystem.dao.RuleSystemDao;
 import rulesystem.dao.RuleSystemDaoMySqlImpl;
+import rulesystem.ruleinput.RuleInputMetaData;
 import rulesystem.validator.DefaultValidator;
 import rulesystem.validator.Validator;
 
@@ -39,7 +40,7 @@ public class RuleSystem {
     private List<Rule> allRules;
 
     // This list is to keep the order (priority order) of inputs
-    private List<String> inputColumnList;
+    private List<RuleInputMetaData> inputColumnList;
 
     public static final String UNIQUE_ID_COLUMN_NAME = "rule_id";
     public static final String UNIQUE_OUTPUT_COLUMN_NAME = "rule_output_id";
@@ -58,8 +59,10 @@ public class RuleSystem {
 
         @Override
         public int compare(Rule rule1, Rule rule2) {
-            for (String colName : inputColumnList) {
-        		if (colName.equals(RuleSystem.UNIQUE_ID_COLUMN_NAME) ||
+            for (RuleInputMetaData col : inputColumnList) {
+            	String colName = col.getName();
+
+            	if (colName.equals(RuleSystem.UNIQUE_ID_COLUMN_NAME) ||
             		colName.equals(RuleSystem.UNIQUE_OUTPUT_COLUMN_NAME))
             	{
             		continue;
@@ -93,8 +96,9 @@ public class RuleSystem {
      * 
      * @param ruleSystemName
      * @param validator
+     * @throws Exception 
      */
-    public RuleSystem(String ruleSystemName, Validator validator) {
+    public RuleSystem(String ruleSystemName, Validator validator) throws Exception {
     	this.name = ruleSystemName;
         this.validator = (validator != null) ? validator : new DefaultValidator();
         this.dao = new RuleSystemDaoMySqlImpl(ruleSystemName);
@@ -158,8 +162,9 @@ public class RuleSystem {
      * @return the added rule if there are no overlapping rules
      *         null if there are overlapping rules
      *         null if the input constitutes an invalid rule as per the validation policy in use.
+     * @throws Exception 
      */
-    public Rule addRule(Map<String, String> inputMap) throws RuntimeException {
+    public Rule addRule(Map<String, String> inputMap) throws Exception {
     	Rule newRule = new Rule(this.inputColumnList, inputMap);
     	return addRule(newRule);
     }
@@ -298,7 +303,7 @@ public class RuleSystem {
      * 2. Get rules from the table specified for this rule system in the 
      *    rule_system..rule_system table
      */
-    private void initRuleSystem(String ruleSystemName) {
+    private void initRuleSystem(String ruleSystemName) throws Exception {
     	this.inputColumnList = dao.getInputs(ruleSystemName);
 
     	List<Rule> rules = dao.getAllRules(ruleSystemName);
@@ -318,22 +323,29 @@ public class RuleSystem {
     }
 
     public static void main(String[] args) {
-    	RuleSystem rs = new RuleSystem("discount_rule_system", null);
-    	//List<Rule> rules = rs.getAllRules();
+    	RuleSystem rs = null;
+		try {
+			rs = new RuleSystem("discount_rule_system", null);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		//List<Rule> rules = rs.getAllRules();
     	//System.out.println("The are " + rules.size() + " rules.");
     	Rule rule = rs.getRule(1);
     	//System.out.println("Rule : " + ((rule == null) ? "no rule" : rule.toString()));
     	Map<String, String> inputMap = new HashMap<>();
-    	inputMap.put("brand", "");
-    	inputMap.put("article_type", "");
+    	inputMap.put("brand", "Adidas");
+    	inputMap.put("article_type", "Shirt");
     	inputMap.put("style_id", "3");
-    	inputMap.put("is_active", "0");
-    	//long stime = new Date().getTime();
-//    	for (int i = 0; i < 1000000; i++) {
+    	inputMap.put("is_active", "1");
+    	inputMap.put("valid_date_range", "20140404");
+//    	long stime = new Date().getTime();
+//    	for (int i = 0; i < 300000; i++) {
         	rule = rs.getRule(inputMap);
-  //  	}
-    	//long etime = new Date().getTime();
-    	//System.out.println("Time taken : " + (etime-stime));
+//    	}
+//    	long etime = new Date().getTime();
+//    	System.out.println("Time taken : " + (etime-stime));
     	System.out.println((rule == null) ? "none" : rule.toString());
     	
 

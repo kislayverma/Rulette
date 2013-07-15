@@ -13,12 +13,14 @@ import java.util.Map;
 
 import rulesystem.Rule;
 import rulesystem.RuleSystem;
+import rulesystem.ruleinput.RuleInputMetaData;
+import rulesystem.ruleinput.RuleInputMetaData.DataType;
 
 public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
     private Connection connection = null;
     private final String connString = "jdbc:mysql://localhost/rule_system?user=rs_user&password=rs_user";
     private String tableName;
-    private List<String> inputColumnList;
+    private List<RuleInputMetaData> inputColumnList;
 
     public RuleSystemDaoMySqlImpl(String ruleSystemName) {
         // This will load the MySQL driver
@@ -82,8 +84,8 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
 	}
 
 	@Override
-	public List<String> getInputs(String ruleSystemName) {
-		List<String> inputs = new ArrayList<>();
+	public List<RuleInputMetaData> getInputs(String ruleSystemName) throws Exception {
+		List<RuleInputMetaData> inputs = new ArrayList<>();
 
 		try {
     		Statement statement = connection.createStatement();
@@ -96,7 +98,15 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
 			                           "ORDER BY b.priority ASC ");
 
 	        while (resultSet.next()) {
-	        	inputs.add(resultSet.getString("name"));
+	            DataType dataType =
+	            	("Value".equalsIgnoreCase(resultSet.getString("data_type"))) ?
+	            		DataType.VALUE : DataType.RANGE;
+
+	            inputs.add(new RuleInputMetaData(resultSet.getInt("id"),
+	        			                         resultSet.getInt("rule_system_id"),
+			                                     resultSet.getString("name"),
+			                                     resultSet.getInt("priority"),
+			                                     dataType));
 	        }
 	    } catch (SQLException e) {
 			e.printStackTrace();
@@ -108,7 +118,7 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
 	}
 
 	@Override
-	public List<Rule> getAllRules(String ruleSystemName) {
+	public List<Rule> getAllRules(String ruleSystemName) throws Exception {
 		List<Rule> rules = new ArrayList<>();
 
 		try {
@@ -124,14 +134,14 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
 		return rules;
 	}
 
-	private List<Rule> convertToRules(ResultSet resultSet) throws SQLException {
+	private List<Rule> convertToRules(ResultSet resultSet) throws Exception {
 		List<Rule> rules = new ArrayList<>();
 
 		while (resultSet.next()) {
         	Map<String, String> inputMap = new HashMap<>();
 
-        	for (String colName : this.inputColumnList) {
-        		inputMap.put(colName, resultSet.getString(colName));
+        	for (RuleInputMetaData col : this.inputColumnList) {
+        		inputMap.put(col.getName(), resultSet.getString(col.getName()));
         	}
         	inputMap.put(RuleSystem.UNIQUE_ID_COLUMN_NAME,
         			     resultSet.getString(RuleSystem.UNIQUE_ID_COLUMN_NAME));
@@ -150,9 +160,9 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
 		StringBuilder nameListBuilder = new StringBuilder();
 		StringBuilder valueListBuilder = new StringBuilder();
 
-		for (String colName : this.inputColumnList) {
-			nameListBuilder.append(colName).append(",");
-			String val = rule.getValueForColumn(colName);
+		for (RuleInputMetaData col : this.inputColumnList) {
+			nameListBuilder.append(col.getName()).append(",");
+			String val = rule.getValueForColumn(col.getName());
 			valueListBuilder.append((val.isEmpty()) ? null : ("'" + val + "'")).append(",");
 		}
 		nameListBuilder.append(RuleSystem.UNIQUE_OUTPUT_COLUMN_NAME).append(",");

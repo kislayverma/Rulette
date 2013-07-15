@@ -3,34 +3,44 @@ use rule_system;
 INSERT INTO rule_system VALUES ("discount_rule_system", "rule_system..discount_rule_system");
 
 INSERT INTO rule_input 
-(name, rule_system_id, priority)
+(name, rule_system_id, priority, data_type)
 VALUES
-("brand", 1, 1);
+("brand", 1, 1, "Value");
 
 INSERT INTO rule_input 
-(name, rule_system_id, priority)
+(name, rule_system_id, priority, data_type)
 VALUES
-("article_type", 1, 2);
+("article_type", 1, 2, "Value");
 
 INSERT INTO rule_input 
-(name, rule_system_id, priority)
+(name, rule_system_id, priority, data_type)
 VALUES
-("fashion_type", 1, 3);
+("fashion_type", 1, 3, "Value");
 
 INSERT INTO rule_input 
-(name, rule_system_id, priority)
+(name, rule_system_id, priority, data_type)
 VALUES
-("year", 1, 4);
+("year", 1, 4, "Value");
 
 INSERT INTO rule_input 
-(name, rule_system_id, priority)
+(name, rule_system_id, priority, data_type)
 VALUES
-("style_id", 1, 5);
+("style_id", 1, 5, "Value");
 
 INSERT INTO rule_input 
-(name, rule_system_id, priority)
+(name, rule_system_id, priority, data_type)
 VALUES
-("is_active", 1, 6);
+("is_active", 1, 6, "Value");
+
+INSERT INTO rule_input 
+(name, rule_system_id, priority, data_type)
+VALUES
+("is_active", 1, 6, "Value");
+
+INSERT INTO rule_input 
+(name, rule_system_id, priority, data_type)
+VALUES
+("valid_date_range", 1, 0, "Range");
 
 INSERT INTO discount_rule_system
 (brand, article_type, fashion_type, year, style_id, is_active, rule_output_id)
