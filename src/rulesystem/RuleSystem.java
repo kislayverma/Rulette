@@ -3,6 +3,7 @@ package rulesystem;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -66,7 +67,7 @@ public class RuleSystem {
 
         		String colValue1 = rule1.getValueForColumn(colName);
                 colValue1 = (colValue1 == null) ? "" : colValue1;
-                String colValue2 = rule1.getValueForColumn(colName);
+                String colValue2 = rule2.getValueForColumn(colName);
                 colValue2 = (colValue2 == null) ? "" : colValue2;
 
                 /*
@@ -97,22 +98,19 @@ public class RuleSystem {
     	this.name = ruleSystemName;
         this.validator = (validator != null) ? validator : new DefaultValidator();
         this.dao = new RuleSystemDaoMySqlImpl(ruleSystemName);
+        if (! this.dao.isValid()) {
+        	throw new RuntimeException("The rule system with name " + ruleSystemName +
+        			                   " could not be initialized");
+        }
 
         initRuleSystem(ruleSystemName);
     }
 
     /**
-     * This method returns a list of all the rules in the rule system (for display purposes etc.)
-     * The returned list is a copy of the actual rules to prevent any accidental modification of 
-     * rule outside the system from impacting the working of the rule  system.
-     * 
+     * This method returns a list of all the rules in the rule system.
      */
     public List<Rule> getAllRules() {
-        // Return rules defensively so they won't be modified accidentally otside the system
-        List<Rule> allRuleClone = new ArrayList<Rule>();
-        Collections.copy(allRuleClone, this.allRules);
-
-        return allRuleClone;
+    	return this.allRules;
     }
 
     /**
@@ -140,9 +138,12 @@ public class RuleSystem {
      */
     public Rule getRule(Integer ruleId) {
     	for (Rule rule : this.allRules) {
-    		Integer id = Integer.parseInt(rule.getValueForColumn(UNIQUE_ID_COLUMN_NAME));
-    		if (id.equals(ruleId)) {
-    			return rule;
+    		String idStr = rule.getValueForColumn(UNIQUE_ID_COLUMN_NAME);
+    		if (idStr != null) {
+        		Integer id = Integer.parseInt(idStr);
+        		if (id.equals(ruleId)) {
+        			return rule;
+        		}
     		}
     	}
 
@@ -158,7 +159,7 @@ public class RuleSystem {
      *         null if there are overlapping rules
      *         null if the input constitutes an invalid rule as per the validation policy in use.
      */
-    public Rule addRule(Map<String, String> inputMap) {
+    public Rule addRule(Map<String, String> inputMap) throws RuntimeException {
     	Rule newRule = new Rule(this.inputColumnList, inputMap);
     	return addRule(newRule);
     }
@@ -171,10 +172,14 @@ public class RuleSystem {
      *         null if there are overlapping rules
      *         null if the input constitutes an invalid rule as per the validation policy in use.
      */
-    public Rule addRule(Rule newRule) {
+    public Rule addRule(Rule newRule) throws RuntimeException {
     	if (! this.validator.isValid(newRule)) {
-        	System.err.println("Invalid input.");
     		return null;
+    	}
+
+    	String ruleOutputId = newRule.getValueForColumn(UNIQUE_OUTPUT_COLUMN_NAME);
+    	if (ruleOutputId == null || ruleOutputId.isEmpty()) {
+    		throw new RuntimeException("Rule can't be saved without rule_output_id.");
     	}
 
     	List<Rule> overlappingRules = getConflictingRules(newRule);
@@ -187,7 +192,8 @@ public class RuleSystem {
     		}
     	}
 
-		return null;
+    	throw new RuntimeException("The following existing rules conflict with " +
+    	                           "the given input : " + overlappingRules);
     }
 
     /**
@@ -222,7 +228,8 @@ public class RuleSystem {
 			List<Rule> newList = new ArrayList<>();
     		// Remove the rule from the cache
 			for (Rule r : this.allRules) {
-				if (! r.getValueForColumn(UNIQUE_ID_COLUMN_NAME).equals(rule.getValueForColumn(UNIQUE_ID_COLUMN_NAME))) {
+				if (! r.getValueForColumn(UNIQUE_ID_COLUMN_NAME).equals(
+						rule.getValueForColumn(UNIQUE_ID_COLUMN_NAME))) {
 					newList.add(r);
 				}
 			}
@@ -274,7 +281,6 @@ public class RuleSystem {
     }
 
     private List<Rule> getEligibleRules(Map<String, String> inputMap) {
-        // Start fresh
         List<Rule> eligibleRules = new ArrayList<Rule>();
         for (Rule rule : allRules) {
             if (rule.evaluate(inputMap)) {
@@ -283,7 +289,6 @@ public class RuleSystem {
         }
 
         Collections.sort(eligibleRules, new RuleComparator());
-        System.out.println(eligibleRules.size() + " eligible rules.");
 
         return eligibleRules;
     }
@@ -314,5 +319,32 @@ public class RuleSystem {
 
     public static void main(String[] args) {
     	RuleSystem rs = new RuleSystem("discount_rule_system", null);
+    	//List<Rule> rules = rs.getAllRules();
+    	//System.out.println("The are " + rules.size() + " rules.");
+    	Rule rule = rs.getRule(1);
+    	//System.out.println("Rule : " + ((rule == null) ? "no rule" : rule.toString()));
+    	Map<String, String> inputMap = new HashMap<>();
+    	inputMap.put("brand", "");
+    	inputMap.put("article_type", "");
+    	inputMap.put("style_id", "3");
+    	inputMap.put("is_active", "0");
+    	//long stime = new Date().getTime();
+//    	for (int i = 0; i < 1000000; i++) {
+        	rule = rs.getRule(inputMap);
+  //  	}
+    	//long etime = new Date().getTime();
+    	//System.out.println("Time taken : " + (etime-stime));
+    	System.out.println((rule == null) ? "none" : rule.toString());
+    	
+
+//    	Map<String, String> inputMap = new HashMap<>();
+//    	inputMap.put("brand", "Adidas");
+//    	inputMap.put("article_type", "Shirt");
+//    	inputMap.put("style_id", "3");
+//    	inputMap.put("is_active", "0");
+//    	inputMap.put("rule_output_id", "3");
+//    	rs.addRule(inputMap);
+
+//    	rs.deleteRule(rule);
     }
 }

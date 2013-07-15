@@ -31,7 +31,16 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
 
         initDatabaseConnection();
     	Map<String, String> rsDetailMap = getRuleSystemDetails(ruleSystemName);
+    	if (rsDetailMap.isEmpty()) {
+    		return;
+    	}
+
     	this.tableName = rsDetailMap.get("table_name");
+    }
+
+    @Override
+    public boolean isValid() {
+    	return (this.tableName == null) ? false : true;
     }
 
     // Source of the copy-paste : http://www.vogella.com/articles/MySQLJava/article.html
@@ -42,7 +51,7 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
     	        this.connection = DriverManager.getConnection(connString);
     	    }
       	    catch (Exception e) {
-      	    	e.printStackTrace();;
+      	    	e.printStackTrace();
       	    }
     	}
     }
@@ -143,15 +152,16 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
 
 		for (String colName : this.inputColumnList) {
 			nameListBuilder.append(colName).append(",");
-			valueListBuilder.append(rule.getValueForColumn(colName)).append(",");
+			String val = rule.getValueForColumn(colName);
+			valueListBuilder.append((val.isEmpty()) ? null : ("'" + val + "'")).append(",");
 		}
 		nameListBuilder.append(RuleSystem.UNIQUE_OUTPUT_COLUMN_NAME).append(",");
 		valueListBuilder.append(rule.getValueForColumn(RuleSystem.UNIQUE_OUTPUT_COLUMN_NAME)).append(",");
 
 		sqlBuilder.append("INSERT INTO ")
 		          .append(this.tableName)
-		          .append(" (").append(nameListBuilder.toString().substring(0, -1)).append(") ")
-		          .append(" VALUES (").append(valueListBuilder.toString().substring(0, -1)).append(") ");
+		          .append(" (").append(nameListBuilder.toString().substring(0, nameListBuilder.length() - 1)).append(") ")
+		          .append(" VALUES (").append(valueListBuilder.toString().substring(0, valueListBuilder.length() - 1)).append(") ");
 		try {
 			PreparedStatement preparedStatement =
 			    connection.prepareStatement("SELECT * " + " FROM " + this.tableName);

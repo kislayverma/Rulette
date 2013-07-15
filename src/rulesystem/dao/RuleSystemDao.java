@@ -11,4 +11,5 @@ public interface RuleSystemDao {
 	List<Rule> getAllRules(String ruleSystemName);
 	Rule saveRule(Rule rule);
 	boolean deleteRule(Rule rule);
+	boolean isValid();
 }

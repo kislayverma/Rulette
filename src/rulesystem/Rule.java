@@ -32,6 +32,11 @@ public class Rule {
 			String inputVal = inputMap.get(colName);
 			this.fieldMap.put(colName, ((inputVal == null) ? "" : inputVal ));
 		}
+
+		this.fieldMap.put(RuleSystem.UNIQUE_ID_COLUMN_NAME,
+			inputMap.get(RuleSystem.UNIQUE_ID_COLUMN_NAME));
+		this.fieldMap.put(RuleSystem.UNIQUE_OUTPUT_COLUMN_NAME,
+			inputMap.get(RuleSystem.UNIQUE_OUTPUT_COLUMN_NAME));
 	}
 
 	private Rule() {}
@@ -61,13 +66,11 @@ public class Rule {
 
     		String inputValue = inputMap.get(colName);
     		if (inputValue == null) {
-        		System.out.println("Input doesn't contain field '" + colName + "'. Assuming 'Any'.");
         		inputValue = "";
     		}
 
     		String ruleValue = this.getValueForColumn(colName);
     		if (ruleValue == null) {
-        		System.out.println("Rule doesn't contain field '" + colName + "'. Assuming 'Any'.");
         		ruleValue = "";
     		}
  
@@ -85,5 +88,20 @@ public class Rule {
 
 	public String getValueForColumn(String colName) {
 		return this.fieldMap.get(colName);
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("\n");
+		builder.append(RuleSystem.UNIQUE_ID_COLUMN_NAME).append(":").append(getValueForColumn(RuleSystem.UNIQUE_ID_COLUMN_NAME)).append("\t");
+
+		for (String colName : this.inputColumnList) {
+			builder.append(colName).append(":").append(getValueForColumn(colName)).append("\t");
+		}
+
+		builder.append(RuleSystem.UNIQUE_OUTPUT_COLUMN_NAME).append(":").append(getValueForColumn(RuleSystem.UNIQUE_OUTPUT_COLUMN_NAME)).append("\t");
+
+		return builder.toString();
 	}
 }
