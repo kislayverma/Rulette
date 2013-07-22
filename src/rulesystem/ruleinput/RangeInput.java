@@ -46,4 +46,38 @@ public class RangeInput extends RuleInput{
 		return (lowerBound.isEmpty() && upperBound.isEmpty())
 			       ? "" : lowerBound + "-" + upperBound;
 	}
+
+	/**
+	 * The input rule input conflicts with this if the ranges specified by the two are overlapping.
+	 * @throws Exception 
+	 */
+	@Override
+	public boolean isConflicting(RuleInput input) throws Exception {
+		if (! input.getDataType().equals(this.getDataType())) {
+			throw new Exception("Compared rule inputs '" + this.getName() + "' and '" +
+		                        input.getName() + "' are not the same type.");
+		}
+
+		String inputVal = input.getValue();
+
+		// If values are same, or both are 'Any'
+		if (this.getValue().equals(inputVal)) {
+			return true;
+		}
+
+		// If only one is 'Any', there is no conflict
+		if ("".equals(this.getValue()) || "".equals(inputVal)) {
+			return false;
+		}
+
+		String[] inputArr = inputVal.split("-");
+
+		if (((this.lowerBound.compareTo(inputArr[0]) < 0) && (this.upperBound.compareTo(inputArr[0]) <= 0)) ||
+			((this.lowerBound.compareTo(inputArr[1]) > 0) && (this.upperBound.compareTo(inputArr[1]) > 0)))
+		{
+			return false;
+		}
+
+		return true;
+	}
 }

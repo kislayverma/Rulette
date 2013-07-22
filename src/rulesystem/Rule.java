@@ -67,8 +67,6 @@ public class Rule {
 		                    ((ruleOutputId == null) ? "" : ruleOutputId)));
 	}
 
-	private Rule() {}
-
 	/**
 	 * This method accepts a column name to column value mapping and return if the mapping is 
 	 * true for this rule. i.e. It returns true if this rule is applicable for the input values
@@ -95,10 +93,6 @@ public class Rule {
     		}
 
     		String inputValue = inputMap.get(colName);
-    		if (inputValue == null) {
-        		inputValue = "";
-    		}
-
     		RuleInput ruleInput = this.fieldMap.get(colName);
  
     		// Actual comparison is determined by the input types. So over to them.
@@ -113,8 +107,30 @@ public class Rule {
     	return true;
 	}
 
-	public String getValueForColumn(String colName) {
-		return this.fieldMap.get(colName).getValue();
+	public boolean isConflicting(Rule rule) throws Exception {
+    	for (RuleInputMetaData col : this.inputColumnList) {
+    		String colName = col.getName();
+
+    		if (colName.equals(RuleSystem.UNIQUE_ID_COLUMN_NAME) ||
+    			colName.equals(RuleSystem.UNIQUE_OUTPUT_COLUMN_NAME))
+    		{
+    			continue;
+    		}
+
+    		RuleInput thisInput = this.fieldMap.get(colName);
+    		RuleInput ruleInput = rule.getColumnData(colName);
+
+    		// Mark as not conflicting if any field is not conflicting
+    		if (! ruleInput.isConflicting(thisInput)) {
+    			return false;
+    		}
+    	}
+
+    	return true;
+	}
+
+	public RuleInput getColumnData(String colName) {
+		return this.fieldMap.get(colName);
 	}
 
 	@Override
@@ -123,19 +139,19 @@ public class Rule {
 		builder.append("\n");
 		builder.append(RuleSystem.UNIQUE_ID_COLUMN_NAME)
 		       .append(":")
-		       .append(getValueForColumn(RuleSystem.UNIQUE_ID_COLUMN_NAME))
+		       .append(getColumnData(RuleSystem.UNIQUE_ID_COLUMN_NAME).getValue())
 		       .append("\t");
 
 		for (RuleInputMetaData col : this.inputColumnList) {
 			builder.append(col.getName())
 			       .append(":")
-			       .append(getValueForColumn(col.getName()))
+			       .append(getColumnData(col.getName()).getValue())
 			       .append("\t");
 		}
 
 		builder.append(RuleSystem.UNIQUE_OUTPUT_COLUMN_NAME)
 		       .append(":")
-		       .append(getValueForColumn(RuleSystem.UNIQUE_OUTPUT_COLUMN_NAME))
+		       .append(getColumnData(RuleSystem.UNIQUE_OUTPUT_COLUMN_NAME).getValue())
 		       .append("\t");
 
 		return builder.toString();

@@ -26,4 +26,18 @@ public class ValueInput extends RuleInput{
 	public String getValue() {
 		return value;
 	}
+
+	/**
+	 * The given input conflicts with this if the values are same.
+	 * @throws Exception 
+	 */
+	@Override
+	public boolean isConflicting(RuleInput input) throws Exception {
+		if (! input.getDataType().equals(this.getDataType())) {
+			throw new Exception("Compared rule inputs '" + this.getName() + "' and '" +
+		                        input.getName() + "' are not the same type.");
+		}
+
+		return (input.getValue().equals(this.value)) ? true : false;
+	}
 }

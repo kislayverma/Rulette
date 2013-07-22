@@ -43,16 +43,16 @@ VALUES
 ("valid_date_range", 1, 0, "Range");
 
 INSERT INTO discount_rule_system
-(brand, article_type, fashion_type, year, style_id, is_active, rule_output_id)
+(brand, article_type, fashion_type, year, style_id, is_active, valid_date_range, rule_output_id)
 VALUES
-("Adidas", "T Shirt", null, null, null, 1, 1);
+("Adidas", "T Shirt", null, null, null, 1, "20130101-20131231", 1);
 
 INSERT INTO discount_rule_system
-(brand, article_type, fashion_type, year, style_id, is_active, rule_output_id)
+(brand, article_type, fashion_type, year, style_id, is_active, valid_date_range, rule_output_id)
 VALUES
-("Adidas", "Shirt", null, null, null, 1, 1);
+("Adidas", "Shirt", null, null, null, 1, "20130401-20140101", 1);
 
 INSERT INTO discount_rule_system
-(brand, article_type, fashion_type, year, style_id, is_active)
+(brand, article_type, fashion_type, year, style_id, is_active, valid_date_range, rule_output_id)
 VALUES
-("Adidas", "T Shirt", null, null, 1, 1, 2);
+("Adidas", "T Shirt", null, null, 1, 1, null, 2);

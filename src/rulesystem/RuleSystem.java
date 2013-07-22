@@ -3,6 +3,7 @@ package rulesystem;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,9 +69,9 @@ public class RuleSystem {
             		continue;
             	}
 
-        		String colValue1 = rule1.getValueForColumn(colName);
+        		String colValue1 = rule1.getColumnData(colName).getValue();
                 colValue1 = (colValue1 == null) ? "" : colValue1;
-                String colValue2 = rule2.getValueForColumn(colName);
+                String colValue2 = rule2.getColumnData(colName).getValue();
                 colValue2 = (colValue2 == null) ? "" : colValue2;
 
                 /*
@@ -125,10 +126,12 @@ public class RuleSystem {
      *         null otherwise.
      */
     public Rule getRule(Map<String, String> inputMap) {
-        List<Rule> eligibleRules = getEligibleRules(inputMap);
-        if (! eligibleRules.isEmpty()) {
-            return eligibleRules.get(0);
-        }
+    	if (inputMap != null) {
+            List<Rule> eligibleRules = getEligibleRules(inputMap);
+            if (! eligibleRules.isEmpty()) {
+                return eligibleRules.get(0);
+            }
+    	}
 
         return null;
     }
@@ -141,8 +144,12 @@ public class RuleSystem {
      *         null otherwise.
      */
     public Rule getRule(Integer ruleId) {
+    	if (ruleId == null) {
+    		return null;
+    	}
+
     	for (Rule rule : this.allRules) {
-    		String idStr = rule.getValueForColumn(UNIQUE_ID_COLUMN_NAME);
+    		String idStr = rule.getColumnData(UNIQUE_ID_COLUMN_NAME).getValue();
     		if (idStr != null) {
         		Integer id = Integer.parseInt(idStr);
         		if (id.equals(ruleId)) {
@@ -165,6 +172,10 @@ public class RuleSystem {
      * @throws Exception 
      */
     public Rule addRule(Map<String, String> inputMap) throws Exception {
+    	if (inputMap == null) {
+    		return null;
+    	}
+
     	Rule newRule = new Rule(this.inputColumnList, inputMap);
     	return addRule(newRule);
     }
@@ -176,13 +187,14 @@ public class RuleSystem {
      * @return the added rule if there are no overlapping rules
      *         null if there are overlapping rules
      *         null if the input constitutes an invalid rule as per the validation policy in use.
+     * @throws Exception 
      */
-    public Rule addRule(Rule newRule) throws RuntimeException {
-    	if (! this.validator.isValid(newRule)) {
+    public Rule addRule(Rule newRule) throws Exception {
+    	if (newRule == null || ! this.validator.isValid(newRule)) {
     		return null;
     	}
 
-    	String ruleOutputId = newRule.getValueForColumn(UNIQUE_OUTPUT_COLUMN_NAME);
+    	String ruleOutputId = newRule.getColumnData(UNIQUE_OUTPUT_COLUMN_NAME).getValue();
     	if (ruleOutputId == null || ruleOutputId.isEmpty()) {
     		throw new RuntimeException("Rule can't be saved without rule_output_id.");
     	}
@@ -228,13 +240,17 @@ public class RuleSystem {
      */
 
     public boolean deleteRule(Rule rule) {
-		boolean status = dao.deleteRule(rule);
+    	if (rule == null) {
+    		return false;
+    	}
+
+    	boolean status = dao.deleteRule(rule);
 		if (status) {
 			List<Rule> newList = new ArrayList<>();
     		// Remove the rule from the cache
 			for (Rule r : this.allRules) {
-				if (! r.getValueForColumn(UNIQUE_ID_COLUMN_NAME).equals(
-						rule.getValueForColumn(UNIQUE_ID_COLUMN_NAME))) {
+				if (! r.getColumnData(UNIQUE_ID_COLUMN_NAME).getValue().equals(
+						rule.getColumnData(UNIQUE_ID_COLUMN_NAME).getValue())) {
 					newList.add(r);
 				}
 			}
@@ -251,13 +267,16 @@ public class RuleSystem {
      * 
      * @param rule {@link Rule} object
      * @return List of conflicting rules if any, empty list otherwise.
+     * @throws Exception 
      */
-    public List<Rule> getConflictingRules(Rule rule) {
+    public List<Rule> getConflictingRules(Rule rule) throws Exception {
+    	if (rule == null) {
+    		return null;
+    	}
     	List<Rule> conflictingRules = new ArrayList<Rule>();
-    	Comparator<Rule> ruleComp = new RuleComparator();
 
     	for (Rule r : this.allRules) {
-    		if (ruleComp.compare(r, rule) == 0) {
+    		if (r.isConflicting(rule)) {
     			conflictingRules.add(r);
     		}
     	}
@@ -273,9 +292,12 @@ public class RuleSystem {
      * @return A {@link Rule} object if a rule is applicable after the currently 
      *         applicable rule  is deleted.
      *         null if no  rule  is applicable after the currently applicable rule is deleted.
-     *         null id no rule is  currently applicable.
+     *         null id no rule is currently applicable.
      */
     public Rule getNextApplicableRule(Map<String, String> inputMap) {
+    	if (inputMap == null) {
+    		return null;
+    	}
         List<Rule> eligibleRules = getEligibleRules(inputMap);
 
         if (eligibleRules.size() > 2) {
@@ -322,7 +344,7 @@ public class RuleSystem {
     	return this.name;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
     	RuleSystem rs = null;
 		try {
 			rs = new RuleSystem("discount_rule_system", null);
@@ -336,17 +358,24 @@ public class RuleSystem {
     	//System.out.println("Rule : " + ((rule == null) ? "no rule" : rule.toString()));
     	Map<String, String> inputMap = new HashMap<>();
     	inputMap.put("brand", "Adidas");
-    	inputMap.put("article_type", "Shirt");
-    	inputMap.put("style_id", "3");
+    	inputMap.put("article_type", "T Shirt");
+    	inputMap.put("style_id", "1");
     	inputMap.put("is_active", "1");
-    	inputMap.put("valid_date_range", "20140404");
-//    	long stime = new Date().getTime();
-//    	for (int i = 0; i < 300000; i++) {
-        	rule = rs.getRule(inputMap);
-//    	}
-//    	long etime = new Date().getTime();
-//    	System.out.println("Time taken : " + (etime-stime));
-    	System.out.println((rule == null) ? "none" : rule.toString());
+    	inputMap.put("valid_date_range", "20130104");
+    	rule = rs.getRule(inputMap);
+    	//rs.deleteRule(rule);
+		//System.out.println(rule);
+		//List<Rule> rules = rs.getConflictingRules(rule);
+		//System.out.println(rules);
+    	long stime = new Date().getTime();
+    	for (int i = 0; i < 10000000; i++) {
+        	//rule = rs.getRule(inputMap);
+    		rs.getConflictingRules(rule);
+    		//System.out.println(rules);
+    	}
+    	long etime = new Date().getTime();
+    	System.out.println("Time taken : " + (etime-stime));
+//    	System.out.println((rule == null) ? "none" : rule.toString());
     	
 
 //    	Map<String, String> inputMap = new HashMap<>();

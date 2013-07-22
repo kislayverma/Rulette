@@ -25,6 +25,8 @@ public abstract class RuleInput {
 
 	public abstract boolean evaluate(String value);
 
+	public abstract boolean isConflicting(RuleInput input) throws Exception;
+
 	public abstract String getValue();
 
 	public int getId() {

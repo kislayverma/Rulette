@@ -162,11 +162,11 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
 
 		for (RuleInputMetaData col : this.inputColumnList) {
 			nameListBuilder.append(col.getName()).append(",");
-			String val = rule.getValueForColumn(col.getName());
+			String val = rule.getColumnData(col.getName()).getValue();
 			valueListBuilder.append((val.isEmpty()) ? null : ("'" + val + "'")).append(",");
 		}
 		nameListBuilder.append(RuleSystem.UNIQUE_OUTPUT_COLUMN_NAME).append(",");
-		valueListBuilder.append(rule.getValueForColumn(RuleSystem.UNIQUE_OUTPUT_COLUMN_NAME)).append(",");
+		valueListBuilder.append(rule.getColumnData(RuleSystem.UNIQUE_OUTPUT_COLUMN_NAME).getValue()).append(",");
 
 		sqlBuilder.append("INSERT INTO ")
 		          .append(this.tableName)
@@ -204,7 +204,7 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
 			String sql = "DELETE FROM " + this.tableName +
     				     " WHERE rule_id = ?";
 			PreparedStatement preparedStatement = connection.prepareStatement(sql);
-			preparedStatement.setString(1, rule.getValueForColumn(RuleSystem.UNIQUE_ID_COLUMN_NAME));
+			preparedStatement.setString(1, rule.getColumnData(RuleSystem.UNIQUE_ID_COLUMN_NAME).getValue());
 
 			if (preparedStatement.executeUpdate() > 0) {
 				return true;
