@@ -8,11 +8,21 @@ import java.util.Map;
 import rulesystem.ruleinput.RuleInput;
 
 class RangeRSNode extends RSNode {
+
 	private Map<RuleInput, RSNode> fieldMap = new HashMap<>();
+
+	RangeRSNode(String fieldName) {
+		super(fieldName);
+	}
 
 	@Override
 	public void addChildNode(RuleInput ruleInput, RSNode childNode) {
 		this.fieldMap.put(ruleInput, childNode);
+	}
+
+	@Override
+	public void removeChildNode(RuleInput ruleInput) {
+		this.fieldMap.remove(ruleInput.getValue());
 	}
 
 	@Override
@@ -32,17 +42,18 @@ class RangeRSNode extends RSNode {
 	}
 
 	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		for (Map.Entry<RuleInput, RSNode> entry : this.fieldMap.entrySet()) {
-			sb.append(entry.getKey().getValue()).append(", ");
-		}
-
-		return sb.toString();
+	public int getCount() {
+		return this.fieldMap.entrySet().size();
 	}
 
 	@Override
-	public int getCount() {
-		return this.fieldMap.entrySet().size();
+	public RSNode getMatchingRule(String value) {
+		for (Map.Entry<RuleInput, RSNode> entry : this.fieldMap.entrySet()) {
+			if (value.equals(entry.getKey().getValue())) {
+				return entry.getValue();
+			}
+		}
+
+		return null;
 	}
 }

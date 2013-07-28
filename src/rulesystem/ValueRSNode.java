@@ -10,9 +10,18 @@ import rulesystem.ruleinput.RuleInput;
 class ValueRSNode extends RSNode {
 	private Map<String, RSNode> fieldMap = new HashMap<>();
 
+	ValueRSNode(String fieldName) {
+		super(fieldName);
+	}
+
 	@Override
 	public void addChildNode(RuleInput ruleInput, RSNode childNode) {
 		this.fieldMap.put(ruleInput.getValue(), childNode);
+	}
+
+	@Override
+	public void removeChildNode(RuleInput ruleInput) {
+		this.fieldMap.remove(ruleInput.getValue());
 	}
 
 	@Override
@@ -41,12 +50,7 @@ class ValueRSNode extends RSNode {
 	}
 
 	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		for (Map.Entry<String, RSNode> entry : this.fieldMap.entrySet()) {
-			sb.append(entry.getKey()).append(", ");
-		}
-		
-		return sb.toString();
+	public RSNode getMatchingRule(String value) {
+		return this.fieldMap.get(value);
 	}
 }
