@@ -7,11 +7,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 import rulesystem.dao.RuleSystemDao;
 import rulesystem.dao.RuleSystemDaoMySqlImpl;
-import rulesystem.ruleinput.RuleInput;
 import rulesystem.ruleinput.RuleInputMetaData;
+import rulesystem.ruleinput.RuleInputMetaData.DataType;
 import rulesystem.validator.DefaultValidator;
 import rulesystem.validator.Validator;
 
@@ -47,39 +48,6 @@ public class RuleSystem {
 
     public static final String UNIQUE_ID_COLUMN_NAME = "rule_id";
     public static final String UNIQUE_OUTPUT_COLUMN_NAME = "rule_output_id";
-
-    private class RSNode {
-    	private Map<RuleInput, RSNode> fieldMap = new HashMap<>();
-    	private Rule rule;
-
-    	public void addChildNode(RuleInput ruleInput, RSNode childNode) {
-    		this.fieldMap.put(ruleInput, childNode);
-    	}
-
-    	public List<RSNode> getNodes(RuleInput ruleInput, boolean getAnyValue) {
-    		List<RSNode> nodeList = new ArrayList<>();
-    		RSNode node = this.fieldMap.get(ruleInput);
-    		if (node != null) {
-    			nodeList.add(node);
-    		}
-    		if (getAnyValue) {
-        		node = this.fieldMap.get("");
-        		if (node != null) {
-        			nodeList.add(node);
-        		}
-    		}
-
-    		return nodeList;
-    	}
-
-    	public Rule getRule() {
-    		return this.rule;
-    	}
-
-    	public void setRule(Rule rule) {
-    		this.rule = rule;
-    	}
-    }
 
     /*
      * This class is used to sort lists of eligible rules to get the best fitting rule.
@@ -160,12 +128,45 @@ public class RuleSystem {
      * @return A {@link Rule} object if a rule is applicable.
      *         null otherwise.
      */
-    public Rule getRule(Map<String, String> inputMap) {
+    public Rule getRuleLinearScan(Map<String, String> inputMap) {
     	if (inputMap != null) {
             List<Rule> eligibleRules = getEligibleRules(inputMap);
             if (! eligibleRules.isEmpty()) {
                 return eligibleRules.get(0);
             }
+    	}
+
+        return null;
+    }
+
+    public Rule getRule(Map<String, String> inputMap) {
+    	if (inputMap != null) {
+    		Stack<RSNode> currStack = new Stack<>();
+    		currStack.add(root);
+
+    		for (RuleInputMetaData rimd : this.inputColumnList) {
+        		Stack<RSNode> nextStack = new Stack<>();
+    			for (RSNode node : currStack) {
+        			String value = inputMap.get(rimd.getName());
+        			value = (value == null) ? "" : value;
+
+        			List<RSNode> eligibleRules = node.getNodes(value, true);
+        			if (eligibleRules != null && !eligibleRules.isEmpty()) {
+        				nextStack.addAll(eligibleRules);
+        			}
+    			}
+    			currStack = nextStack;
+    		}
+
+    		if (! currStack.isEmpty()) {
+    			List<Rule> rules = new ArrayList<>();
+    			for (RSNode node : currStack) {
+    				rules.add(node.getRule());
+    			}
+
+    	        Collections.sort(rules, new RuleComparator());
+        		return rules.get(0);
+    		}
     	}
 
         return null;
@@ -239,8 +240,9 @@ public class RuleSystem {
     		newRule = dao.saveRule(newRule);
     		if (newRule != null) {
         		// Cache the rule
-        		this.allRules.add(newRule);
-        		return newRule;
+    			addRuleToCache(newRule);
+
+    			return newRule;
     		}
     	}
 
@@ -364,36 +366,64 @@ public class RuleSystem {
     	this.inputColumnList = dao.getInputs(ruleSystemName);
 
     	List<Rule> rules = dao.getAllRules(ruleSystemName);
+    	System.out.println("Rules from DB : " + rules.size());
     	this.allRules = new ArrayList<>();
-    	this.root = new RSNode();
-    	RSNode currNode = this.root;
+    	if (this.inputColumnList.get(0).getDataType().equals(DataType.VALUE)) {
+    		this.root = new ValueRSNode();
+    	}
+    	else {
+    		this.root = new RangeRSNode();
+    	}
 
     	for (Rule rule : rules) {
     		if (this.validator.isValid(rule)) {
-        		for (RuleInputMetaData colMetaData : this.inputColumnList) {
-        			// 1. See if the current node has a node mapping to the field value
-            		List<RSNode> nodeList =
-            			currNode.getNodes(rule.getColumnData(colMetaData.getName()), false);
-
-            		// 2. If it doesn't, create a new empty node and map the field value 
-            		//    to the new node.
-            		//    Also move to the new node.
-            		if (nodeList.isEmpty()) {
-            			RSNode newNode = new RSNode();
-            			currNode.addChildNode(
-            				rule.getColumnData(colMetaData.getName()), newNode);
-            			currNode = newNode;
-            		}
-            		// 3. If it does, move to that node.
-            		else {
-            			currNode = nodeList.get(0);
-            		}
-            	}
-
-        		currNode.setRule(rule);
-        		this.allRules.add(rule);
+    			addRuleToCache(rule);
             }
         }
+    }
+
+    private void addRuleToCache(Rule rule) {
+    	RSNode currNode = this.root;
+		for (int i = 0;i < this.inputColumnList.size(); i++) {
+			RuleInputMetaData currInput = this.inputColumnList.get(i);
+
+			// 1. See if the current node has a node mapping to the field value
+    		List<RSNode> nodeList =
+    			currNode.getNodes(rule.getColumnData(currInput.getName()).getValue(), false);
+
+    		// 2. If it doesn't, create a new empty node and map the field value 
+    		//    to the new node.
+    		//    Also move to the new node.
+    		if (nodeList.isEmpty()) {
+    			//System.out.println("No values for field " + currInput.getName() +
+    			//		" : " + nodeList.size());
+    			RSNode newNode;
+    			if (i < this.inputColumnList.size() - 1) {
+        			if (this.inputColumnList.get(i + 1).getDataType().equals(DataType.VALUE))
+        			{
+        				newNode = new ValueRSNode();
+        			}
+        			else {
+        				newNode = new RangeRSNode();
+        			}
+    			}
+    			else {
+    				newNode = new ValueRSNode();
+    			}
+
+    			currNode.addChildNode(
+    				rule.getColumnData(currInput.getName()), newNode);
+    			currNode = newNode;
+    		}
+    		// 3. If it does, move to that node.
+    		else {
+    	//		System.out.println("Have the value : " + rule.getColumnData(currInput.getName()).getValue());
+    			currNode = nodeList.get(0);
+    		}
+		}
+
+		currNode.setRule(rule);
+		this.allRules.add(rule);
     }
 
     public String getName() {
@@ -416,12 +446,13 @@ public class RuleSystem {
     	//Rule rule = rs.getRule(1);
     	//System.out.println("Rule : " + ((rule == null) ? "no rule" : rule.toString()));
     	Map<String, String> inputMap = new HashMap<>();
-    	inputMap.put("brand", "Adidas");
-    	inputMap.put("article_type", "T Shirt");
-    	inputMap.put("style_id", "1");
-    	inputMap.put("is_active", "1");
-    	long sec = new Date().getTime()/1000;
-    	inputMap.put("valid_date_range", String.valueOf(sec));
+    	inputMap.put("brand", "lee");
+    	//inputMap.put("article_type", "T Shirt");
+    	inputMap.put("style_id", "");
+    	inputMap.put("is_active", "0");
+    	inputMap.put("year", "2013");
+    	//long sec = new Date().getTime()/1000;
+    	inputMap.put("valid_date_range", "1366914602");
     	Rule rule = null;
     	//rule = rs.getRule(inputMap);
     	//rs.deleteRule(rule);
@@ -429,14 +460,14 @@ public class RuleSystem {
 		//List<Rule> rules = rs.getConflictingRules(rule);
 		//System.out.println(rules);
     	stime = new Date().getTime();
-    	for (int i = 0; i < 10; i++) {
+    	for (int i = 0; i < 1000000; i++) {
         	rule = rs.getRule(inputMap);
     		//rs.getConflictingRules(rule);
-    		//System.out.println(rules);
+    		//System.out.println(rule);
     	}
     	etime = new Date().getTime();
     	System.out.println("Time taken : " + (etime-stime));
-//    	System.out.println((rule == null) ? "none" : rule.toString());
+    	System.out.println((rule == null) ? "none" : rule.toString());
 
 //    	Map<String, String> inputMap = new HashMap<>();
 //    	inputMap.put("brand", "Adidas");

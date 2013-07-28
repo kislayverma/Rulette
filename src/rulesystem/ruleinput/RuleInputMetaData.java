@@ -3,7 +3,6 @@ package rulesystem.ruleinput;
 public class RuleInputMetaData {
 	public enum DataType {
 		VALUE,
-		DATETIME,
 		RANGE
 	}
 
