@@ -7,19 +7,65 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 import rulesystem.dao.RuleSystemDao;
 import rulesystem.dao.RuleSystemDaoMySqlImpl;
 import rulesystem.ruleinput.RuleInputMetaData;
+import rulesystem.ruleinput.RuleInputMetaData.DataType;
 import rulesystem.validator.DefaultValidator;
 import rulesystem.validator.Validator;
 
 /**
- * This class models a rule-system comprising of rules and provides appropriate APIs to interact with it.
- * A rule-system is a generic representation of an input-output mapping, with multiple input fields 
- * mapping to a single output field.
+ * This class models a rule-system comprising of rules and provides appropriate APIs to interact 
+ * with it.
  * 
- * The exposed APIs are:
+ * A rule-system, in this context, is a mapping of elements of an input space comprising of one 
+ * or more distinct inputs to a well-defined output space. This is a generic implementation which 
+ * allows for creation and management of these mappings. Much can be read about rule-systems 
+ * elsewhere (Drools is a particularly well known and elaborate implementation), so I will just 
+ * lay out the specifics of this particular implementation:
+ * 
+ * 1. This is a lightweight, easy to setup implementation, agnostic to the input and 
+ *    output domains. The offered APIs deal only with mappings (henceforth called rules) and take 
+ *    no cognizance of what the inputs and output mean. This is by design. To use this in an 
+ *    application, I would expect that you would wrap this core engine with a module which 
+ *    understands the semantics of your application.
+ * 2. An example of a rule would be If X= 2 AND Y = 3, THEN Z =42. To match any value of an input,
+ *    just pass null, like so : If X= null AND Y = 3, THEN Z = 51
+ * 3. A 'rule input' is a criterion, which in combination with other of its kind, decides an 
+ *    outcome. In #2, X and Y are rule inputs.
+ * 4. 2 types of rule input are supported : 'Value' and 'Range'. Value inputs are discrete valued 
+ *    criteria, while range inputs define ranges in the input space.
+ * 5. Only 'AND' operation between the rule inputs is supported.
+ * 6. All rule inputs are treated as strings. The ranges defined by range inputs are also 
+ *    interpreted as string ranges. This might require you to invest some thought into how you want
+ *    to model your rules. e.g. To have a date range an an input, then a possible way to
+ *    specify it as CCYYMMDD representations of the start and end dates. This defines a range just
+ *    as well as actual dates.
+ * 7. Input have a priority order. This is the order in which they are evaluated to arrive at the 
+ *    output. Defining priorities is much like defining database indexes - different choices can 
+ *    cause widely divergent performance. Worse-depending on your domain, incorrect priorities may 
+ *    even lead to incorrect results.
+ * 8. Rules are captured in database tables (one per rule system). These tables must have two 
+ *    columns : 'rule_id' (unique id for the rule, preferable an auto-incrementing primary key)
+ *    and 'rule_output_id' (unique identifier for the output). The engine doesn't care what you do 
+ *    with the rule_output_id. It is simply what the inputs map to. It may be a 
+ *    foreign key reference to another table . It may be the actual value you need. It simply 
+ *    doesn't matter to this system. The other columns each represent an input.
+ * 9. To do rule evaluation, the system takes the combination of the different rule inputs given 
+ *    to it, and returns the best fitting rule (if any). 'Best fit' means:
+ *    a. Value inputs - An exact value match is better than an 'any' match. e.g. if there are two 
+ *       rules, one with value of input X as 1 and the other as any, then on passing X = 1, the 
+ *       former rule will be returned. On passing X = 2, the latter will be returned (as the 
+ *       former obviously doesn't match).
+ *    b. Range inputs : A tighter range is a better fit than a wider range. e.g. if there are two 
+ *       rules, one with value of input X as Jan 1 2013 to Dec31, 2013 and the other as Feb 1 2013 
+ *       to March 1 2013, then on passing X = Feb 15, 2013, the latter will be returned.
+ * 10. Conflicting rules are those that will, if present in the system, cause ambiguity at the time 
+ *     of rule evaluation. The addRule APIs provided do not allow addition of conflicting rules.
+ * 
+ * The following APIs are exposed for interacting with the rule system:
  * List<Rule> getAllRules()
  * Rule getRule(Integer rule_id)
  * Rule getRule(Map<String, String>)
@@ -30,6 +76,29 @@ import rulesystem.validator.Validator;
  * List<Rule> getConflictingRules(Rule)
  * Rule getNextApplicableRule(Map<String, String>)
  * 
+ * Pre-requisites:
+ * ---------------
+ * 1. Java 1.7
+ * 2. MySQL 5.x (Support for other databases will be added if I see anyone actually giving a F*** 
+ *    about that).
+ * 
+ * How  to setup:
+ * --------------
+ * 1. Execute the setup.sql script on your MySQL server. This creates a database called rule_system
+ *    and creates the necessary table in it.
+ * 2. Create a table containing your rules as defined in #7 above (if you don't have it already).
+ * 3. Map this table in the rule_system.rule_system table as shown in the sample-0setup.sql script.
+ * 4. For each rule input, add a row to the rule_system.rule_input table with the input's type 
+ *    (Value/Range) and priority order.
+ * 5. Put the jar in your class path.
+ * 
+ * That's  it! The rule system is all set up and ready to use.
+ * 
+ * Sample usage
+ * ------------
+ * RuleSystem rs = new RuleSystem(<rule system name as configured>[, <validator>]);
+ * Rule r = rs.getRule(<ruleid>);
+ * 
  * @author Kislay Verma
  *
  */
@@ -38,7 +107,8 @@ public class RuleSystem {
     private RuleSystemDao dao;
     private String name;
 
-    private List<Rule> allRules;
+    private Map<Integer, Rule> allRules;
+    private RSNode root;
 
     // This list is to keep the order (priority order) of inputs
     private List<RuleInputMetaData> inputColumnList;
@@ -75,10 +145,10 @@ public class RuleSystem {
                 colValue2 = (colValue2 == null) ? "" : colValue2;
 
                 /*
-                 *  In going down the order of priority of inputs, the first mismatch will yield the 
-                 *  answer of the comparison. "" (meaning 'Any') matches everything, but an exact match
-                 *  is better. So if the column values are unequal, whichever rule has non-'Any' as the 
-                 *  value will rank higher.
+                 *  In going down the order of priority of inputs, the first mismatch will 
+                 *  yield the answer of the comparison. "" (meaning 'Any') matches everything,
+                 *  but an exact match is better. So if the column values are unequal, whichever 
+                 *  rule has non-'Any' as the value will rank higher.
                  */
                 if (! colValue1.equals(colValue2)) {
                 	return ("".equals(colValue1)) ? -1 : 1;
@@ -91,7 +161,8 @@ public class RuleSystem {
     }
 
     /**
-     * This constructor accepts a path to a text file containing the following values on separate lines:
+     * This constructor accepts a path to a text file containing the following values on 
+     * separate lines:
      * 1. Name of the rule system
      * 2. Full path of the file containing the rules
      * 
@@ -115,25 +186,24 @@ public class RuleSystem {
      * This method returns a list of all the rules in the rule system.
      */
     public List<Rule> getAllRules() {
-    	return this.allRules;
+    	return new ArrayList<>(this.allRules.values());
     }
 
     /**
-     * This method returns the applicable rule for the given input criteria.
+     * This method returns the rule applicable for the given combination of rule inputs.
      * 
-     * @param inputMap Map with column Names as keys and column values as values.
-     * @return A {@link Rule} object if a rule is applicable.
-     *         null otherwise.
+     * @param inputMap Map with input names as keys and their String values as values
+     * @return null if input is null
+     *         null if no rule  is applicable for the given inout combination
+     *         the applicable rule otherwise.
      */
     public Rule getRule(Map<String, String> inputMap) {
-    	if (inputMap != null) {
-            List<Rule> eligibleRules = getEligibleRules(inputMap);
-            if (! eligibleRules.isEmpty()) {
-                return eligibleRules.get(0);
-            }
+    	List<Rule> eligibleRules = getEligibleRules(inputMap);
+    	if (eligibleRules != null && ! eligibleRules.isEmpty()) {
+    		return eligibleRules.get(0);
     	}
 
-        return null;
+    	return null;
     }
 
     /**
@@ -148,17 +218,7 @@ public class RuleSystem {
     		return null;
     	}
 
-    	for (Rule rule : this.allRules) {
-    		String idStr = rule.getColumnData(UNIQUE_ID_COLUMN_NAME).getValue();
-    		if (idStr != null) {
-        		Integer id = Integer.parseInt(idStr);
-        		if (id.equals(ruleId)) {
-        			return rule;
-        		}
-    		}
-    	}
-
-        return null;
+    	return this.allRules.get(ruleId);
     }
 
     /**
@@ -204,8 +264,9 @@ public class RuleSystem {
     		newRule = dao.saveRule(newRule);
     		if (newRule != null) {
         		// Cache the rule
-        		this.allRules.add(newRule);
-        		return newRule;
+    			addRuleToCache(newRule);
+
+    			return newRule;
     		}
     	}
 
@@ -220,8 +281,9 @@ public class RuleSystem {
      * @return true if the rule with given rule id was successfully deleted
      *         false if the given rule does not exist
      *         false if the given rule could not be deleted (for whatever reason).
+     * @throws Exception 
      */
-    public boolean deleteRule(Integer ruleId) {
+    public boolean deleteRule(Integer ruleId) throws Exception {
     	if (ruleId != null) {
         	Rule rule = getRule(ruleId);
         	return deleteRule(rule);
@@ -237,24 +299,18 @@ public class RuleSystem {
      * @return true if the given rule was successfully deleted
      *         false if the given rule does not exist
      *         false if the given rule could not be deleted (for whatever reason).
+     * @throws Exception 
      */
 
-    public boolean deleteRule(Rule rule) {
+    public boolean deleteRule(Rule rule) throws Exception {
     	if (rule == null) {
     		return false;
     	}
 
     	boolean status = dao.deleteRule(rule);
 		if (status) {
-			List<Rule> newList = new ArrayList<>();
     		// Remove the rule from the cache
-			for (Rule r : this.allRules) {
-				if (! r.getColumnData(UNIQUE_ID_COLUMN_NAME).getValue().equals(
-						rule.getColumnData(UNIQUE_ID_COLUMN_NAME).getValue())) {
-					newList.add(r);
-				}
-			}
-    		this.allRules = newList;
+			deleteRuleFromCache(rule);
 
     		return true;
 		}
@@ -275,7 +331,7 @@ public class RuleSystem {
     	}
     	List<Rule> conflictingRules = new ArrayList<Rule>();
 
-    	for (Rule r : this.allRules) {
+    	for (Rule r : this.allRules.values()) {
     		if (r.isConflicting(rule)) {
     			conflictingRules.add(r);
     		}
@@ -295,29 +351,48 @@ public class RuleSystem {
      *         null id no rule is currently applicable.
      */
     public Rule getNextApplicableRule(Map<String, String> inputMap) {
-    	if (inputMap == null) {
-    		return null;
-    	}
         List<Rule> eligibleRules = getEligibleRules(inputMap);
 
-        if (eligibleRules.size() > 2) {
-            return eligibleRules.get(1);
-        }
+        if (eligibleRules != null && eligibleRules.size() > 1) {
+    		return eligibleRules.get(1);
+    	}
 
-        return null;
+    	return null;
     }
 
     private List<Rule> getEligibleRules(Map<String, String> inputMap) {
-        List<Rule> eligibleRules = new ArrayList<Rule>();
-        for (Rule rule : allRules) {
-            if (rule.evaluate(inputMap)) {
-                eligibleRules.add(rule);
-            }
-        }
+    	if (inputMap != null) {
+    		Stack<RSNode> currStack = new Stack<>();
+    		currStack.add(root);
 
-        Collections.sort(eligibleRules, new RuleComparator());
+    		for (RuleInputMetaData rimd : this.inputColumnList) {
+        		Stack<RSNode> nextStack = new Stack<>();
+    			for (RSNode node : currStack) {
+        			String value = inputMap.get(rimd.getName());
+        			value = (value == null) ? "" : value;
 
-        return eligibleRules;
+        			List<RSNode> eligibleRules = node.getNodes(value, true);
+        			if (eligibleRules != null && !eligibleRules.isEmpty()) {
+        				nextStack.addAll(eligibleRules);
+        			}
+    			}
+    			currStack = nextStack;
+    		}
+
+    		if (! currStack.isEmpty()) {
+    			List<Rule> rules = new ArrayList<>();
+    			for (RSNode node : currStack) {
+    				if (node.getRule() != null) {
+        				rules.add(node.getRule());
+    				}
+    			}
+
+    	        Collections.sort(rules, new RuleComparator());
+        		return rules;
+    		}
+    	}
+
+        return null;
     }
 
     /*
@@ -329,15 +404,108 @@ public class RuleSystem {
     	this.inputColumnList = dao.getInputs(ruleSystemName);
 
     	List<Rule> rules = dao.getAllRules(ruleSystemName);
-        for (Rule rule : rules) {
-            if (this.validator.isValid(rule)) {
-            	if (this.allRules == null) {
-            		this.allRules = new ArrayList<>();
-            	}
+    	System.out.println("Rules from DB : " + rules.size());
 
-            	this.allRules.add(rule);
+    	this.allRules = new HashMap<>();
+    	if (this.inputColumnList.get(0).getDataType().equals(DataType.VALUE)) {
+    		this.root = new ValueRSNode(this.inputColumnList.get(0).getName());
+    	}
+    	else {
+    		this.root = new RangeRSNode(this.inputColumnList.get(0).getName());
+    	}
+
+    	for (Rule rule : rules) {
+    		if (this.validator.isValid(rule)) {
+    			addRuleToCache(rule);
             }
         }
+    }
+
+    private void addRuleToCache(Rule rule) {
+    	RSNode currNode = this.root;
+		for (int i = 0;i < this.inputColumnList.size(); i++) {
+			RuleInputMetaData currInput = this.inputColumnList.get(i);
+
+			// 1. See if the current node has a node mapping to the field value
+    		List<RSNode> nodeList =
+    			currNode.getNodes(rule.getColumnData(currInput.getName()).getValue(), false);
+
+    		// 2. If it doesn't, create a new empty node and map the field value 
+    		//    to the new node.
+    		//    Also move to the new node.
+    		if (nodeList.isEmpty()) {
+    			RSNode newNode;
+    			if (i < this.inputColumnList.size() - 1) {
+        			if (this.inputColumnList.get(i + 1).getDataType().equals(DataType.VALUE))
+        			{
+        				newNode = new ValueRSNode(this.inputColumnList.get(i + 1).getName());
+        			}
+        			else {
+        				newNode = new RangeRSNode(this.inputColumnList.get(i + 1).getName());
+        			}
+    			}
+    			else {
+    				newNode = new ValueRSNode("");
+    			}
+
+    			currNode.addChildNode(
+    				rule.getColumnData(currInput.getName()), newNode);
+    			currNode = newNode;
+    		}
+    		// 3. If it does, move to that node.
+    		else {
+    			currNode = nodeList.get(0);
+    		}
+		}
+
+		currNode.setRule(rule);
+		this.allRules.put(
+			Integer.parseInt(rule.getColumnData(UNIQUE_ID_COLUMN_NAME).getValue()), rule);
+    }
+
+    private void deleteRuleFromCache(Rule rule) throws Exception {
+    	// Delete the rule from the map
+    	this.allRules.remove(
+    		Integer.parseInt(rule.getColumnData(UNIQUE_ID_COLUMN_NAME).getValue()));
+
+		// Locate and delete the rule from the trie
+    	Stack<RSNode> stack = new Stack<>();
+		RSNode currNode = this.root;
+
+		for (RuleInputMetaData rimd : this.inputColumnList) {
+			String value = rule.getColumnData(rimd.getName()).getValue();
+			value = (value == null) ? "" : value;
+
+			RSNode nextNode = currNode.getMatchingRule(value);
+			stack.push(currNode);
+
+			currNode = nextNode;
+		}
+
+		if (! currNode.getRule().getColumnData(UNIQUE_ID_COLUMN_NAME).equals(
+				rule.getColumnData(UNIQUE_ID_COLUMN_NAME))) {
+			throw new Exception("The rule to be deleted and the rule found are not the same." +
+					            "Something went horribly wrong");
+		}
+
+		// Get rid of the leaf node
+		stack.pop();
+		currNode = null;
+
+		// Handle the ancestors of the leaf
+		while (! stack.isEmpty()) {
+			RSNode node = stack.pop();
+
+			// Visit nodes in leaf to root order and:
+			// 1. If this is the only value in the popped node, delete the node.
+			// 2. If there are other values too, remove this value from the node.
+    		if (node.getCount() <= 1) {
+    			node = null;
+			}
+    		else {
+    			node.removeChildNode(rule.getColumnData(node.getName()));
+    		}
+		}
     }
 
     public String getName() {
@@ -345,38 +513,53 @@ public class RuleSystem {
     }
 
     public static void main(String[] args) throws Exception {
+    	long stime = new Date().getTime();
     	RuleSystem rs = null;
 		try {
 			rs = new RuleSystem("discount_rule_system", null);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+    	long etime = new Date().getTime();
+    	System.out.println("Time taken to init rule system : " + (etime-stime));
 
 		//List<Rule> rules = rs.getAllRules();
     	//System.out.println("The are " + rules.size() + " rules.");
-    	Rule rule = rs.getRule(1);
+    	//Rule rule = rs.getRule(1);
     	//System.out.println("Rule : " + ((rule == null) ? "no rule" : rule.toString()));
     	Map<String, String> inputMap = new HashMap<>();
-    	inputMap.put("brand", "Adidas");
+    	inputMap.put("brand", "lee");
     	inputMap.put("article_type", "T Shirt");
-    	inputMap.put("style_id", "1");
+    	inputMap.put("style_id", "3871");
     	inputMap.put("is_active", "1");
-    	inputMap.put("valid_date_range", "20130104");
-    	rule = rs.getRule(inputMap);
+    	//inputMap.put("year", "2013");
+    	//long sec = new Date().getTime()/1000;
+    	inputMap.put("valid_date_range", "1321468202");
+    	Rule rule = null;
+    	//rule = rs.getRule(inputMap);
     	//rs.deleteRule(rule);
 		//System.out.println(rule);
 		//List<Rule> rules = rs.getConflictingRules(rule);
 		//System.out.println(rules);
-    	long stime = new Date().getTime();
-    	for (int i = 0; i < 10000000; i++) {
-        	//rule = rs.getRule(inputMap);
-    		rs.getConflictingRules(rule);
-    		//System.out.println(rules);
+    	stime = new Date().getTime();
+    	for (int i = 0; i < 1000000; i++) {
+        	rule = rs.getRule(inputMap);
+//        	System.out.println((rule == null) ? "none" : rule.toString());
+//    		//rule = rs.getRule(4);
+//        	rs.deleteRule(rule);
+//        	rule = rs.getRule(inputMap);
+//        	System.out.println((rule == null) ? "none" : rule.toString());
+//        	inputMap.put("valid_date_range", "1321468200-1357064940");
+//        	inputMap.put("rule_output_id", "872");
+//        	rule = rs.addRule(inputMap);
+//        	rule = rs.getRule(inputMap);
+//        	System.out.println((rule == null) ? "none" : rule.toString());
+    		//rs.getConflictingRules(rule);
+    		//System.out.println(rule);
     	}
-    	long etime = new Date().getTime();
+    	etime = new Date().getTime();
     	System.out.println("Time taken : " + (etime-stime));
-//    	System.out.println((rule == null) ? "none" : rule.toString());
-    	
+    	System.out.println((rule == null) ? "none" : rule.toString());
 
 //    	Map<String, String> inputMap = new HashMap<>();
 //    	inputMap.put("brand", "Adidas");
