@@ -3,7 +3,6 @@ package rulesystem;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -522,38 +521,38 @@ public class RuleSystem {
     	return this.name;
     }
 
-    public static void main(String[] args) throws Exception {
-    	long stime = new Date().getTime();
-    	RuleSystem rs = null;
-		try {
-			rs = new RuleSystem("discount_rule_system", "rule_id", "rule_output_id", null);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-    	long etime = new Date().getTime();
-    	System.out.println("Time taken to init rule system : " + (etime-stime));
+//    public static void main(String[] args) throws Exception {
+//    	long stime = new Date().getTime();
+//    	RuleSystem rs = null;
+//		try {
+//			rs = new RuleSystem("discount_rule_system", "rule_id", "rule_output_id", null);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//    	long etime = new Date().getTime();
+//    	System.out.println("Time taken to init rule system : " + (etime-stime));
 
 		//List<Rule> rules = rs.getAllRules();
     	//System.out.println("The are " + rules.size() + " rules.");
     	//Rule rule = rs.getRule(1);
     	//System.out.println("Rule : " + ((rule == null) ? "no rule" : rule.toString()));
-    	Map<String, String> inputMap = new HashMap<>();
-    	inputMap.put("brand", "lee");
-    	inputMap.put("article_type", "T Shirt");
-    	inputMap.put("style_id", "3871");
-    	inputMap.put("is_active", "1");
+//    	Map<String, String> inputMap = new HashMap<>();
+//    	inputMap.put("brand", "lee");
+//    	inputMap.put("article_type", "T Shirt");
+//    	inputMap.put("style_id", "3871");
+//    	inputMap.put("is_active", "1");
     	//inputMap.put("year", "2013");
     	//long sec = new Date().getTime()/1000;
-    	inputMap.put("valid_date_range", "1321468202");
-    	Rule rule = null;
+//    	inputMap.put("valid_date_range", "1321468202");
+//    	Rule rule = null;
     	//rule = rs.getRule(inputMap);
     	//rs.deleteRule(rule);
 		//System.out.println(rule);
 		//List<Rule> rules = rs.getConflictingRules(rule);
 		//System.out.println(rules);
-    	stime = new Date().getTime();
-    	for (int i = 0; i < 1000000; i++) {
-        	rule = rs.getRule(inputMap);
+//    	stime = new Date().getTime();
+//    	for (int i = 0; i < 1000000; i++) {
+//        	rule = rs.getRule(inputMap);
 //        	System.out.println((rule == null) ? "none" : rule.toString());
 //    		//rule = rs.getRule(4);
 //        	rs.deleteRule(rule);
@@ -566,11 +565,11 @@ public class RuleSystem {
 //        	System.out.println((rule == null) ? "none" : rule.toString());
     		//rs.getConflictingRules(rule);
     		//System.out.println(rule);
-    	}
-    	etime = new Date().getTime();
-    	System.out.println("Time taken : " + (etime-stime));
-    	System.out.println((rule == null) ? "none" : rule.toString());
-
+//    	}
+//    	etime = new Date().getTime();
+//    	System.out.println("Time taken : " + (etime-stime));
+//    	System.out.println((rule == null) ? "none" : rule.toString());
+//
 //    	Map<String, String> inputMap = new HashMap<>();
 //    	inputMap.put("brand", "Adidas");
 //    	inputMap.put("article_type", "Shirt");
@@ -580,5 +579,5 @@ public class RuleSystem {
 //    	rs.addRule(inputMap);
 
 //    	rs.deleteRule(rule);
-    }
+//    }
 }
