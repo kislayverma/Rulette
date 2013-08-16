@@ -4,9 +4,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import rulesystem.ruleinput.RangeInput;
 import rulesystem.ruleinput.RuleInput;
 import rulesystem.ruleinput.RuleInputMetaData;
 import rulesystem.ruleinput.RuleInputMetaData.DataType;
+import rulesystem.ruleinput.ValueInput;
 
 /**
  * This class models a rule in the rule system. It has input columns and an output value
@@ -151,6 +153,26 @@ public class Rule {
 
 	public RuleInput getColumnData(String colName) {
 		return this.fieldMap.get(colName);
+	}
+
+	public void setColumnData(String colName, String value) throws Exception {
+		RuleInput input = this.fieldMap.get(colName);
+		if (input.getDataType() == DataType.VALUE) {
+			RuleInput newInput = new ValueInput(input.getId(),
+					                            input.getRuleSystemId(),
+					                            input.getName(),
+					                            input.getPriority(),
+					                            value);
+    		this.fieldMap.put(colName, newInput);
+		}
+		else {
+			RuleInput newInput = new RangeInput(input.getId(),
+                                                input.getRuleSystemId(),
+                                                input.getName(),
+                                                input.getPriority(),
+                                                value);
+			this.fieldMap.put(colName, newInput);
+	}
 	}
 
 	@Override
