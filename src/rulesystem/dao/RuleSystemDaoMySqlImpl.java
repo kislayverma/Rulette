@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 
 import rulesystem.Rule;
-import rulesystem.RuleSystem;
 import rulesystem.ruleinput.RuleInputMetaData;
 import rulesystem.ruleinput.RuleInputMetaData.DataType;
 
@@ -22,8 +21,16 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
     private String tableName;
     private List<RuleInputMetaData> inputColumnList;
 
-    public RuleSystemDaoMySqlImpl(String ruleSystemName) {
-        // This will load the MySQL driver
+    private String uniqueIdColumnName = "id";
+    private String uniqueOutputColumnName = "rule_output_id";
+
+    public RuleSystemDaoMySqlImpl(
+    	String ruleSystemName, String uniqueIdColName, String uniqueOutputColName)
+    {
+    	this.uniqueIdColumnName = uniqueIdColName;
+    	this.uniqueOutputColumnName = uniqueOutputColName;
+
+    	// This will load the MySQL driver
         try {
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
 		}
@@ -143,12 +150,12 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
         	for (RuleInputMetaData col : this.inputColumnList) {
         		inputMap.put(col.getName(), resultSet.getString(col.getName()));
         	}
-        	inputMap.put(RuleSystem.UNIQUE_ID_COLUMN_NAME,
-        			     resultSet.getString(RuleSystem.UNIQUE_ID_COLUMN_NAME));
-        	inputMap.put(RuleSystem.UNIQUE_OUTPUT_COLUMN_NAME,
-   			     resultSet.getString(RuleSystem.UNIQUE_OUTPUT_COLUMN_NAME));
+        	inputMap.put(this.uniqueIdColumnName,
+        			     resultSet.getString(this.uniqueIdColumnName));
+        	inputMap.put(this.uniqueOutputColumnName,
+   			     resultSet.getString(this.uniqueOutputColumnName));
 
-        	rules.add(new Rule(this.inputColumnList, inputMap));
+        	rules.add(new Rule(this.inputColumnList, inputMap, this.uniqueIdColumnName, this.uniqueOutputColumnName));
         }
 
 		return rules;
@@ -165,8 +172,8 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
 			String val = rule.getColumnData(col.getName()).getValue();
 			valueListBuilder.append((val.isEmpty()) ? null : ("'" + val + "'")).append(",");
 		}
-		nameListBuilder.append(RuleSystem.UNIQUE_OUTPUT_COLUMN_NAME).append(",");
-		valueListBuilder.append(rule.getColumnData(RuleSystem.UNIQUE_OUTPUT_COLUMN_NAME).getValue()).append(",");
+		nameListBuilder.append(this.uniqueOutputColumnName).append(",");
+		valueListBuilder.append(rule.getColumnData(this.uniqueOutputColumnName).getValue()).append(",");
 
 		sqlBuilder.append("INSERT INTO ")
 		          .append(this.tableName)
@@ -204,7 +211,7 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
 			String sql = "DELETE FROM " + this.tableName +
     				     " WHERE rule_id = ?";
 			PreparedStatement preparedStatement = connection.prepareStatement(sql);
-			preparedStatement.setString(1, rule.getColumnData(RuleSystem.UNIQUE_ID_COLUMN_NAME).getValue());
+			preparedStatement.setString(1, rule.getColumnData(this.uniqueIdColumnName).getValue());
 
 			if (preparedStatement.executeUpdate() > 0) {
 				return true;

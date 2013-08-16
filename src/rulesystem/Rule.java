@@ -21,6 +21,9 @@ public class Rule {
 	// This list is to keep the order (priority order) of inputs
 	private List<RuleInputMetaData> inputColumnList;
 
+    private String uniqueIdColumnName = "id";
+    private String uniqueOutputColumnName = "rule_output_id";
+
 	private static final int UNIQUE_ID_INPUT_ID = -1;
 	private static final int UNIQUE_OUTPUT_ID_INPUT_ID = -2;
 
@@ -29,12 +32,29 @@ public class Rule {
 	 * of value to populate the fields of this rule. Any fields missing in the input are set to 
 	 * blank (meaning 'Any').
 	 * 
+	 * If you are extending the rule class, be sure to call this constructor.
+	 * 
 	 * @param colNames
 	 * @param inputMap
+	 * @param uniqueIdColName [OPTIONAL] Name of the column containing unique id for the rule.
+	 *                        "id" will be used by default.
+	 * @param uniqueOutputColName [OPTIONAL] Name of the column containing the output of the rule 
+	 *                            system. "rule_output_id" will be used by default.
+	 *
 	 * @throws Exception 
 	 */
-	public Rule(List<RuleInputMetaData> columns, Map<String, String> inputMap) throws Exception {
+	public Rule(List<RuleInputMetaData> columns,
+			    Map<String, String> inputMap,
+			    String uniqueIdColName,
+			    String uniqueOutputColName) throws Exception
+	{
 		this.inputColumnList = columns;
+		if (uniqueIdColName != null) {
+			this.uniqueIdColumnName = uniqueIdColName;
+		}
+		if (uniqueOutputColName != null) {
+			this.uniqueOutputColumnName = uniqueOutputColName;
+		}
 
 		fieldMap = new HashMap<String, RuleInput>();
 		for (RuleInputMetaData col: columns) {
@@ -48,20 +68,20 @@ public class Rule {
 					        		                    ((inputVal == null) ? "" : inputVal )));
 		}
 
-		String ruleId = inputMap.get(RuleSystem.UNIQUE_ID_COLUMN_NAME);
-		this.fieldMap.put(RuleSystem.UNIQUE_ID_COLUMN_NAME,
+		String ruleId = inputMap.get(this.uniqueIdColumnName);
+		this.fieldMap.put(this.uniqueIdColumnName,
 		          RuleInput.createRuleInput(UNIQUE_ID_INPUT_ID,
 		                    inputColumnList.get(0).getRuleSystemId(),
-		                    RuleSystem.UNIQUE_ID_COLUMN_NAME,
+		                    this.uniqueIdColumnName,
 		                    UNIQUE_ID_INPUT_ID,
 		                    DataType.VALUE,
 		                    ((ruleId == null) ? "" : ruleId)));
 
-		String ruleOutputId = inputMap.get(RuleSystem.UNIQUE_OUTPUT_COLUMN_NAME);
-		this.fieldMap.put(RuleSystem.UNIQUE_OUTPUT_COLUMN_NAME,
+		String ruleOutputId = inputMap.get(this.uniqueOutputColumnName);
+		this.fieldMap.put(this.uniqueOutputColumnName,
 		          RuleInput.createRuleInput(UNIQUE_OUTPUT_ID_INPUT_ID,
 		                    inputColumnList.get(0).getRuleSystemId(),
-		                    RuleSystem.UNIQUE_OUTPUT_COLUMN_NAME,
+		                    this.uniqueOutputColumnName,
 		                    UNIQUE_OUTPUT_ID_INPUT_ID,
 		                    DataType.VALUE,
 		                    ((ruleOutputId == null) ? "" : ruleOutputId)));
@@ -86,8 +106,8 @@ public class Rule {
     	for (RuleInputMetaData col : this.inputColumnList) {
     		String colName = col.getName();
 
-    		if (colName.equals(RuleSystem.UNIQUE_ID_COLUMN_NAME) ||
-    			colName.equals(RuleSystem.UNIQUE_OUTPUT_COLUMN_NAME))
+    		if (colName.equals(this.uniqueIdColumnName) ||
+    			colName.equals(this.uniqueOutputColumnName))
     		{
     			continue;
     		}
@@ -111,8 +131,8 @@ public class Rule {
     	for (RuleInputMetaData col : this.inputColumnList) {
     		String colName = col.getName();
 
-    		if (colName.equals(RuleSystem.UNIQUE_ID_COLUMN_NAME) ||
-    			colName.equals(RuleSystem.UNIQUE_OUTPUT_COLUMN_NAME))
+    		if (colName.equals(this.uniqueIdColumnName) ||
+    			colName.equals(this.uniqueOutputColumnName))
     		{
     			continue;
     		}
@@ -137,9 +157,9 @@ public class Rule {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("\n");
-		builder.append(RuleSystem.UNIQUE_ID_COLUMN_NAME)
+		builder.append(this.uniqueIdColumnName)
 		       .append(":")
-		       .append(getColumnData(RuleSystem.UNIQUE_ID_COLUMN_NAME).getValue())
+		       .append(getColumnData(this.uniqueIdColumnName).getValue())
 		       .append("\t");
 
 		for (RuleInputMetaData col : this.inputColumnList) {
@@ -149,9 +169,9 @@ public class Rule {
 			       .append("\t");
 		}
 
-		builder.append(RuleSystem.UNIQUE_OUTPUT_COLUMN_NAME)
+		builder.append(this.uniqueOutputColumnName)
 		       .append(":")
-		       .append(getColumnData(RuleSystem.UNIQUE_OUTPUT_COLUMN_NAME).getValue())
+		       .append(getColumnData(this.uniqueOutputColumnName).getValue())
 		       .append("\t");
 
 		return builder.toString();

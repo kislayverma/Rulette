@@ -113,8 +113,8 @@ public class RuleSystem {
     // This list is to keep the order (priority order) of inputs
     private List<RuleInputMetaData> inputColumnList;
 
-    public static final String UNIQUE_ID_COLUMN_NAME = "rule_id";
-    public static final String UNIQUE_OUTPUT_COLUMN_NAME = "rule_output_id";
+    private String uniqueIdColumnName = "id";
+    private String uniqueOutputColumnName = "rule_output_id";
 
     /*
      * This class is used to sort lists of eligible rules to get the best fitting rule.
@@ -133,8 +133,8 @@ public class RuleSystem {
             for (RuleInputMetaData col : inputColumnList) {
             	String colName = col.getName();
 
-            	if (colName.equals(RuleSystem.UNIQUE_ID_COLUMN_NAME) ||
-            		colName.equals(RuleSystem.UNIQUE_OUTPUT_COLUMN_NAME))
+            	if (colName.equals(uniqueIdColumnName) ||
+            		colName.equals(uniqueOutputColumnName))
             	{
             		continue;
             	}
@@ -168,12 +168,22 @@ public class RuleSystem {
      * 
      * @param ruleSystemName
      * @param validator
+	 * @param uniqueIdColName [OPTIONAL] Name of the column containing unique id for the rule.
+	 *                        "id" will be used by default.
+	 * @param uniqueOutputColName [OPTIONAL] Name of the column containing the output of the rule 
+	 *                            system. "rule_output_id" will be used by default.
      * @throws Exception 
      */
-    public RuleSystem(String ruleSystemName, Validator validator) throws Exception {
+    public RuleSystem(String ruleSystemName, String uniqueIdColName, String uniqueOutputColName, Validator validator) throws Exception {
     	this.name = ruleSystemName;
+    	if (uniqueIdColName != null) {
+        	this.uniqueIdColumnName = uniqueIdColName;
+    	}
+    	if (uniqueOutputColName != null) {
+        	this.uniqueOutputColumnName = uniqueOutputColName;
+    	}
         this.validator = (validator != null) ? validator : new DefaultValidator();
-        this.dao = new RuleSystemDaoMySqlImpl(ruleSystemName);
+        this.dao = new RuleSystemDaoMySqlImpl(ruleSystemName, uniqueIdColName, uniqueOutputColName);
         if (! this.dao.isValid()) {
         	throw new RuntimeException("The rule system with name " + ruleSystemName +
         			                   " could not be initialized");
@@ -236,7 +246,7 @@ public class RuleSystem {
     		return null;
     	}
 
-    	Rule newRule = new Rule(this.inputColumnList, inputMap);
+    	Rule newRule = new Rule(this.inputColumnList, inputMap, this.uniqueIdColumnName, this.uniqueOutputColumnName);
     	return addRule(newRule);
     }
 
@@ -254,7 +264,7 @@ public class RuleSystem {
     		return null;
     	}
 
-    	String ruleOutputId = newRule.getColumnData(UNIQUE_OUTPUT_COLUMN_NAME).getValue();
+    	String ruleOutputId = newRule.getColumnData(this.uniqueOutputColumnName).getValue();
     	if (ruleOutputId == null || ruleOutputId.isEmpty()) {
     		throw new RuntimeException("Rule can't be saved without rule_output_id.");
     	}
@@ -460,13 +470,13 @@ public class RuleSystem {
 
 		currNode.setRule(rule);
 		this.allRules.put(
-			Integer.parseInt(rule.getColumnData(UNIQUE_ID_COLUMN_NAME).getValue()), rule);
+			Integer.parseInt(rule.getColumnData(uniqueIdColumnName).getValue()), rule);
     }
 
     private void deleteRuleFromCache(Rule rule) throws Exception {
     	// Delete the rule from the map
     	this.allRules.remove(
-    		Integer.parseInt(rule.getColumnData(UNIQUE_ID_COLUMN_NAME).getValue()));
+    		Integer.parseInt(rule.getColumnData(uniqueIdColumnName).getValue()));
 
 		// Locate and delete the rule from the trie
     	Stack<RSNode> stack = new Stack<>();
@@ -482,8 +492,8 @@ public class RuleSystem {
 			currNode = nextNode;
 		}
 
-		if (! currNode.getRule().getColumnData(UNIQUE_ID_COLUMN_NAME).equals(
-				rule.getColumnData(UNIQUE_ID_COLUMN_NAME))) {
+		if (! currNode.getRule().getColumnData(uniqueIdColumnName).equals(
+				rule.getColumnData(uniqueIdColumnName))) {
 			throw new Exception("The rule to be deleted and the rule found are not the same." +
 					            "Something went horribly wrong");
 		}
@@ -516,7 +526,7 @@ public class RuleSystem {
     	long stime = new Date().getTime();
     	RuleSystem rs = null;
 		try {
-			rs = new RuleSystem("discount_rule_system", null);
+			rs = new RuleSystem("discount_rule_system", "rule_id", "rule_output_id", null);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
