@@ -65,7 +65,7 @@ public class Rule {
 					        		                    col.getName(),
 					        		                    col.getPriority(),
 					        		                    col.getDataType(),
-					        		                    ((inputVal == null) ? "" : inputVal )));
+					        		                    (inputVal == null) ? "" : inputVal ));
 		}
 
 		String ruleId = inputMap.get(this.uniqueIdColumnName);
@@ -75,7 +75,7 @@ public class Rule {
 		                    this.uniqueIdColumnName,
 		                    UNIQUE_ID_INPUT_ID,
 		                    DataType.VALUE,
-		                    ((ruleId == null) ? "" : ruleId)));
+		                    (ruleId == null) ? "" : ruleId));
 
 		String ruleOutputId = inputMap.get(this.uniqueOutputColumnName);
 		this.fieldMap.put(this.uniqueOutputColumnName,
@@ -84,7 +84,7 @@ public class Rule {
 		                    this.uniqueOutputColumnName,
 		                    UNIQUE_OUTPUT_ID_INPUT_ID,
 		                    DataType.VALUE,
-		                    ((ruleOutputId == null) ? "" : ruleOutputId)));
+		                    (ruleOutputId == null) ? "" : ruleOutputId));
 	}
 
 	/**

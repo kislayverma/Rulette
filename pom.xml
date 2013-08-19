@@ -10,8 +10,8 @@
           <artifactId>mysql-connector-java</artifactId>
           <version>5.1.17</version>
       </dependency>
-  </dependencies>
-  <build>
+    </dependencies>
+    <build>
     <sourceDirectory>src</sourceDirectory>
     <resources>
       <resource>
@@ -30,6 +30,25 @@
           <target>1.7</target>
         </configuration>
       </plugin>
-    </plugins>
+      <plugin>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-pmd-plugin</artifactId>
+         <version>3.0.1</version>
+         <executions>
+             <execution>
+                 <goals>
+                 <!-- build will fail if error found on pmd -->
+                 <goal>pmd</goal>
+                 </goals>
+             </execution>
+         </executions>
+         <configuration>
+             <linkXref>true</linkXref>
+             <sourceEncoding>utf-8</sourceEncoding>
+             <minimumTokens>100</minimumTokens>
+             <targetJdk>1.7</targetJdk>
+         </configuration>
+       </plugin>
+   </plugins>
   </build>
 </project>

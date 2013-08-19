@@ -150,7 +150,7 @@ public class RuleSystem {
                  *  rule has non-'Any' as the value will rank higher.
                  */
                 if (! colValue1.equals(colValue2)) {
-                	return ("".equals(colValue1)) ? -1 : 1;
+                	return "".equals(colValue1) ? -1 : 1;
                 }
             }
 

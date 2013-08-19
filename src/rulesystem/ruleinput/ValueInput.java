@@ -38,6 +38,6 @@ public class ValueInput extends RuleInput{
 		                        input.getName() + "' are not the same type.");
 		}
 
-		return (input.getValue().equals(this.value)) ? true : false;
+		return input.getValue().equals(this.value) ? true : false;
 	}
 }

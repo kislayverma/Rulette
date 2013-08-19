@@ -110,7 +110,7 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
 
 	        while (resultSet.next()) {
 	            DataType dataType =
-	            	("Value".equalsIgnoreCase(resultSet.getString("data_type"))) ?
+	            	"Value".equalsIgnoreCase(resultSet.getString("data_type")) ?
 	            		DataType.VALUE : DataType.RANGE;
 
 	            inputs.add(new RuleInputMetaData(resultSet.getInt("id"),
@@ -137,7 +137,9 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
 			ResultSet resultSet =
 				statement.executeQuery("SELECT * " + " FROM " + this.tableName);
 
-	        rules = convertToRules(resultSet);
+			if (resultSet.first()) {
+		        rules = convertToRules(resultSet);
+			}
 	    } catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -174,7 +176,7 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
 		for (RuleInputMetaData col : this.inputColumnList) {
 			nameListBuilder.append(col.getName()).append(",");
 			String val = rule.getColumnData(col.getName()).getValue();
-			valueListBuilder.append((val.isEmpty()) ? null : ("'" + val + "'")).append(",");
+			valueListBuilder.append(val.isEmpty() ? null : "'" + val + "'").append(",");
 		}
 		nameListBuilder.append(this.uniqueOutputColumnName).append(",");
 		valueListBuilder.append(rule.getColumnData(this.uniqueOutputColumnName).getValue()).append(",");
@@ -199,7 +201,9 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
 					    		                    " = LAST_INSERT_ID()");
 				ResultSet resultSet = preparedStatement.executeQuery();
 
-				return convertToRules(resultSet).get(0);
+				if (resultSet.first()) {
+					return convertToRules(resultSet).get(0);
+				}
 			}
 
 		}
@@ -239,7 +243,7 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
 
 			updateListBuilder.append(col.getName())
 			                 .append("=")
-			                 .append(("".equals(val)) ? null : "'" + val + "'")
+			                 .append("".equals(val) ? null : "'" + val + "'")
 			                 .append(",");
 		}
 		updateListBuilder.append(this.uniqueOutputColumnName)
@@ -268,7 +272,9 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
 					    		                    "=" + oldRuleId);
 				ResultSet resultSet = preparedStatement.executeQuery();
 
-				return convertToRules(resultSet).get(0);
+				if (resultSet.first()) {
+					return convertToRules(resultSet).get(0);
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -34,7 +34,7 @@ public class RangeInput extends RuleInput{
 			return true;
 		}
 
-		if ((lowerBound.compareTo(value) <= 0) && (upperBound.compareTo(value) >= 0)) {
+		if (lowerBound.compareTo(value) <= 0 && upperBound.compareTo(value) >= 0) {
 			return true;
 		}
 
@@ -43,7 +43,7 @@ public class RangeInput extends RuleInput{
 
 	@Override
 	public String getValue() {
-		return (lowerBound.isEmpty() && upperBound.isEmpty())
+		return lowerBound.isEmpty() && upperBound.isEmpty()
 			       ? "" : lowerBound + "-" + upperBound;
 	}
 
@@ -72,8 +72,8 @@ public class RangeInput extends RuleInput{
 
 		String[] inputArr = inputVal.split("-");
 
-		if (((this.lowerBound.compareTo(inputArr[0]) < 0) && (this.upperBound.compareTo(inputArr[0]) <= 0)) ||
-			((this.lowerBound.compareTo(inputArr[1]) > 0) && (this.upperBound.compareTo(inputArr[1]) > 0)))
+		if ((this.lowerBound.compareTo(inputArr[0]) < 0 && this.upperBound.compareTo(inputArr[0]) <= 0) ||
+			(this.lowerBound.compareTo(inputArr[1]) > 0 && this.upperBound.compareTo(inputArr[1]) > 0))
 		{
 			return false;
 		}
