@@ -4,11 +4,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import rulesystem.ruleinput.RangeInput;
 import rulesystem.ruleinput.RuleInput;
 import rulesystem.ruleinput.RuleInputMetaData;
 import rulesystem.ruleinput.RuleInputMetaData.DataType;
-import rulesystem.ruleinput.ValueInput;
 
 /**
  * This class models a rule in the rule system. It has input columns and an output value
@@ -155,24 +153,31 @@ public class Rule {
 		return this.fieldMap.get(colName);
 	}
 
-	public void setColumnData(String colName, String value) throws Exception {
-		RuleInput input = this.fieldMap.get(colName);
-		if (input.getDataType() == DataType.VALUE) {
-			RuleInput newInput = new ValueInput(input.getId(),
-					                            input.getRuleSystemId(),
-					                            input.getName(),
-					                            input.getPriority(),
-					                            value);
-    		this.fieldMap.put(colName, newInput);
+	/**
+	 * This method is used to modify the values of rule inputs in a rule. 
+	 * To prevent someone from accidentally modifying column values which propagate throughout the
+	 * system, this method creates a copy of the current rule, overwrites the specified column with
+	 * the given value, and returns a new rule. This keeps rule objects unmodifiable to a 
+	 * reasonable extent.
+	 * 
+	 * @param colName
+	 * @param value
+	 * @return
+	 * @throws Exception
+	 */
+	public Rule setColumnData(String colName, String value) throws Exception {
+		Map<String, String> inputMap = new HashMap<>();
+		for (Map.Entry<String, RuleInput> ruleInput : this.fieldMap.entrySet()) {
+			String column = ruleInput.getKey();
+			if (column.equals(colName)) {
+				inputMap.put(column, value);
+			}
+			else {
+				inputMap.put(column, ruleInput.getValue().getValue());
+			}
 		}
-		else {
-			RuleInput newInput = new RangeInput(input.getId(),
-                                                input.getRuleSystemId(),
-                                                input.getName(),
-                                                input.getPriority(),
-                                                value);
-			this.fieldMap.put(colName, newInput);
-	}
+
+		return new Rule(inputColumnList, inputMap, uniqueIdColumnName, uniqueOutputColumnName);
 	}
 
 	@Override

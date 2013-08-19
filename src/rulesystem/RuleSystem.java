@@ -284,6 +284,55 @@ public class RuleSystem {
     }
 
     /**
+     * This method updates an existing rules with values of the new rule given. All fields are 
+     * updated of the old rule are updated. The new rule is checked for conflicts before update.
+     * 
+     * @param oldRule An existing rule
+     * @param newRule The rule containing the new field values to which the old rule will be 
+     *                updated.
+     * @return the updated rule if update creates no conflict.
+     *         null if the input constitutes an invalid rule as per the validation policy in use.
+     * @throws Exception if there are overlapping rules
+     *                   if the old rules does not actually exist.
+     */
+    public Rule updateRule(Rule oldRule, Rule newRule) throws Exception {
+    	if (oldRule == null || newRule == null || ! this.validator.isValid(newRule)) {
+    		return null;
+    	}
+
+    	String oldRuleId = oldRule.getColumnData(this.uniqueIdColumnName).getValue();
+    	Rule checkForOldRule = this.getRule(Integer.parseInt(oldRuleId));
+    	if (checkForOldRule == null) {
+    		throw new Exception("No existing rule with id " + oldRuleId);
+    	}
+
+    	List<Rule> overlappingRules = getConflictingRules(newRule);
+    	if (! overlappingRules.isEmpty()) {
+    		boolean otherOverlappingRules = false;
+    		for (Rule overlappingRule : overlappingRules) {
+    			if (! overlappingRule.getColumnData(uniqueIdColumnName).getValue()
+    					.equals(oldRuleId))
+    			{
+    				otherOverlappingRules = true;
+    			}
+    		}
+
+    		if (otherOverlappingRules) {
+    	    	throw new RuntimeException("The following existing rules conflict with " +
+                        "the given input : " + overlappingRules);
+    		}
+    	}
+
+		Rule resultantRule = dao.updateRule(newRule);
+		if (resultantRule != null) {
+			deleteRuleFromCache(oldRule);
+			addRuleToCache(resultantRule);
+		}
+
+		return resultantRule;
+    }
+
+    /**
      * This method deletes an existing rule from the rule system.
      * 
      * @param ruleId Unique id of the rule to be deleted
@@ -521,6 +570,20 @@ public class RuleSystem {
     	return this.name;
     }
 
+    /**
+     * Use this method to set the dao to be used by the Rule System. This is optional as the rule
+     * has a default implementation of all database operations.
+     * 
+     * Inserting your custom dao is a big responsibility that must not be taken up lightly. You can
+     * ,however, use this facility in case you must work with pre-existing database systems or to
+     * integrate with frameworks like Hibernate.
+     * 
+     * @param dao
+     */
+    public void setRuleSystemDao(RuleSystemDao dao) {
+    	this.dao = dao;
+    }
+
 //    public static void main(String[] args) throws Exception {
 //    	long stime = new Date().getTime();
 //    	RuleSystem rs = null;
@@ -531,53 +594,60 @@ public class RuleSystem {
 //		}
 //    	long etime = new Date().getTime();
 //    	System.out.println("Time taken to init rule system : " + (etime-stime));
-
-		//List<Rule> rules = rs.getAllRules();
-    	//System.out.println("The are " + rules.size() + " rules.");
-    	//Rule rule = rs.getRule(1);
-    	//System.out.println("Rule : " + ((rule == null) ? "no rule" : rule.toString()));
+//
+//		//List<Rule> rules = rs.getAllRules();
+//    	//System.out.println("The are " + rules.size() + " rules.");
+//    	//Rule rule = rs.getRule(1);
+//    	//System.out.println("Rule : " + ((rule == null) ? "no rule" : rule.toString()));
 //    	Map<String, String> inputMap = new HashMap<>();
-//    	inputMap.put("brand", "lee");
-//    	inputMap.put("article_type", "T Shirt");
-//    	inputMap.put("style_id", "3871");
+//    	//inputMap.put("brand", "lee");
+//    	//inputMap.put("article_type", "T Shirt");
+//    	inputMap.put("style_id", "0");
 //    	inputMap.put("is_active", "1");
-    	//inputMap.put("year", "2013");
-    	//long sec = new Date().getTime()/1000;
-//    	inputMap.put("valid_date_range", "1321468202");
+//    	//inputMap.put("year", "2013");
+////    	long sec = new Date().getTime()/1000;
+//    	inputMap.put("valid_date_range", "1321468201");
 //    	Rule rule = null;
-    	//rule = rs.getRule(inputMap);
-    	//rs.deleteRule(rule);
-		//System.out.println(rule);
-		//List<Rule> rules = rs.getConflictingRules(rule);
-		//System.out.println(rules);
+//    	//rule = rs.getRule(inputMap);
+//    	//rs.deleteRule(rule);
+//		//System.out.println(rule);
+//		//List<Rule> rules = rs.getConflictingRules(rule);
+//		//System.out.println(rules);
 //    	stime = new Date().getTime();
-//    	for (int i = 0; i < 1000000; i++) {
+//    	for (int i = 0; i < 1; i++) {
 //        	rule = rs.getRule(inputMap);
-//        	System.out.println((rule == null) ? "none" : rule.toString());
+//        	//System.out.println((rule == null) ? "none" : rule.toString());
+//        	if (rule != null) {
+//            	Rule n = rule.setColumnData("style_id", "4420");
+//        		//Rule z = rs.getRule(Integer.parseInt(x.getColumnData("rule_id").getValue()));
+//        		System.out.println(rule);
+//        		System.out.println(n);
+//            	rs.updateRule(rule, n);
+//        	}
 //    		//rule = rs.getRule(4);
-//        	rs.deleteRule(rule);
-//        	rule = rs.getRule(inputMap);
-//        	System.out.println((rule == null) ? "none" : rule.toString());
-//        	inputMap.put("valid_date_range", "1321468200-1357064940");
-//        	inputMap.put("rule_output_id", "872");
-//        	rule = rs.addRule(inputMap);
-//        	rule = rs.getRule(inputMap);
-//        	System.out.println((rule == null) ? "none" : rule.toString());
-    		//rs.getConflictingRules(rule);
-    		//System.out.println(rule);
+//        	//rs.deleteRule(rule);
+//        	//rule = rs.getRule(inputMap);
+//        	//System.out.println((rule == null) ? "none" : rule.toString());
+//        	//inputMap.put("valid_date_range", "1321468200-1357064940");
+//        	//inputMap.put("rule_output_id", "872");
+//        	//rule = rs.addRule(inputMap);
+//        	//rule = rs.getRule(inputMap);
+//        	//System.out.println((rule == null) ? "none" : rule.toString());
+//    		//rs.getConflictingRules(rule);
+//    		//System.out.println(rule);
 //    	}
 //    	etime = new Date().getTime();
 //    	System.out.println("Time taken : " + (etime-stime));
 //    	System.out.println((rule == null) ? "none" : rule.toString());
+////
+////    	Map<String, String> inputMap = new HashMap<>();
+////    	inputMap.put("brand", "Adidas");
+////    	inputMap.put("article_type", "Shirt");
+////    	inputMap.put("style_id", "3");
+////    	inputMap.put("is_active", "0");
+////    	inputMap.put("rule_output_id", "3");
+////    	rs.addRule(inputMap);
 //
-//    	Map<String, String> inputMap = new HashMap<>();
-//    	inputMap.put("brand", "Adidas");
-//    	inputMap.put("article_type", "Shirt");
-//    	inputMap.put("style_id", "3");
-//    	inputMap.put("is_active", "0");
-//    	inputMap.put("rule_output_id", "3");
-//    	rs.addRule(inputMap);
-
-//    	rs.deleteRule(rule);
+////    	rs.deleteRule(rule);
 //    }
 }

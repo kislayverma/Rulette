@@ -13,4 +13,5 @@ public interface RuleSystemDao {
 	Rule saveRule(Rule rule);
 	boolean deleteRule(Rule rule);
 	boolean isValid();
+	Rule updateRule(Rule rule);
 }

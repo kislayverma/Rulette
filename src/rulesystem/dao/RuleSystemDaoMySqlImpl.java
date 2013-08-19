@@ -27,8 +27,12 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
     public RuleSystemDaoMySqlImpl(
     	String ruleSystemName, String uniqueIdColName, String uniqueOutputColName)
     {
-    	this.uniqueIdColumnName = uniqueIdColName;
-    	this.uniqueOutputColumnName = uniqueOutputColName;
+    	if (uniqueIdColName != null) {
+        	this.uniqueIdColumnName = uniqueIdColName;
+    	}
+    	if (uniqueOutputColName !=  null) {
+        	this.uniqueOutputColumnName = uniqueOutputColName;
+    	}
 
     	// This will load the MySQL driver
         try {
@@ -191,7 +195,8 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
 				// isn't a problem.
 				preparedStatement =
 					    connection.prepareStatement("SELECT * FROM " + this.tableName + 
-					    		                    " WHERE rule_id = LAST_INSERT_ID()");
+					    		                    " WHERE " + this.uniqueIdColumnName +
+					    		                    " = LAST_INSERT_ID()");
 				ResultSet resultSet = preparedStatement.executeQuery();
 
 				return convertToRules(resultSet).get(0);
@@ -209,7 +214,7 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
 	public boolean deleteRule(Rule rule) {
 		try {
 			String sql = "DELETE FROM " + this.tableName +
-    				     " WHERE rule_id = ?";
+    				     " WHERE " + this.uniqueIdColumnName + "= ?";
 			PreparedStatement preparedStatement = connection.prepareStatement(sql);
 			preparedStatement.setString(1, rule.getColumnData(this.uniqueIdColumnName).getValue());
 
@@ -222,5 +227,53 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
 		}
 
 		return false;
+	}
+
+	@Override
+	public Rule updateRule(Rule rule) {
+		StringBuilder sqlBuilder = new StringBuilder();
+		StringBuilder updateListBuilder = new StringBuilder();
+
+		for (RuleInputMetaData col : this.inputColumnList) {
+			String val = rule.getColumnData(col.getName()).getValue();
+
+			updateListBuilder.append(col.getName())
+			                 .append("=")
+			                 .append(("".equals(val)) ? null : "'" + val + "'")
+			                 .append(",");
+		}
+		updateListBuilder.append(this.uniqueOutputColumnName)
+		                 .append("=")
+		                 .append(rule.getColumnData(this.uniqueOutputColumnName).getValue())
+		                 .append(",");
+
+		String oldRuleId = rule.getColumnData(this.uniqueIdColumnName).getValue();
+		sqlBuilder.append("UPDATE ")
+		          .append(this.tableName)
+		          .append(" SET ")
+		          .append(updateListBuilder.toString().substring(0, updateListBuilder.length() -1))
+		          .append(" WHERE ")
+		          .append(this.uniqueIdColumnName)
+		          .append("=")
+		          .append(oldRuleId);
+		System.out.println(sqlBuilder.toString());
+
+		try {
+    		PreparedStatement preparedStatement =
+    			connection.prepareStatement(sqlBuilder.toString());
+			if (preparedStatement.executeUpdate() > 0) {
+				preparedStatement =
+					    connection.prepareStatement("SELECT * FROM " + this.tableName + 
+					    		                    " WHERE " + this.uniqueIdColumnName +
+					    		                    "=" + oldRuleId);
+				ResultSet resultSet = preparedStatement.executeQuery();
+
+				return convertToRules(resultSet).get(0);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return null;
 	}
 }

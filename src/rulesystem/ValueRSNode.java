@@ -51,6 +51,9 @@ class ValueRSNode extends RSNode {
 
 	@Override
 	public RSNode getMatchingRule(String value) {
+		if (value == null) {
+			return null;
+		}
 		return this.fieldMap.get(value);
 	}
 }
