@@ -3,10 +3,10 @@ package rulesystem;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.concurrent.ConcurrentHashMap;
 
 import rulesystem.dao.RuleSystemDao;
 import rulesystem.dao.RuleSystemDaoMySqlImpl;
@@ -464,7 +464,7 @@ public class RuleSystem {
     	List<Rule> rules = dao.getAllRules(ruleSystemName);
     	System.out.println("Rules from DB : " + rules.size());
 
-    	this.allRules = new HashMap<>();
+    	this.allRules = new ConcurrentHashMap<>();
     	if (this.inputColumnList.get(0).getDataType().equals(DataType.VALUE)) {
     		this.root = new ValueRSNode(this.inputColumnList.get(0).getName());
     	}
@@ -602,7 +602,7 @@ public class RuleSystem {
 //    	Map<String, String> inputMap = new HashMap<>();
 //    	//inputMap.put("brand", "lee");
 //    	//inputMap.put("article_type", "T Shirt");
-//    	inputMap.put("style_id", "0");
+//    	inputMap.put("style_id", "4420");
 //    	inputMap.put("is_active", "1");
 //    	//inputMap.put("year", "2013");
 ////    	long sec = new Date().getTime()/1000;
@@ -617,13 +617,12 @@ public class RuleSystem {
 //    	for (int i = 0; i < 1; i++) {
 //        	rule = rs.getRule(inputMap);
 //        	//System.out.println((rule == null) ? "none" : rule.toString());
-//        	if (rule != null) {
-//            	Rule n = rule.setColumnData("style_id", "4420");
-//        		//Rule z = rs.getRule(Integer.parseInt(x.getColumnData("rule_id").getValue()));
-//        		System.out.println(rule);
-//        		System.out.println(n);
-//            	rs.updateRule(rule, n);
-//        	}
+////        	if (rule != null) {
+////            	Rule n = rule.setColumnData("style_id", "4420");
+////        		System.out.println(rule);
+////        		System.out.println(n);
+////            	rs.updateRule(rule, n);
+////        	}
 //    		//rule = rs.getRule(4);
 //        	//rs.deleteRule(rule);
 //        	//rule = rs.getRule(inputMap);

@@ -1,15 +1,15 @@
 package rulesystem;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import rulesystem.ruleinput.RuleInput;
 
 class RangeRSNode extends RSNode {
 
-	private Map<RuleInput, RSNode> fieldMap = new HashMap<>();
+	private Map<RuleInput, RSNode> fieldMap = new ConcurrentHashMap<>();
 
 	RangeRSNode(String fieldName) {
 		super(fieldName);
