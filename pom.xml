@@ -4,8 +4,15 @@
   <artifactId>RuleSystem</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <name>RuleSystem</name>
+  <dependencies>
+      <dependency>
+          <groupId>mysql</groupId>
+          <artifactId>mysql-connector-java</artifactId>
+          <version>5.1.17</version>
+      </dependency>
+  </dependencies>
   <build>
-    <sourceDirectory>lib</sourceDirectory>
+    <sourceDirectory>src</sourceDirectory>
     <resources>
       <resource>
         <directory>lib</directory>
