@@ -1,5 +1,6 @@
 package rulesystem;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +15,7 @@ import rulesystem.ruleinput.RuleInputMetaData.DataType;
  * @author Kislay
  *
  */
-public class Rule {
+public class Rule implements Serializable {
 
     private Map<String, RuleInput> fieldMap;
     // This list is to keep the order (priority order) of inputs

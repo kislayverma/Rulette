@@ -1,43 +1,44 @@
 package rulesystem.ruleinput;
 
+import java.io.Serializable;
 import rulesystem.ruleinput.RuleInputMetaData.DataType;
 
-public class ValueInput extends RuleInput{
-	private String value;
+public class ValueInput extends RuleInput implements Serializable {
 
-	public ValueInput (int id, int ruleSystemId, String name, int priority, String value)
-		throws Exception
-	{
-		this.metaData = new RuleInputMetaData(id, ruleSystemId, name, priority, DataType.VALUE);
-		this.value = (value == null) ? "" : value;
-	}
+    private String value;
 
-	@Override
-	public boolean evaluate(String value) {
-		if (this.value.isEmpty() || this.value.equals(value)) {
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
+    public ValueInput(int id, int ruleSystemId, String name, int priority, String value)
+            throws Exception {
+        this.metaData = new RuleInputMetaData(id, ruleSystemId, name, priority, DataType.VALUE);
+        this.value = (value == null) ? "" : value;
+    }
 
-	@Override
-	public String getValue() {
-		return value;
-	}
+    @Override
+    public boolean evaluate(String value) {
+        if (this.value.isEmpty() || this.value.equals(value)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
-	/**
-	 * The given input conflicts with this if the values are same.
-	 * @throws Exception 
-	 */
-	@Override
-	public boolean isConflicting(RuleInput input) throws Exception {
-		if (! input.getDataType().equals(this.getDataType())) {
-			throw new Exception("Compared rule inputs '" + this.getName() + "' and '" +
-		                        input.getName() + "' are not the same type.");
-		}
+    @Override
+    public String getValue() {
+        return value;
+    }
 
-		return input.getValue().equals(this.value) ? true : false;
-	}
+    /**
+     * The given input conflicts with this if the values are same.
+     *
+     * @throws Exception
+     */
+    @Override
+    public boolean isConflicting(RuleInput input) throws Exception {
+        if (!input.getDataType().equals(this.getDataType())) {
+            throw new Exception("Compared rule inputs '" + this.getName() + "' and '"
+                    + input.getName() + "' are not the same type.");
+        }
+
+        return input.getValue().equals(this.value) ? true : false;
+    }
 }

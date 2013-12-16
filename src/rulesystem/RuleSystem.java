@@ -1,5 +1,6 @@
 package rulesystem;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -95,7 +96,7 @@ import rulesystem.validator.Validator;
  * @author Kislay Verma
  *
  */
-public class RuleSystem {
+public class RuleSystem implements Serializable {
 
     private final Validator validator;
     private RuleSystemDao dao;
@@ -268,10 +269,11 @@ public class RuleSystem {
 
                 return newRule;
             }
+        } else {
+            throw new RuntimeException("The following existing rules conflict with "
+                    + "the given input : " + overlappingRules);
         }
-
-        throw new RuntimeException("The following existing rules conflict with "
-                + "the given input : " + overlappingRules);
+        throw new RuntimeException("Faild to save rule. Check logs for errors");
     }
 
     /**
@@ -377,7 +379,7 @@ public class RuleSystem {
         if (rule == null) {
             return null;
         }
-        List<Rule> conflictingRules = new ArrayList<Rule>();
+        List<Rule> conflictingRules = new ArrayList<>();
 
         for (Rule r : this.allRules.values()) {
             if (r.isConflicting(rule)) {
@@ -407,6 +409,14 @@ public class RuleSystem {
         }
 
         return null;
+    }
+
+    public String getUniqueColumnName() {
+        return this.uniqueIdColumnName;
+    }
+
+    public String getOutputColumnName() {
+        return this.uniqueOutputColumnName;
     }
 
     private List<Rule> getEligibleRules(Map<String, String> inputMap) {
