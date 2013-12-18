@@ -1,7 +1,7 @@
 package rulesystem.dao;
 
+import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,8 +16,7 @@ import rulesystem.ruleinput.RuleInputMetaData.DataType;
 
 public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
 
-    private Connection connection = null;
-    private final String connString = "jdbc:mysql://localhost/rule_system?user=rs_user&password=rs_user";
+    private DataSource dataSource;
     private String tableName;
     private List<RuleInputMetaData> inputColumnList;
     private String uniqueIdColumnName = "id";
@@ -54,18 +53,15 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
     }
 
     // Source of the copy-paste : http://www.vogella.com/articles/MySQLJava/article.html
-    private void initDatabaseConnection() throws SQLException {
-        if (this.connection == null) {
-            // Setup the connection with the DB
-            this.connection = DriverManager.getConnection(connString);
-        }
+    private void initDatabaseConnection() throws SQLException, IOException {
+        this.dataSource = DataSource.getInstance();
     }
 
     @Override
     public Map<String, String> getRuleSystemDetails(String ruleSystemName) throws SQLException, Exception {
         Map<String, String> rsDetailMap = new HashMap<>();
 
-        Statement statement = connection.createStatement();
+        Statement statement = this.dataSource.getConnection().createStatement();
         ResultSet resultSet =
                 statement.executeQuery("SELECT * FROM rule_system WHERE name LIKE '" + ruleSystemName + "'");
 
@@ -86,7 +82,7 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
     public List<RuleInputMetaData> getInputs(String ruleSystemName) throws SQLException, Exception {
         List<RuleInputMetaData> inputs = new ArrayList<>();
 
-        Statement statement = connection.createStatement();
+        Statement statement = this.dataSource.getConnection().createStatement();
         ResultSet resultSet =
                 statement.executeQuery("SELECT b.* "
                 + "FROM rule_system AS a "
@@ -116,7 +112,7 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
     public List<Rule> getAllRules(String ruleSystemName) throws SQLException, Exception {
         List<Rule> rules = new ArrayList<>();
 
-        Statement statement = connection.createStatement();
+        Statement statement = this.dataSource.getConnection().createStatement();
         ResultSet resultSet =
                 statement.executeQuery("SELECT * " + " FROM " + this.tableName);
 
@@ -130,7 +126,7 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
     private List<Rule> convertToRules(ResultSet resultSet) throws Exception {
         List<Rule> rules = new ArrayList<>();
 
-        if (resultSet != null && !resultSet.isClosed()) {
+        if (resultSet != null) {
             while (resultSet.next()) {
                 Map<String, String> inputMap = new HashMap<>();
 
@@ -167,8 +163,10 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
                 .append(this.tableName)
                 .append(" (").append(nameListBuilder.toString().substring(0, nameListBuilder.length() - 1)).append(") ")
                 .append(" VALUES (").append(valueListBuilder.toString().substring(0, valueListBuilder.length() - 1)).append(") ");
-        PreparedStatement preparedStatement;
-        preparedStatement = connection.prepareStatement("SELECT * " + " FROM " + this.tableName);
+
+        Connection connection = this.dataSource.getConnection();
+        PreparedStatement preparedStatement =
+                connection.prepareStatement("SELECT * " + " FROM " + this.tableName);
 
         if (preparedStatement.executeUpdate(
                 sqlBuilder.toString(), Statement.RETURN_GENERATED_KEYS) > 0) {
@@ -194,7 +192,7 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
     public boolean deleteRule(Rule rule) throws SQLException, Exception {
         String sql = "DELETE FROM " + this.tableName
                 + " WHERE " + this.uniqueIdColumnName + "= ?";
-        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        PreparedStatement preparedStatement = this.dataSource.getConnection().prepareStatement(sql);
         preparedStatement.setString(1, rule.getColumnData(this.uniqueIdColumnName).getValue());
 
         if (preparedStatement.executeUpdate() > 0) {
@@ -232,6 +230,7 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
                 .append("=")
                 .append(oldRuleId);
 
+        Connection connection = this.dataSource.getConnection();
         PreparedStatement preparedStatement =
                 connection.prepareStatement(sqlBuilder.toString());
         if (preparedStatement.executeUpdate() > 0) {

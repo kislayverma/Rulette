@@ -195,8 +195,8 @@ public class RuleSystem implements Serializable {
      *
      * @param inputMap Map with input names as keys and their String values as
      * values
-     * @return null if input is null null if no rule is applicable for the given
-     * inout combination the applicable rule otherwise.
+     * @return null if input is null, null if no rule is applicable for the
+     * given input combination the applicable rule otherwise.
      */
     public Rule getRule(Map<String, String> inputMap) {
         List<Rule> eligibleRules = getEligibleRules(inputMap);
@@ -619,7 +619,7 @@ public class RuleSystem implements Serializable {
         Map<String, String> inputMap = new HashMap<>();
         //inputMap.put("brand", "lee");
         //inputMap.put("article_type", "T Shirt");
-        inputMap.put("style_id", "4420");
+        inputMap.put("style_id", "2");
         inputMap.put("is_active", "1");
         //inputMap.put("year", "2013");
 //    	long sec = new Date().getTime()/1000;
@@ -634,12 +634,12 @@ public class RuleSystem implements Serializable {
         for (int i = 0; i < 1; i++) {
             rule = rs.getRule(inputMap);
             //System.out.println((rule == null) ? "none" : rule.toString());
-//        	if (rule != null) {
-//            	Rule n = rule.setColumnData("style_id", "4420");
-//        		System.out.println(rule);
-//        		System.out.println(n);
-//            	rs.updateRule(rule, n);
-//        	}
+//            if (rule != null) {
+//                Rule n = rule.setColumnData("style_id", "2");
+//                System.out.println(rule);
+//                System.out.println(n);
+//                rs.updateRule(rule, n);
+//            }
             //rule = rs.getRule(4);
             //rs.deleteRule(rule);
             //rule = rs.getRule(inputMap);
