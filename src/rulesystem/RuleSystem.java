@@ -182,6 +182,17 @@ public class RuleSystem implements Serializable {
         initRuleSystem(ruleSystemName);
     }
 
+    public Rule createRuleObject(Map<String, String> inputMap) throws Exception {
+        if (inputMap == null) {
+            throw new Exception("No input for creating rule object");
+        }
+        if (!inputMap.containsKey(this.uniqueOutputColumnName)) {
+            throw new Exception("Value for rule output not provided");
+        }
+
+        return new Rule(this.inputColumnList, inputMap, this.uniqueIdColumnName, this.uniqueOutputColumnName);
+    }
+
     /**
      * This method returns a list of all the rules in the rule system.
      */

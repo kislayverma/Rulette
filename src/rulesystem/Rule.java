@@ -53,7 +53,7 @@ public class Rule implements Serializable {
             this.uniqueOutputColumnName = uniqueOutputColName;
         }
 
-        fieldMap = new HashMap<String, RuleInput>();
+        fieldMap = new HashMap<>();
         for (RuleInputMetaData col : columns) {
             String inputVal = inputMap.get(col.getName());
             this.fieldMap.put(col.getName(),
