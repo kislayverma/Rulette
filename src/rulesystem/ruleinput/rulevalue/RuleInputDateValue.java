@@ -9,7 +9,7 @@ public class RuleInputDateValue extends RuleInputValue implements Serializable {
 
     private final Date value;
     private final String stringValue;
-    private static final SimpleDateFormat formatter = new SimpleDateFormat("CCYYMMDD");
+    private static final SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
 
     public RuleInputDateValue (String value) throws Exception {
         stringValue = value;

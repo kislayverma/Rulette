@@ -13,7 +13,6 @@ import java.util.Map;
 import rulesystem.Rule;
 import rulesystem.ruleinput.RuleInputMetaData;
 import rulesystem.ruleinput.RuleType;
-import rulesystem.ruleinput.rulevalue.RuleInputDataType;
 
 public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
 
