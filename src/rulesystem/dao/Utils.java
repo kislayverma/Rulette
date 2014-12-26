@@ -7,7 +7,7 @@ package rulesystem.dao;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-import rulesystem.ruleinput.rulevalue.RuleInputDataType;
+import rulesystem.ruleinput.value.InputDataType;
 
 /**
  *
@@ -30,14 +30,14 @@ public class Utils {
         return props;
     }
 
-    public static final RuleInputDataType getRuleInputDataTypeFromName(String name) {
+    public static final InputDataType getRuleInputDataTypeFromName(String name) {
         switch (name.toLowerCase()) {
             case("number"):
-                return RuleInputDataType.NUMBER;
+                return InputDataType.NUMBER;
             case("date"):
-                return RuleInputDataType.DATE;
+                return InputDataType.DATE;
             case("string"):
-                return RuleInputDataType.STRING;
+                return InputDataType.STRING;
             default:
                 return null;
         }

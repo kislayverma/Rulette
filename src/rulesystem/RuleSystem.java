@@ -130,9 +130,9 @@ public class RuleSystem implements Serializable {
                     continue;
                 }
 
-                String colValue1 = rule1.getColumnData(colName).getValue();
+                String colValue1 = rule1.getColumnData(colName).getRawValue();
                 colValue1 = (colValue1 == null) ? "" : colValue1;
-                String colValue2 = rule2.getColumnData(colName).getValue();
+                String colValue2 = rule2.getColumnData(colName).getRawValue();
                 colValue2 = (colValue2 == null) ? "" : colValue2;
 
                 /*
@@ -266,7 +266,7 @@ public class RuleSystem implements Serializable {
             return null;
         }
 
-        String ruleOutputId = newRule.getColumnData(this.uniqueOutputColumnName).getValue();
+        String ruleOutputId = newRule.getColumnData(this.uniqueOutputColumnName).getRawValue();
         if (ruleOutputId == null || ruleOutputId.isEmpty()) {
             throw new RuntimeException("Rule can't be saved without rule_output_id.");
         }
@@ -305,7 +305,7 @@ public class RuleSystem implements Serializable {
             return null;
         }
 
-        String oldRuleId = oldRule.getColumnData(this.uniqueIdColumnName).getValue();
+        String oldRuleId = oldRule.getColumnData(this.uniqueIdColumnName).getRawValue();
         Rule checkForOldRule = this.getRule(Integer.parseInt(oldRuleId));
         if (checkForOldRule == null) {
             throw new Exception("No existing rule with id " + oldRuleId);
@@ -315,7 +315,7 @@ public class RuleSystem implements Serializable {
         if (!overlappingRules.isEmpty()) {
             boolean otherOverlappingRules = false;
             for (Rule overlappingRule : overlappingRules) {
-                if (!overlappingRule.getColumnData(uniqueIdColumnName).getValue()
+                if (!overlappingRule.getColumnData(uniqueIdColumnName).getRawValue()
                         .equals(oldRuleId)) {
                     otherOverlappingRules = true;
                 }
@@ -497,7 +497,7 @@ public class RuleSystem implements Serializable {
 
             // 1. See if the current node has a node mapping to the field value
             List<RSNode> nodeList =
-                    currNode.getNodes(rule.getColumnData(currInput.getName()).getValue(), false);
+                    currNode.getNodes(rule.getColumnData(currInput.getName()).getRawValue(), false);
 
             // 2. If it doesn't, create a new empty node and map the field value
             //    to the new node.
@@ -525,20 +525,20 @@ public class RuleSystem implements Serializable {
 
         currNode.setRule(rule);
         this.allRules.put(
-                Integer.parseInt(rule.getColumnData(uniqueIdColumnName).getValue()), rule);
+                Integer.parseInt(rule.getColumnData(uniqueIdColumnName).getRawValue()), rule);
     }
 
     private void deleteRuleFromCache(Rule rule) throws Exception {
         // Delete the rule from the map
         this.allRules.remove(
-                Integer.parseInt(rule.getColumnData(uniqueIdColumnName).getValue()));
+                Integer.parseInt(rule.getColumnData(uniqueIdColumnName).getRawValue()));
 
         // Locate and delete the rule from the trie
         Stack<RSNode> stack = new Stack<>();
         RSNode currNode = this.root;
 
         for (RuleInputMetaData rimd : this.inputColumnList) {
-            String value = rule.getColumnData(rimd.getName()).getValue();
+            String value = rule.getColumnData(rimd.getName()).getRawValue();
             value = (value == null) ? "" : value;
 
             RSNode nextNode = currNode.getMatchingRule(value);
@@ -614,12 +614,7 @@ public class RuleSystem implements Serializable {
 
     public static void main(String[] args) throws Exception {
         long stime = new Date().getTime();
-        RuleSystem rs = null;
-        try {
-            rs = new RuleSystem("vendor_terms_rule_system", "rule_id", "rule_output_id", null);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        RuleSystem rs = new RuleSystem("vendor_terms_rule_system", "rule_id", "rule_output_id", null);
         long etime = new Date().getTime();
         System.out.println("Time taken to init rule system : " + (etime - stime));
 
@@ -627,12 +622,12 @@ public class RuleSystem implements Serializable {
         inputMap.put("vendor_name", "SIA FASHION");
         inputMap.put("brand_name", "SIA Fashion");
         inputMap.put("article_type_name", "Kurtas");
-        inputMap.put("gender", "Women");
+        inputMap.put("gender", "omen");
         inputMap.put("is_active", "1");
         inputMap.put("valid_date_range", "20140101");
         Rule rule = null;
         stime = new Date().getTime();
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 1; i++) {
             rule = rs.getRule(inputMap);
             //System.out.println((rule == null) ? "none" : rule.toString());
         }

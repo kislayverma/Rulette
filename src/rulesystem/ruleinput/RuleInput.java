@@ -1,32 +1,43 @@
 package rulesystem.ruleinput;
 
 import java.io.Serializable;
-import rulesystem.ruleinput.rulevalue.RuleInputDataType;
-import rulesystem.ruleinput.rulevalue.RuleInputValue;
+import rulesystem.ruleinput.value.InputDataType;
 
 public abstract class RuleInput implements Serializable {
 
     protected RuleInputMetaData metaData;
-    protected RuleInputValue value;
+    protected String rawInput;
 
     public static RuleInput createRuleInput(
         int id, int ruleSystemId, String name, int priority, RuleType ruleType, 
-        RuleInputDataType dataType, String value) throws Exception {
+        InputDataType dataType, String value) throws Exception {
+
+        value = value == null ? "" : value;
+
+        RuleInput r;
         switch (ruleType) {
             case VALUE:
-                return new ValueInput(id, ruleSystemId, name, priority, dataType, value);
+                r = new ValueInput(id, ruleSystemId, name, priority, dataType, value);
+                break;
             case RANGE:
-                return new RangeInput(id, ruleSystemId, name, priority, dataType, value);
+                r  = new RangeInput(id, ruleSystemId, name, priority, dataType, value);
+                break;
             default:
                 return null;
         }
+        
+        r.rawInput = value;
+
+        return r;
     }
 
     public abstract boolean evaluate(String value) throws Exception;
 
     public abstract boolean isConflicting(RuleInput input) throws Exception;
 
-    public abstract String getValue();
+    public final String getRawValue() {
+        return this.rawInput;
+    }
 
     public int getId() {
         return this.metaData.getId();

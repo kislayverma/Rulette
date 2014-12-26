@@ -1,7 +1,7 @@
 package rulesystem.ruleinput;
 
 import java.io.Serializable;
-import rulesystem.ruleinput.rulevalue.RuleInputDataType;
+import rulesystem.ruleinput.value.InputDataType;
 
 public class RuleInputMetaData implements Serializable {
     private final int id;
@@ -9,9 +9,9 @@ public class RuleInputMetaData implements Serializable {
     private final String name;
     private final int priority;
     private final RuleType ruleType;
-    private final RuleInputDataType ruleDataType;
+    private final InputDataType ruleDataType;
 
-    public RuleInputMetaData(int id, int ruleSystemId, String name, int priority, RuleType ruleType, RuleInputDataType ruleDataType)
+    public RuleInputMetaData(int id, int ruleSystemId, String name, int priority, RuleType ruleType, InputDataType ruleDataType)
             throws Exception {
         this.id = id;
         this.name = name;
@@ -41,7 +41,7 @@ public class RuleInputMetaData implements Serializable {
         return ruleType;
     }
 
-    public RuleInputDataType getRuleDataType() {
+    public InputDataType getRuleDataType() {
         return ruleDataType;
     }
 }

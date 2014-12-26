@@ -1,20 +1,21 @@
 package rulesystem.ruleinput;
 
 import java.io.Serializable;
-import rulesystem.ruleinput.rulevalue.RuleInputDataType;
-import rulesystem.ruleinput.rulevalue.RuleInputValue;
+import rulesystem.ruleinput.value.InputDataType;
+import rulesystem.ruleinput.value.IInputValue;
+import rulesystem.ruleinput.value.RuleInputValue;
 
 public class RangeInput extends RuleInput implements Serializable {
 
-    private RuleInputValue lowerBound;
-    private RuleInputValue upperBound;
+    private IInputValue lowerBound;
+    private IInputValue upperBound;
 
-    public RangeInput(int id, int ruleSystemId, String name, int priority, RuleInputDataType inputDataType, String value)
+    public RangeInput(int id, int ruleSystemId, String name, int priority, InputDataType inputDataType, String value)
             throws Exception {
-        this.metaData = new RuleInputMetaData(id, ruleSystemId, name, priority, RuleType.VALUE, inputDataType);
+        this.metaData = new RuleInputMetaData(id, ruleSystemId, name, priority, RuleType.RANGE, inputDataType);
         String[] rangeArr = value.split("-");
 
-        if (value == null || value.isEmpty()) {
+        if (value.isEmpty()) {
             // The'any' case
             this.lowerBound = RuleInputValue.createRuleInputValue(metaData.getRuleDataType(), "");
             this.upperBound = RuleInputValue.createRuleInputValue(metaData.getRuleDataType(), "");
@@ -30,21 +31,19 @@ public class RangeInput extends RuleInput implements Serializable {
 
     @Override
     public boolean evaluate(String value) throws Exception {
-        if (lowerBound.isEmpty() && upperBound.isEmpty()) {
-            return true;
-        }
+        try {
+            if (lowerBound.isEmpty() && upperBound.isEmpty()) {
+                return true;
+            }
 
-        if (lowerBound.compareTo(value) <= 0 && upperBound.compareTo(value) >= 0) {
-            return true;
+            if (lowerBound.compareTo(value) <= 0 && upperBound.compareTo(value) >= 0) {
+                return true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
 
         return false;
-    }
-
-    @Override
-    public String getValue() {
-        return lowerBound.isEmpty() && upperBound.isEmpty()
-                ? "" : lowerBound.getStringValue() + "-" + upperBound.getStringValue();
     }
 
     /**
@@ -60,15 +59,15 @@ public class RangeInput extends RuleInput implements Serializable {
                     + input.getName() + "' are not the same type.");
         }
 
-        String inputVal = input.getValue();
+        String inputVal = input.getRawValue();
 
         // If values are same, or both are 'Any'
-        if (this.getValue().equals(inputVal)) {
+        if (this.getRawValue().equals(input.getRawValue())) {
             return true;
         }
 
         // If only one is 'Any', there is no conflict
-        if ("".equals(this.getValue()) || "".equals(inputVal)) {
+        if ("".equals(this.getRawValue()) || "".equals(input.getRawValue())) {
             return false;
         }
 
