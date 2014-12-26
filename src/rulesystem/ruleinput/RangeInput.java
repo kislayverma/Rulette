@@ -1,34 +1,35 @@
 package rulesystem.ruleinput;
 
 import java.io.Serializable;
-import rulesystem.ruleinput.RuleInputMetaData.DataType;
+import rulesystem.ruleinput.rulevalue.RuleInputDataType;
+import rulesystem.ruleinput.rulevalue.RuleInputValue;
 
 public class RangeInput extends RuleInput implements Serializable {
 
-    private String lowerBound;
-    private String upperBound;
+    private RuleInputValue lowerBound;
+    private RuleInputValue upperBound;
 
-    public RangeInput(int id, int ruleSystemId, String name, int priority, String value)
+    public RangeInput(int id, int ruleSystemId, String name, int priority, RuleInputDataType inputDataType, String value)
             throws Exception {
-        this.metaData = new RuleInputMetaData(id, ruleSystemId, name, priority, DataType.VALUE);
+        this.metaData = new RuleInputMetaData(id, ruleSystemId, name, priority, RuleType.VALUE, inputDataType);
         String[] rangeArr = value.split("-");
 
         if (value == null || value.isEmpty()) {
             // The'any' case
-            this.lowerBound = "";
-            this.upperBound = "";
+            this.lowerBound = RuleInputValue.createRuleInputValue(metaData.getRuleDataType(), "");
+            this.upperBound = RuleInputValue.createRuleInputValue(metaData.getRuleDataType(), "");
         } else if (rangeArr.length < 2) {
             throw new Exception("Improper value for field " + this.metaData.getName()
                     + ". Range fields must be given in the format 'a-b' (with "
                     + "a and b as inclusive lower and upper bound respectively.)");
         } else {
-            this.lowerBound = rangeArr[0];
-            this.upperBound = rangeArr[1];
+            this.lowerBound = RuleInputValue.createRuleInputValue(metaData.getRuleDataType(), rangeArr[0] == null ? "" : rangeArr[0]);
+            this.upperBound = RuleInputValue.createRuleInputValue(metaData.getRuleDataType(), rangeArr[0] == null ? "" : rangeArr[1]);
         }
     }
 
     @Override
-    public boolean evaluate(String value) {
+    public boolean evaluate(String value) throws Exception {
         if (lowerBound.isEmpty() && upperBound.isEmpty()) {
             return true;
         }
@@ -43,7 +44,7 @@ public class RangeInput extends RuleInput implements Serializable {
     @Override
     public String getValue() {
         return lowerBound.isEmpty() && upperBound.isEmpty()
-                ? "" : lowerBound + "-" + upperBound;
+                ? "" : lowerBound.getStringValue() + "-" + upperBound.getStringValue();
     }
 
     /**

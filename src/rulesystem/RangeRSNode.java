@@ -26,7 +26,7 @@ class RangeRSNode extends RSNode implements Serializable {
     }
 
     @Override
-    public List<RSNode> getNodes(String value, boolean getAnyValue) {
+    public List<RSNode> getNodes(String value, boolean getAnyValue) throws Exception {
         List<RSNode> nodeList = new ArrayList<>();
         for (Map.Entry<RuleInput, RSNode> entry : this.fieldMap.entrySet()) {
             if ("".equals(entry.getKey().getValue()) && !getAnyValue) {

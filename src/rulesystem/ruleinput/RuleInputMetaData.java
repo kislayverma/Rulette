@@ -1,27 +1,24 @@
 package rulesystem.ruleinput;
 
 import java.io.Serializable;
+import rulesystem.ruleinput.rulevalue.RuleInputDataType;
 
 public class RuleInputMetaData implements Serializable {
+    private final int id;
+    private final int ruleSystemId;
+    private final String name;
+    private final int priority;
+    private final RuleType ruleType;
+    private final RuleInputDataType ruleDataType;
 
-    public enum DataType {
-
-        VALUE,
-        RANGE
-    }
-    private int id;
-    private int ruleSystemId;
-    private String name;
-    private int priority;
-    private DataType dataType;
-
-    public RuleInputMetaData(int id, int ruleSystemId, String name, int priority, DataType dataType)
+    public RuleInputMetaData(int id, int ruleSystemId, String name, int priority, RuleType ruleType, RuleInputDataType ruleDataType)
             throws Exception {
         this.id = id;
         this.name = name;
         this.ruleSystemId = ruleSystemId;
         this.priority = priority;
-        this.dataType = dataType;
+        this.ruleType = ruleType;
+        this.ruleDataType = ruleDataType;
     }
 
     public int getId() {
@@ -40,7 +37,11 @@ public class RuleInputMetaData implements Serializable {
         return priority;
     }
 
-    public DataType getDataType() {
-        return dataType;
+    public RuleType getRuleType() {
+        return ruleType;
+    }
+
+    public RuleInputDataType getRuleDataType() {
+        return ruleDataType;
     }
 }

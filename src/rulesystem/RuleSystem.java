@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import rulesystem.dao.RuleSystemDao;
 import rulesystem.dao.RuleSystemDaoMySqlImpl;
 import rulesystem.ruleinput.RuleInputMetaData;
-import rulesystem.ruleinput.RuleInputMetaData.DataType;
+import rulesystem.ruleinput.RuleType;
 import rulesystem.validator.DefaultValidator;
 import rulesystem.validator.Validator;
 
@@ -209,7 +209,7 @@ public class RuleSystem implements Serializable {
      * @return null if input is null, null if no rule is applicable for the
      * given input combination the applicable rule otherwise.
      */
-    public Rule getRule(Map<String, String> inputMap) {
+    public Rule getRule(Map<String, String> inputMap) throws Exception {
         List<Rule> eligibleRules = getEligibleRules(inputMap);
         if (eligibleRules != null && !eligibleRules.isEmpty()) {
             return eligibleRules.get(0);
@@ -412,7 +412,7 @@ public class RuleSystem implements Serializable {
      * currently applicable rule is deleted. null id no rule is currently
      * applicable.
      */
-    public Rule getNextApplicableRule(Map<String, String> inputMap) {
+    public Rule getNextApplicableRule(Map<String, String> inputMap) throws Exception {
         List<Rule> eligibleRules = getEligibleRules(inputMap);
 
         if (eligibleRules != null && eligibleRules.size() > 1) {
@@ -430,7 +430,7 @@ public class RuleSystem implements Serializable {
         return this.uniqueOutputColumnName;
     }
 
-    private List<Rule> getEligibleRules(Map<String, String> inputMap) {
+    private List<Rule> getEligibleRules(Map<String, String> inputMap) throws Exception {
         if (inputMap != null) {
             Stack<RSNode> currStack = new Stack<>();
             currStack.add(root);
@@ -477,7 +477,7 @@ public class RuleSystem implements Serializable {
         System.out.println("Rules from DB : " + rules.size());
 
         this.allRules = new ConcurrentHashMap<>();
-        if (this.inputColumnList.get(0).getDataType().equals(DataType.VALUE)) {
+        if (this.inputColumnList.get(0).getRuleType().equals(RuleType.VALUE)) {
             this.root = new ValueRSNode(this.inputColumnList.get(0).getName());
         } else {
             this.root = new RangeRSNode(this.inputColumnList.get(0).getName());
@@ -490,7 +490,7 @@ public class RuleSystem implements Serializable {
         }
     }
 
-    private void addRuleToCache(Rule rule) {
+    private void addRuleToCache(Rule rule) throws Exception {
         RSNode currNode = this.root;
         for (int i = 0; i < this.inputColumnList.size(); i++) {
             RuleInputMetaData currInput = this.inputColumnList.get(i);
@@ -505,7 +505,7 @@ public class RuleSystem implements Serializable {
             if (nodeList.isEmpty()) {
                 RSNode newNode;
                 if (i < this.inputColumnList.size() - 1) {
-                    if (this.inputColumnList.get(i + 1).getDataType().equals(DataType.VALUE)) {
+                    if (this.inputColumnList.get(i + 1).getRuleType().equals(RuleType.VALUE)) {
                         newNode = new ValueRSNode(this.inputColumnList.get(i + 1).getName());
                     } else {
                         newNode = new RangeRSNode(this.inputColumnList.get(i + 1).getName());
@@ -616,15 +616,15 @@ public class RuleSystem implements Serializable {
         long stime = new Date().getTime();
         RuleSystem rs = null;
         try {
-            rs = new RuleSystem("discount_rule_system", "rule_id", "rule_output_id", null);
+            rs = new RuleSystem("oms_outbound_rule_system", "rule_id", "rule_output_id", null);
         } catch (Exception e) {
             e.printStackTrace();
         }
         long etime = new Date().getTime();
         System.out.println("Time taken to init rule system : " + (etime - stime));
 
-        //List<Rule> rules = rs.getAllRules();
-        //System.out.println("The are " + rules.size() + " rules.");
+        List<Rule> rules = rs.getAllRules();
+        System.out.println("The are " + rules.size() + " rules.");
         //Rule rule = rs.getRule(1);
         //System.out.println("Rule : " + ((rule == null) ? "no rule" : rule.toString()));
         Map<String, String> inputMap = new HashMap<>();
@@ -642,7 +642,7 @@ public class RuleSystem implements Serializable {
         //List<Rule> rules = rs.getConflictingRules(rule);
         //System.out.println(rules);
         stime = new Date().getTime();
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < 10000000; i++) {
             rule = rs.getRule(inputMap);
             //System.out.println((rule == null) ? "none" : rule.toString());
 //            if (rule != null) {

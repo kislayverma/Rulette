@@ -1,30 +1,25 @@
 package rulesystem.ruleinput;
 
 import java.io.Serializable;
-import rulesystem.ruleinput.RuleInputMetaData.DataType;
+import rulesystem.ruleinput.rulevalue.RuleInputDataType;
+import rulesystem.ruleinput.rulevalue.RuleInputValue;
 
 public class ValueInput extends RuleInput implements Serializable {
 
-    private String value;
-
-    public ValueInput(int id, int ruleSystemId, String name, int priority, String value)
+    public ValueInput(int id, int ruleSystemId, String name, int priority, RuleInputDataType inputDataType, String value)
             throws Exception {
-        this.metaData = new RuleInputMetaData(id, ruleSystemId, name, priority, DataType.VALUE);
-        this.value = (value == null) ? "" : value;
+        this.metaData = new RuleInputMetaData(id, ruleSystemId, name, priority, RuleType.VALUE, inputDataType);
+        this.value = RuleInputValue.createRuleInputValue(inputDataType, value == null ? "" : value);
     }
 
     @Override
-    public boolean evaluate(String value) {
-        if (this.value.isEmpty() || this.value.equals(value)) {
-            return true;
-        } else {
-            return false;
-        }
+    public boolean evaluate(String value) throws Exception {
+        return this.value.equals(RuleInputValue.createRuleInputValue(metaData.getRuleDataType(), value == null ? "" : value));
     }
 
     @Override
     public String getValue() {
-        return value;
+        return value.getStringValue();
     }
 
     /**
