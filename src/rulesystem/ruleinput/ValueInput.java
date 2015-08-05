@@ -1,30 +1,23 @@
 package rulesystem.ruleinput;
 
 import java.io.Serializable;
-import rulesystem.ruleinput.RuleInputMetaData.DataType;
+import rulesystem.ruleinput.value.IInputValue;
+import rulesystem.ruleinput.value.InputDataType;
+import rulesystem.ruleinput.value.RuleInputValue;
 
 public class ValueInput extends RuleInput implements Serializable {
 
-    private String value;
+    private IInputValue value;
 
-    public ValueInput(int id, int ruleSystemId, String name, int priority, String value)
+    public ValueInput(int id, int ruleSystemId, String name, int priority, InputDataType inputDataType, String value)
             throws Exception {
-        this.metaData = new RuleInputMetaData(id, ruleSystemId, name, priority, DataType.VALUE);
-        this.value = (value == null) ? "" : value;
+        this.metaData = new RuleInputMetaData(id, ruleSystemId, name, priority, RuleType.VALUE, inputDataType);
+        this.value = RuleInputValue.createRuleInputValue(inputDataType, value == null ? "" : value);
     }
 
     @Override
-    public boolean evaluate(String value) {
-        if (this.value.isEmpty() || this.value.equals(value)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public String getValue() {
-        return value;
+    public boolean evaluate(String value) throws Exception {
+        return this.value.compareTo(value) == 0;
     }
 
     /**
@@ -39,6 +32,6 @@ public class ValueInput extends RuleInput implements Serializable {
                     + input.getName() + "' are not the same type.");
         }
 
-        return input.getValue().equals(this.value) ? true : false;
+        return this.getRawValue().equals(input.getRawValue());
     }
 }

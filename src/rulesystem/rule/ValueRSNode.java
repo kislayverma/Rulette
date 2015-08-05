@@ -17,12 +17,12 @@ class ValueRSNode extends RSNode implements Serializable {
 
     @Override
     public void addChildNode(RuleInput ruleInput, RSNode childNode) {
-        this.fieldMap.put(ruleInput.getValue(), childNode);
+        this.fieldMap.put(ruleInput.getRawValue(), childNode);
     }
 
     @Override
     public void removeChildNode(RuleInput ruleInput) {
-        this.fieldMap.remove(ruleInput.getValue());
+        this.fieldMap.remove(ruleInput.getRawValue());
     }
 
     @Override

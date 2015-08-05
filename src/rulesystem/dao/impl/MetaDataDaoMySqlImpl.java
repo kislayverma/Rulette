@@ -8,7 +8,7 @@ import java.util.List;
 import rulesystem.dao.MetaDataDao;
 import rulesystem.metadata.RuleSystemMetaData;
 import rulesystem.ruleinput.RuleInputMetaData;
-import rulesystem.ruleinput.RuleInputMetaData.DataType;
+import rulesystem.ruleinput.RuleType;
 
 public class MetaDataDaoMySqlImpl extends BaseDaoMySqlImpl implements MetaDataDao {
 
@@ -45,9 +45,9 @@ public class MetaDataDaoMySqlImpl extends BaseDaoMySqlImpl implements MetaDataDa
                 + "ORDER BY b.priority ASC ");
 
         while (resultSet.next()) {
-            DataType dataType =
-                    "Value".equalsIgnoreCase(resultSet.getString("data_type"))
-                    ? DataType.VALUE : DataType.RANGE;
+            RuleType dataType =
+                    "Value".equalsIgnoreCase(resultSet.getString("rule_type"))
+                    ? RuleType.VALUE : RuleType.RANGE;
 
             inputs.add(new RuleInputMetaData(resultSet.getInt("id"),
                     resultSet.getInt("rule_system_id"),

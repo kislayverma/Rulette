@@ -22,14 +22,14 @@ class RangeRSNode extends RSNode implements Serializable {
 
     @Override
     public void removeChildNode(RuleInput ruleInput) {
-        this.fieldMap.remove(ruleInput.getValue());
+        this.fieldMap.remove(ruleInput);
     }
 
     @Override
-    public List<RSNode> getNodes(String value, boolean getAnyValue) {
+    public List<RSNode> getNodes(String value, boolean getAnyValue) throws Exception {
         List<RSNode> nodeList = new ArrayList<>();
         for (Map.Entry<RuleInput, RSNode> entry : this.fieldMap.entrySet()) {
-            if ("".equals(entry.getKey().getValue()) && !getAnyValue) {
+            if ("".equals(entry.getKey().getRawValue()) && !getAnyValue) {
                 continue;
             }
 
@@ -49,7 +49,7 @@ class RangeRSNode extends RSNode implements Serializable {
     @Override
     public RSNode getMatchingRule(String value) {
         for (Map.Entry<RuleInput, RSNode> entry : this.fieldMap.entrySet()) {
-            if (value.equals(entry.getKey().getValue())) {
+            if (value.equals(entry.getKey().getRawValue())) {
                 return entry.getValue();
             }
         }

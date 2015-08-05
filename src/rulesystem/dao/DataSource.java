@@ -45,8 +45,10 @@ public class DataSource {
         } catch (SQLException e) {
             throw e;
         } finally {
-            testStatement.close();
-            testConnection.close();
+            if (testStatement != null)
+                testStatement.close();
+            if (testConnection != null)
+                testConnection.close();
         }
     }
 

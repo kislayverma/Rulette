@@ -19,7 +19,7 @@ import rulesystem.dao.impl.RuleSystemDaoMySqlImpl;
 import rulesystem.metadata.RuleSystemMetaData;
 import rulesystem.metadata.RuleSystemMetaDataFactory;
 import rulesystem.ruleinput.RuleInputMetaData;
-import rulesystem.ruleinput.RuleInputMetaData.DataType;
+import rulesystem.ruleinput.RuleType;
 import rulesystem.validator.DefaultValidator;
 import rulesystem.validator.Validator;
 
@@ -133,9 +133,9 @@ public class RuleSystem implements Serializable {
                     continue;
                 }
 
-                String colValue1 = rule1.getColumnData(colName).getValue();
+                String colValue1 = rule1.getColumnData(colName).getRawValue();
                 colValue1 = (colValue1 == null) ? "" : colValue1;
-                String colValue2 = rule2.getColumnData(colName).getValue();
+                String colValue2 = rule2.getColumnData(colName).getRawValue();
                 colValue2 = (colValue2 == null) ? "" : colValue2;
 
                 /*
@@ -220,7 +220,7 @@ public class RuleSystem implements Serializable {
      * @return null if input is null, null if no rule is applicable for the
      * given input combination the applicable rule otherwise.
      */
-    public Rule getRule(Map<String, String> inputMap) {
+    public Rule getRule(Map<String, String> inputMap) throws Exception {
         List<Rule> eligibleRules = getEligibleRules(inputMap);
         if (eligibleRules != null && !eligibleRules.isEmpty()) {
             return eligibleRules.get(0);
@@ -277,7 +277,7 @@ public class RuleSystem implements Serializable {
             return null;
         }
 
-        String ruleOutputId = newRule.getColumnData(this.uniqueOutputColumnName).getValue();
+        String ruleOutputId = newRule.getColumnData(this.uniqueOutputColumnName).getRawValue();
         if (ruleOutputId == null || ruleOutputId.isEmpty()) {
             throw new RuntimeException("Rule can't be saved without rule_output_id.");
         }
@@ -316,7 +316,7 @@ public class RuleSystem implements Serializable {
             return null;
         }
 
-        String oldRuleId = oldRule.getColumnData(this.uniqueIdColumnName).getValue();
+        String oldRuleId = oldRule.getColumnData(this.uniqueIdColumnName).getRawValue();
         Rule checkForOldRule = this.getRule(Integer.parseInt(oldRuleId));
         if (checkForOldRule == null) {
             throw new Exception("No existing rule with id " + oldRuleId);
@@ -326,7 +326,7 @@ public class RuleSystem implements Serializable {
         if (!overlappingRules.isEmpty()) {
             boolean otherOverlappingRules = false;
             for (Rule overlappingRule : overlappingRules) {
-                if (!overlappingRule.getColumnData(uniqueIdColumnName).getValue()
+                if (!overlappingRule.getColumnData(uniqueIdColumnName).getRawValue()
                         .equals(oldRuleId)) {
                     otherOverlappingRules = true;
                 }
@@ -423,7 +423,7 @@ public class RuleSystem implements Serializable {
      * currently applicable rule is deleted. null id no rule is currently
      * applicable.
      */
-    public Rule getNextApplicableRule(Map<String, String> inputMap) {
+    public Rule getNextApplicableRule(Map<String, String> inputMap) throws Exception {
         List<Rule> eligibleRules = getEligibleRules(inputMap);
 
         if (eligibleRules != null && eligibleRules.size() > 1) {
@@ -441,7 +441,7 @@ public class RuleSystem implements Serializable {
         return this.uniqueOutputColumnName;
     }
 
-    private List<Rule> getEligibleRules(Map<String, String> inputMap) {
+    private List<Rule> getEligibleRules(Map<String, String> inputMap) throws Exception {
         if (inputMap != null) {
             Stack<RSNode> currStack = new Stack<>();
             currStack.add(root);
@@ -488,7 +488,7 @@ public class RuleSystem implements Serializable {
         System.out.println("Rules from DB : " + rules.size());
 
         this.allRules = new ConcurrentHashMap<>();
-        if (this.metaData.getInputColumnList().get(0).getDataType().equals(DataType.VALUE)) {
+        if (this.metaData.getInputColumnList().get(0).getRuleType().equals(RuleType.VALUE)) {
             this.root = new ValueRSNode(this.metaData.getInputColumnList().get(0).getName());
         } else {
             this.root = new RangeRSNode(this.metaData.getInputColumnList().get(0).getName());
@@ -501,14 +501,14 @@ public class RuleSystem implements Serializable {
         }
     }
 
-    private void addRuleToCache(Rule rule) {
+    private void addRuleToCache(Rule rule) throws Exception {
         RSNode currNode = this.root;
         for (int i = 0; i < this.inputColumnList.size(); i++) {
             RuleInputMetaData currInput = this.inputColumnList.get(i);
 
             // 1. See if the current node has a node mapping to the field value
             List<RSNode> nodeList =
-                    currNode.getNodes(rule.getColumnData(currInput.getName()).getValue(), false);
+                    currNode.getNodes(rule.getColumnData(currInput.getName()).getRawValue(), false);
 
             // 2. If it doesn't, create a new empty node and map the field value
             //    to the new node.
@@ -516,7 +516,7 @@ public class RuleSystem implements Serializable {
             if (nodeList.isEmpty()) {
                 RSNode newNode;
                 if (i < this.inputColumnList.size() - 1) {
-                    if (this.inputColumnList.get(i + 1).getDataType().equals(DataType.VALUE)) {
+                    if (this.inputColumnList.get(i + 1).getRuleType().equals(RuleType.VALUE)) {
                         newNode = new ValueRSNode(this.inputColumnList.get(i + 1).getName());
                     } else {
                         newNode = new RangeRSNode(this.inputColumnList.get(i + 1).getName());
@@ -536,20 +536,20 @@ public class RuleSystem implements Serializable {
 
         currNode.setRule(rule);
         this.allRules.put(
-                Integer.parseInt(rule.getColumnData(uniqueIdColumnName).getValue()), rule);
+                Integer.parseInt(rule.getColumnData(uniqueIdColumnName).getRawValue()), rule);
     }
 
     private void deleteRuleFromCache(Rule rule) throws Exception {
         // Delete the rule from the map
         this.allRules.remove(
-                Integer.parseInt(rule.getColumnData(uniqueIdColumnName).getValue()));
+                Integer.parseInt(rule.getColumnData(uniqueIdColumnName).getRawValue()));
 
         // Locate and delete the rule from the trie
         Stack<RSNode> stack = new Stack<>();
         RSNode currNode = this.root;
 
         for (RuleInputMetaData rimd : this.inputColumnList) {
-            String value = rule.getColumnData(rimd.getName()).getValue();
+            String value = rule.getColumnData(rimd.getName()).getRawValue();
             value = (value == null) ? "" : value;
 
             RSNode nextNode = currNode.getMatchingRule(value);
@@ -609,67 +609,24 @@ public class RuleSystem implements Serializable {
 
     public static void main(String[] args) throws Exception {
         long stime = new Date().getTime();
-        RuleSystem rs = null;
-        try {
-            rs = new RuleSystem("discount_rule_system", "rule_id", "rule_output_id", null);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        RuleSystem rs = new RuleSystem("vendor_terms_rule_system", "rule_id", "rule_output_id", null);
         long etime = new Date().getTime();
         System.out.println("Time taken to init rule system : " + (etime - stime));
 
-        //List<Rule> rules = rs.getAllRules();
-        //System.out.println("The are " + rules.size() + " rules.");
-        //Rule rule = rs.getRule(1);
-        //System.out.println("Rule : " + ((rule == null) ? "no rule" : rule.toString()));
         Map<String, String> inputMap = new HashMap<>();
-        //inputMap.put("brand", "lee");
-        //inputMap.put("article_type", "T Shirt");
-        inputMap.put("style_id", "2");
+        inputMap.put("vendor_name", "SIA FASHION");
+        inputMap.put("brand_name", "SIA Fashion");
+        inputMap.put("article_type_name", "Kurtas");
+        inputMap.put("gender", "omen");
         inputMap.put("is_active", "1");
-        //inputMap.put("year", "2013");
-//    	long sec = new Date().getTime()/1000;
-        inputMap.put("valid_date_range", "1321468201");
+        inputMap.put("valid_date_range", "20140101");
         Rule rule = null;
-        //rule = rs.getRule(inputMap);
-        //rs.deleteRule(rule);
-        //System.out.println(rule);
-        //List<Rule> rules = rs.getConflictingRules(rule);
-        //System.out.println(rules);
         stime = new Date().getTime();
         for (int i = 0; i < 1; i++) {
             rule = rs.getRule(inputMap);
             //System.out.println((rule == null) ? "none" : rule.toString());
-//            if (rule != null) {
-//                Rule n = rule.setColumnData("style_id", "2");
-//                System.out.println(rule);
-//                System.out.println(n);
-//                rs.updateRule(rule, n);
-//            }
-            //rule = rs.getRule(4);
-            //rs.deleteRule(rule);
-            //rule = rs.getRule(inputMap);
-            //System.out.println((rule == null) ? "none" : rule.toString());
-            //inputMap.put("valid_date_range", "1321468200-1357064940");
-            //inputMap.put("rule_output_id", "872");
-            //rule = rs.addRule(inputMap);
-            //rule = rs.getRule(inputMap);
-            //System.out.println((rule == null) ? "none" : rule.toString());
-            //rs.getConflictingRules(rule);
-            //System.out.println(rule);
         }
         etime = new Date().getTime();
         System.out.println("Time taken : " + (etime - stime));
-        System.out.println((rule == null) ? "none" : rule.toString());
-//
-//    	Map<String, String> inputMap = new HashMap<>();
-//    	inputMap.put("brand", "Adidas");
-//    	inputMap.put("article_type", "Shirt");
-//    	inputMap.put("style_id", "3");
-//    	inputMap.put("is_active", "0");
-//    	inputMap.put("rule_output_id", "3");
-//    	rs.addRule(inputMap);
-
-//    	rs.deleteRule(rule);
     }
 }

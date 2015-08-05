@@ -15,7 +15,7 @@ public abstract class RSNode {
 
 	public abstract void removeChildNode(RuleInput ruleInput);
 
-	public abstract List<RSNode> getNodes(String value, boolean getAnyValue);
+	public abstract List<RSNode> getNodes(String value, boolean getAnyValue) throws Exception;
 
 	public abstract int getCount();
 
