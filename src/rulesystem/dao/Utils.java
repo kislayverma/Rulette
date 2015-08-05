@@ -7,6 +7,7 @@ package rulesystem.dao;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import rulesystem.ruleinput.value.InputDataType;
 
 /**
  *
@@ -27,5 +28,18 @@ public class Utils {
         InputStream stream = loader.getResourceAsStream(filename);
         props.load(stream);
         return props;
+    }
+
+    public static final InputDataType getRuleInputDataTypeFromName(String name) {
+        switch (name.toLowerCase()) {
+            case("number"):
+                return InputDataType.NUMBER;
+            case("date"):
+                return InputDataType.DATE;
+            case("string"):
+                return InputDataType.STRING;
+            default:
+                return null;
+        }
     }
 }

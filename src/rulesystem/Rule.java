@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.Map;
 import rulesystem.ruleinput.RuleInput;
 import rulesystem.ruleinput.RuleInputMetaData;
-import rulesystem.ruleinput.RuleInputMetaData.DataType;
+import rulesystem.ruleinput.RuleType;
+import rulesystem.ruleinput.value.InputDataType;
 
 /**
  * This class models a rule in the rule system. It has input columns and an
@@ -17,9 +18,9 @@ import rulesystem.ruleinput.RuleInputMetaData.DataType;
  */
 public class Rule implements Serializable {
 
-    private Map<String, RuleInput> fieldMap;
+    private final Map<String, RuleInput> fieldMap;
     // This list is to keep the order (priority order) of inputs
-    private List<RuleInputMetaData> inputColumnList;
+    private final List<RuleInputMetaData> inputColumnList;
     private String uniqueIdColumnName = "id";
     private String uniqueOutputColumnName = "rule_output_id";
     private static final int UNIQUE_ID_INPUT_ID = -1;
@@ -61,7 +62,8 @@ public class Rule implements Serializable {
                     col.getRuleSystemId(),
                     col.getName(),
                     col.getPriority(),
-                    col.getDataType(),
+                    col.getRuleType(),
+                    col.getRuleDataType(),
                     (inputVal == null) ? "" : inputVal));
         }
 
@@ -71,7 +73,8 @@ public class Rule implements Serializable {
                 inputColumnList.get(0).getRuleSystemId(),
                 this.uniqueIdColumnName,
                 UNIQUE_ID_INPUT_ID,
-                DataType.VALUE,
+                RuleType.VALUE,
+                InputDataType.NUMBER,
                 (ruleId == null) ? "" : ruleId));
 
         String ruleOutputId = inputMap.get(this.uniqueOutputColumnName);
@@ -80,7 +83,8 @@ public class Rule implements Serializable {
                 inputColumnList.get(0).getRuleSystemId(),
                 this.uniqueOutputColumnName,
                 UNIQUE_OUTPUT_ID_INPUT_ID,
-                DataType.VALUE,
+                RuleType.VALUE,
+                InputDataType.NUMBER,
                 (ruleOutputId == null) ? "" : ruleOutputId));
     }
 
@@ -98,7 +102,7 @@ public class Rule implements Serializable {
      * @param inputMap
      * @return
      */
-    public boolean evaluate(Map<String, String> inputMap) {
+    public boolean evaluate(Map<String, String> inputMap) throws Exception {
         // For each input column in order, get the value from the rule and compare against input.
         for (RuleInputMetaData col : this.inputColumnList) {
             String colName = col.getName();
@@ -112,9 +116,7 @@ public class Rule implements Serializable {
             RuleInput ruleInput = this.fieldMap.get(colName);
 
             // Actual comparison is determined by the input types. So over to them.
-            if (ruleInput.evaluate(inputValue)) {
-                continue;
-            } else {
+            if (!ruleInput.evaluate(inputValue)) {
                 return false;
             }
         }
@@ -166,7 +168,7 @@ public class Rule implements Serializable {
             if (column.equals(colName)) {
                 inputMap.put(column, value);
             } else {
-                inputMap.put(column, ruleInput.getValue().getValue());
+                inputMap.put(column, ruleInput.getValue().getRawValue());
             }
         }
 
@@ -179,19 +181,19 @@ public class Rule implements Serializable {
         builder.append("\n");
         builder.append(this.uniqueIdColumnName)
                 .append(":")
-                .append(getColumnData(this.uniqueIdColumnName).getValue())
+                .append(getColumnData(this.uniqueIdColumnName).getRawValue())
                 .append("\t");
 
         for (RuleInputMetaData col : this.inputColumnList) {
             builder.append(col.getName())
                     .append(":")
-                    .append(getColumnData(col.getName()).getValue())
+                    .append(getColumnData(col.getName()).getRawValue())
                     .append("\t");
         }
 
         builder.append(this.uniqueOutputColumnName)
                 .append(":")
-                .append(getColumnData(this.uniqueOutputColumnName).getValue())
+                .append(getColumnData(this.uniqueOutputColumnName).getRawValue())
                 .append("\t");
 
         return builder.toString();

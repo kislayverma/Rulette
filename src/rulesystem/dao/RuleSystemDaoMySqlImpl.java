@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 import rulesystem.Rule;
 import rulesystem.ruleinput.RuleInputMetaData;
-import rulesystem.ruleinput.RuleInputMetaData.DataType;
+import rulesystem.ruleinput.RuleType;
 
 public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
 
@@ -92,15 +92,16 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
                 + "ORDER BY b.priority ASC ");
 
         while (resultSet.next()) {
-            DataType dataType =
-                    "Value".equalsIgnoreCase(resultSet.getString("data_type"))
-                    ? DataType.VALUE : DataType.RANGE;
+            RuleType ruleType =
+                    "Value".equalsIgnoreCase(resultSet.getString("rule_type"))
+                    ? RuleType.VALUE : RuleType.RANGE;
 
             inputs.add(new RuleInputMetaData(resultSet.getInt("id"),
                     resultSet.getInt("rule_system_id"),
                     resultSet.getString("name"),
                     resultSet.getInt("priority"),
-                    dataType));
+                    ruleType,
+                    Utils.getRuleInputDataTypeFromName(resultSet.getString("data_type"))));
         }
 
         this.inputColumnList = inputs;
@@ -116,7 +117,7 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
         ResultSet resultSet =
                 statement.executeQuery("SELECT * " + " FROM " + this.tableName);
 
-        if (resultSet.first()) {
+        if (resultSet != null) {
             rules = convertToRules(resultSet);
         }
 
@@ -153,11 +154,11 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
 
         for (RuleInputMetaData col : this.inputColumnList) {
             nameListBuilder.append(col.getName()).append(",");
-            String val = rule.getColumnData(col.getName()).getValue();
+            String val = rule.getColumnData(col.getName()).getRawValue();
             valueListBuilder.append(val.isEmpty() ? null : "'" + val + "'").append(",");
         }
         nameListBuilder.append(this.uniqueOutputColumnName).append(",");
-        valueListBuilder.append(rule.getColumnData(this.uniqueOutputColumnName).getValue()).append(",");
+        valueListBuilder.append(rule.getColumnData(this.uniqueOutputColumnName).getRawValue()).append(",");
 
         sqlBuilder.append("INSERT INTO ")
                 .append(this.tableName)
@@ -193,7 +194,7 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
         String sql = "DELETE FROM " + this.tableName
                 + " WHERE " + this.uniqueIdColumnName + "= ?";
         PreparedStatement preparedStatement = this.dataSource.getConnection().prepareStatement(sql);
-        preparedStatement.setString(1, rule.getColumnData(this.uniqueIdColumnName).getValue());
+        preparedStatement.setString(1, rule.getColumnData(this.uniqueIdColumnName).getRawValue());
 
         if (preparedStatement.executeUpdate() > 0) {
             return true;
@@ -208,7 +209,7 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
         StringBuilder updateListBuilder = new StringBuilder();
 
         for (RuleInputMetaData col : this.inputColumnList) {
-            String val = rule.getColumnData(col.getName()).getValue();
+            String val = rule.getColumnData(col.getName()).getRawValue();
 
             updateListBuilder.append(col.getName())
                     .append("=")
@@ -217,10 +218,10 @@ public class RuleSystemDaoMySqlImpl implements RuleSystemDao {
         }
         updateListBuilder.append(this.uniqueOutputColumnName)
                 .append("=")
-                .append(rule.getColumnData(this.uniqueOutputColumnName).getValue())
+                .append(rule.getColumnData(this.uniqueOutputColumnName).getRawValue())
                 .append(",");
 
-        String oldRuleId = rule.getColumnData(this.uniqueIdColumnName).getValue();
+        String oldRuleId = rule.getColumnData(this.uniqueIdColumnName).getRawValue();
         sqlBuilder.append("UPDATE ")
                 .append(this.tableName)
                 .append(" SET ")
