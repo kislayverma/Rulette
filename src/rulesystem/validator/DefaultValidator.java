@@ -1,6 +1,6 @@
 package rulesystem.validator;
 
-import rulesystem.Rule;
+import rulesystem.rule.Rule;
 
 public class DefaultValidator implements Validator{
 	@Override

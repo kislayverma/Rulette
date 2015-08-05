@@ -1,10 +1,10 @@
-package rulesystem;
+package rulesystem.rule;
 
 import java.util.List;
 
 import rulesystem.ruleinput.RuleInput;
 
-abstract class RSNode {
+public abstract class RSNode {
 	// This will be populated if this is a leaf node
 	protected Rule rule;
 

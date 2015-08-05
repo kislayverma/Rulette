@@ -1,5 +1,9 @@
 package rulesystem;
 
+import rulesystem.rule.ValueRSNode;
+import rulesystem.rule.RangeRSNode;
+import rulesystem.rule.RSNode;
+import rulesystem.rule.Rule;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,7 +15,9 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 import rulesystem.dao.RuleSystemDao;
-import rulesystem.dao.RuleSystemDaoMySqlImpl;
+import rulesystem.dao.impl.RuleSystemDaoMySqlImpl;
+import rulesystem.metadata.RuleSystemMetaData;
+import rulesystem.metadata.RuleSystemMetaDataFactory;
 import rulesystem.ruleinput.RuleInputMetaData;
 import rulesystem.ruleinput.RuleInputMetaData.DataType;
 import rulesystem.validator.DefaultValidator;
@@ -99,14 +105,11 @@ import rulesystem.validator.Validator;
 public class RuleSystem implements Serializable {
 
     private final Validator validator;
+    private RuleSystemMetaData metaData;
     private RuleSystemDao dao;
-    private String name;
+    
     private Map<Integer, Rule> allRules;
     private RSNode root;
-    // This list is to keep the order (priority order) of inputs
-    private List<RuleInputMetaData> inputColumnList;
-    private String uniqueIdColumnName = "id";
-    private String uniqueOutputColumnName = "rule_output_id";
 
     /*
      * This class is used to sort lists of eligible rules to get the best fitting rule.
@@ -158,26 +161,33 @@ public class RuleSystem implements Serializable {
      *
      * @param ruleSystemName
      * @param validator
-     * @param uniqueIdColName [OPTIONAL] Name of the column containing unique id
-     * for the rule. "id" will be used by default.
-     * @param uniqueOutputColName [OPTIONAL] Name of the column containing the
-     * output of the rule system. "rule_output_id" will be used by default.
      * @throws Exception
      */
-    public RuleSystem(String ruleSystemName, String uniqueIdColName, String uniqueOutputColName, Validator validator) throws Exception {
+    public RuleSystem(String ruleSystemName, Validator validator) throws Exception {
+        this(ruleSystemName,
+             validator,
+             new RuleSystemDaoMySqlImpl());
+    }
+
+    /**
+     * Use this constructor to explicitly set the dao to be used by the Rule System.
+     * This is optional as the rule has a default implementation of all database
+     * operations.
+     *
+     * Inserting your custom dao is a big responsibility that must not be taken
+     * up lightly. You can ,however, use this facility in case you must work
+     * with pre-existing database systems or to integrate with frameworks like
+     * Hibernate.
+     * 
+     * @param ruleSystemName
+     * @param validator
+     * @param ruleSystemDao
+     * @throws java.lang.Exception
+     */
+    public RuleSystem(String ruleSystemName, Validator validator, RuleSystemDao ruleSystemDao) throws Exception {
         this.name = ruleSystemName;
-        if (uniqueIdColName != null) {
-            this.uniqueIdColumnName = uniqueIdColName;
-        }
-        if (uniqueOutputColName != null) {
-            this.uniqueOutputColumnName = uniqueOutputColName;
-        }
         this.validator = (validator != null) ? validator : new DefaultValidator();
-        this.dao = new RuleSystemDaoMySqlImpl(ruleSystemName, uniqueIdColName, uniqueOutputColName);
-        if (!this.dao.isValid()) {
-            throw new RuntimeException("The rule system with name " + ruleSystemName
-                    + " could not be initialized");
-        }
+        this.dao = ruleSystemDao;
 
         initRuleSystem(ruleSystemName);
     }
@@ -195,6 +205,7 @@ public class RuleSystem implements Serializable {
 
     /**
      * This method returns a list of all the rules in the rule system.
+     * @return 
      */
     public List<Rule> getAllRules() {
         return new ArrayList<>(this.allRules.values());
@@ -471,16 +482,16 @@ public class RuleSystem implements Serializable {
      *    rule_system..rule_system table
      */
     private void initRuleSystem(String ruleSystemName) throws Exception {
-        this.inputColumnList = dao.getInputs(ruleSystemName);
+        this.metaData = RuleSystemMetaDataFactory.getInstance().getMetaData(ruleSystemName);
 
         List<Rule> rules = dao.getAllRules(ruleSystemName);
         System.out.println("Rules from DB : " + rules.size());
 
         this.allRules = new ConcurrentHashMap<>();
-        if (this.inputColumnList.get(0).getDataType().equals(DataType.VALUE)) {
-            this.root = new ValueRSNode(this.inputColumnList.get(0).getName());
+        if (this.metaData.getInputColumnList().get(0).getDataType().equals(DataType.VALUE)) {
+            this.root = new ValueRSNode(this.metaData.getInputColumnList().get(0).getName());
         } else {
-            this.root = new RangeRSNode(this.inputColumnList.get(0).getName());
+            this.root = new RangeRSNode(this.metaData.getInputColumnList().get(0).getName());
         }
 
         for (Rule rule : rules) {
@@ -594,22 +605,6 @@ public class RuleSystem implements Serializable {
         }
 
         return columnNames;
-    }
-
-    /**
-     * Use this method to set the dao to be used by the Rule System. This is
-     * optional as the rule has a default implementation of all database
-     * operations.
-     *
-     * Inserting your custom dao is a big responsibility that must not be taken
-     * up lightly. You can ,however, use this facility in case you must work
-     * with pre-existing database systems or to integrate with frameworks like
-     * Hibernate.
-     *
-     * @param dao
-     */
-    public void setRuleSystemDao(RuleSystemDao dao) {
-        this.dao = dao;
     }
 
     public static void main(String[] args) throws Exception {

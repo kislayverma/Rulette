@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.kislay</groupId>
     <artifactId>RuleSystem</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <name>RuleSystem</name>
     <dependencies>
         <dependency>

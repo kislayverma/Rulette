@@ -1,4 +1,4 @@
-package rulesystem;
+package rulesystem.rule;
 
 import java.io.Serializable;
 import java.util.HashMap;
