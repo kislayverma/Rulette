@@ -1,4 +1,4 @@
-package rulesystem;
+package rulesystem.rule;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -7,11 +7,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import rulesystem.ruleinput.RuleInput;
 
-class RangeRSNode extends RSNode implements Serializable {
+public class RangeRSNode extends RSNode implements Serializable {
 
     private Map<RuleInput, RSNode> fieldMap = new ConcurrentHashMap<>();
 
-    RangeRSNode(String fieldName) {
+    public RangeRSNode(String fieldName) {
         super(fieldName);
     }
 

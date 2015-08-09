@@ -1,4 +1,4 @@
-package rulesystem;
+package rulesystem.rule;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -7,11 +7,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import rulesystem.ruleinput.RuleInput;
 
-class ValueRSNode extends RSNode implements Serializable {
+public class ValueRSNode extends RSNode implements Serializable {
 
     private Map<String, RSNode> fieldMap = new ConcurrentHashMap<>();
 
-    ValueRSNode(String fieldName) {
+    public ValueRSNode(String fieldName) {
         super(fieldName);
     }
 

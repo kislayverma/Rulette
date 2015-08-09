@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package rulesystem.dao;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
@@ -15,9 +11,9 @@ import java.util.Properties;
  *
  * @author kislay
  */
-class DataSource {
+public class DataSource {
 
-    /**
+    /*
      * A singleton that represents a pooled datasource. It is composed of a C3PO
      * pooled datasource. Can be changed to any connect pool provider
      */

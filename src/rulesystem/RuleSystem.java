@@ -1,5 +1,9 @@
 package rulesystem;
 
+import rulesystem.rule.ValueRSNode;
+import rulesystem.rule.RangeRSNode;
+import rulesystem.rule.RSNode;
+import rulesystem.rule.Rule;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,7 +15,9 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 import rulesystem.dao.RuleSystemDao;
-import rulesystem.dao.RuleSystemDaoMySqlImpl;
+import rulesystem.dao.impl.RuleSystemDaoMySqlImpl;
+import rulesystem.metadata.RuleSystemMetaData;
+import rulesystem.metadata.RuleSystemMetaDataFactory;
 import rulesystem.ruleinput.RuleInputMetaData;
 import rulesystem.ruleinput.RuleType;
 import rulesystem.validator.DefaultValidator;
@@ -99,14 +105,11 @@ import rulesystem.validator.Validator;
 public class RuleSystem implements Serializable {
 
     private final Validator validator;
+    private RuleSystemMetaData metaData;
     private RuleSystemDao dao;
-    private String name;
+    
     private Map<Integer, Rule> allRules;
     private RSNode root;
-    // This list is to keep the order (priority order) of inputs
-    private List<RuleInputMetaData> inputColumnList;
-    private String uniqueIdColumnName = "id";
-    private String uniqueOutputColumnName = "rule_output_id";
 
     /*
      * This class is used to sort lists of eligible rules to get the best fitting rule.
@@ -122,11 +125,11 @@ public class RuleSystem implements Serializable {
 
         @Override
         public int compare(Rule rule1, Rule rule2) {
-            for (RuleInputMetaData col : inputColumnList) {
+            for (RuleInputMetaData col : metaData.getInputColumnList()) {
                 String colName = col.getName();
 
-                if (colName.equals(uniqueIdColumnName)
-                        || colName.equals(uniqueOutputColumnName)) {
+                if (colName.equals(metaData.getUniqueIdColumnName())
+                        || colName.equals(metaData.getUniqueOutputColumnName())) {
                     continue;
                 }
 
@@ -158,26 +161,32 @@ public class RuleSystem implements Serializable {
      *
      * @param ruleSystemName
      * @param validator
-     * @param uniqueIdColName [OPTIONAL] Name of the column containing unique id
-     * for the rule. "id" will be used by default.
-     * @param uniqueOutputColName [OPTIONAL] Name of the column containing the
-     * output of the rule system. "rule_output_id" will be used by default.
      * @throws Exception
      */
-    public RuleSystem(String ruleSystemName, String uniqueIdColName, String uniqueOutputColName, Validator validator) throws Exception {
-        this.name = ruleSystemName;
-        if (uniqueIdColName != null) {
-            this.uniqueIdColumnName = uniqueIdColName;
-        }
-        if (uniqueOutputColName != null) {
-            this.uniqueOutputColumnName = uniqueOutputColName;
-        }
+    public RuleSystem(String ruleSystemName, Validator validator) throws Exception {
+        this(ruleSystemName,
+             validator,
+             new RuleSystemDaoMySqlImpl());
+    }
+
+    /**
+     * Use this constructor to explicitly set the dao to be used by the Rule System.
+     * This is optional as the rule has a default implementation of all database
+     * operations.
+     *
+     * Inserting your custom dao is a big responsibility that must not be taken
+     * up lightly. You can ,however, use this facility in case you must work
+     * with pre-existing database systems or to integrate with frameworks like
+     * Hibernate.
+     * 
+     * @param ruleSystemName
+     * @param validator
+     * @param ruleSystemDao
+     * @throws java.lang.Exception
+     */
+    public RuleSystem(String ruleSystemName, Validator validator, RuleSystemDao ruleSystemDao) throws Exception {
         this.validator = (validator != null) ? validator : new DefaultValidator();
-        this.dao = new RuleSystemDaoMySqlImpl(ruleSystemName, uniqueIdColName, uniqueOutputColName);
-        if (!this.dao.isValid()) {
-            throw new RuntimeException("The rule system with name " + ruleSystemName
-                    + " could not be initialized");
-        }
+        this.dao = ruleSystemDao;
 
         initRuleSystem(ruleSystemName);
     }
@@ -186,15 +195,16 @@ public class RuleSystem implements Serializable {
         if (inputMap == null) {
             throw new Exception("No input for creating rule object");
         }
-        if (!inputMap.containsKey(this.uniqueOutputColumnName)) {
+        if (!inputMap.containsKey(metaData.getUniqueOutputColumnName())) {
             throw new Exception("Value for rule output not provided");
         }
 
-        return new Rule(this.inputColumnList, inputMap, this.uniqueIdColumnName, this.uniqueOutputColumnName);
+        return new Rule(metaData.getInputColumnList(), inputMap, metaData.getUniqueIdColumnName(), metaData.getUniqueOutputColumnName());
     }
 
     /**
      * This method returns a list of all the rules in the rule system.
+     * @return 
      */
     public List<Rule> getAllRules() {
         return new ArrayList<>(this.allRules.values());
@@ -248,7 +258,7 @@ public class RuleSystem implements Serializable {
             return null;
         }
 
-        Rule newRule = new Rule(this.inputColumnList, inputMap, this.uniqueIdColumnName, this.uniqueOutputColumnName);
+        Rule newRule = new Rule(metaData.getInputColumnList(), inputMap, metaData.getUniqueIdColumnName(), metaData.getUniqueOutputColumnName());
         return addRule(newRule);
     }
 
@@ -266,14 +276,14 @@ public class RuleSystem implements Serializable {
             return null;
         }
 
-        String ruleOutputId = newRule.getColumnData(this.uniqueOutputColumnName).getRawValue();
+        String ruleOutputId = newRule.getColumnData(metaData.getUniqueOutputColumnName()).getRawValue();
         if (ruleOutputId == null || ruleOutputId.isEmpty()) {
             throw new RuntimeException("Rule can't be saved without rule_output_id.");
         }
 
         List<Rule> overlappingRules = getConflictingRules(newRule);
         if (overlappingRules.isEmpty()) {
-            newRule = dao.saveRule(newRule);
+            newRule = dao.saveRule(metaData.getRuleSystemName(), newRule);
             if (newRule != null) {
                 // Cache the rule
                 addRuleToCache(newRule);
@@ -305,7 +315,7 @@ public class RuleSystem implements Serializable {
             return null;
         }
 
-        String oldRuleId = oldRule.getColumnData(this.uniqueIdColumnName).getRawValue();
+        String oldRuleId = oldRule.getColumnData(metaData.getUniqueIdColumnName()).getRawValue();
         Rule checkForOldRule = this.getRule(Integer.parseInt(oldRuleId));
         if (checkForOldRule == null) {
             throw new Exception("No existing rule with id " + oldRuleId);
@@ -315,7 +325,7 @@ public class RuleSystem implements Serializable {
         if (!overlappingRules.isEmpty()) {
             boolean otherOverlappingRules = false;
             for (Rule overlappingRule : overlappingRules) {
-                if (!overlappingRule.getColumnData(uniqueIdColumnName).getRawValue()
+                if (!overlappingRule.getColumnData(metaData.getUniqueIdColumnName()).getRawValue()
                         .equals(oldRuleId)) {
                     otherOverlappingRules = true;
                 }
@@ -327,7 +337,7 @@ public class RuleSystem implements Serializable {
             }
         }
 
-        Rule resultantRule = dao.updateRule(newRule);
+        Rule resultantRule = dao.updateRule(metaData.getRuleSystemName(), newRule);
         if (resultantRule != null) {
             deleteRuleFromCache(oldRule);
             addRuleToCache(resultantRule);
@@ -368,7 +378,7 @@ public class RuleSystem implements Serializable {
             return false;
         }
 
-        boolean status = dao.deleteRule(rule);
+        boolean status = dao.deleteRule(metaData.getRuleSystemName(), rule);
         if (status) {
             // Remove the rule from the cache
             deleteRuleFromCache(rule);
@@ -423,11 +433,11 @@ public class RuleSystem implements Serializable {
     }
 
     public String getUniqueColumnName() {
-        return this.uniqueIdColumnName;
+        return metaData.getUniqueIdColumnName();
     }
 
     public String getOutputColumnName() {
-        return this.uniqueOutputColumnName;
+        return metaData.getUniqueOutputColumnName();
     }
 
     private List<Rule> getEligibleRules(Map<String, String> inputMap) throws Exception {
@@ -435,7 +445,7 @@ public class RuleSystem implements Serializable {
             Stack<RSNode> currStack = new Stack<>();
             currStack.add(root);
 
-            for (RuleInputMetaData rimd : this.inputColumnList) {
+            for (RuleInputMetaData rimd : metaData.getInputColumnList()) {
                 Stack<RSNode> nextStack = new Stack<>();
                 for (RSNode node : currStack) {
                     String value = inputMap.get(rimd.getName());
@@ -471,16 +481,16 @@ public class RuleSystem implements Serializable {
      *    rule_system..rule_system table
      */
     private void initRuleSystem(String ruleSystemName) throws Exception {
-        this.inputColumnList = dao.getInputs(ruleSystemName);
+        this.metaData = RuleSystemMetaDataFactory.getInstance().getMetaData(ruleSystemName);
 
         List<Rule> rules = dao.getAllRules(ruleSystemName);
         System.out.println("Rules from DB : " + rules.size());
 
         this.allRules = new ConcurrentHashMap<>();
-        if (this.inputColumnList.get(0).getRuleType().equals(RuleType.VALUE)) {
-            this.root = new ValueRSNode(this.inputColumnList.get(0).getName());
+        if (this.metaData.getInputColumnList().get(0).getRuleType().equals(RuleType.VALUE)) {
+            this.root = new ValueRSNode(this.metaData.getInputColumnList().get(0).getName());
         } else {
-            this.root = new RangeRSNode(this.inputColumnList.get(0).getName());
+            this.root = new RangeRSNode(this.metaData.getInputColumnList().get(0).getName());
         }
 
         for (Rule rule : rules) {
@@ -492,8 +502,8 @@ public class RuleSystem implements Serializable {
 
     private void addRuleToCache(Rule rule) throws Exception {
         RSNode currNode = this.root;
-        for (int i = 0; i < this.inputColumnList.size(); i++) {
-            RuleInputMetaData currInput = this.inputColumnList.get(i);
+        for (int i = 0; i < metaData.getInputColumnList().size(); i++) {
+            RuleInputMetaData currInput = metaData.getInputColumnList().get(i);
 
             // 1. See if the current node has a node mapping to the field value
             List<RSNode> nodeList =
@@ -504,11 +514,11 @@ public class RuleSystem implements Serializable {
             //    Also move to the new node.
             if (nodeList.isEmpty()) {
                 RSNode newNode;
-                if (i < this.inputColumnList.size() - 1) {
-                    if (this.inputColumnList.get(i + 1).getRuleType().equals(RuleType.VALUE)) {
-                        newNode = new ValueRSNode(this.inputColumnList.get(i + 1).getName());
+                if (i < metaData.getInputColumnList().size() - 1) {
+                    if (metaData.getInputColumnList().get(i + 1).getRuleType().equals(RuleType.VALUE)) {
+                        newNode = new ValueRSNode(metaData.getInputColumnList().get(i + 1).getName());
                     } else {
-                        newNode = new RangeRSNode(this.inputColumnList.get(i + 1).getName());
+                        newNode = new RangeRSNode(metaData.getInputColumnList().get(i + 1).getName());
                     }
                 } else {
                     newNode = new ValueRSNode("");
@@ -525,19 +535,19 @@ public class RuleSystem implements Serializable {
 
         currNode.setRule(rule);
         this.allRules.put(
-                Integer.parseInt(rule.getColumnData(uniqueIdColumnName).getRawValue()), rule);
+                Integer.parseInt(rule.getColumnData(metaData.getUniqueIdColumnName()).getRawValue()), rule);
     }
 
     private void deleteRuleFromCache(Rule rule) throws Exception {
         // Delete the rule from the map
         this.allRules.remove(
-                Integer.parseInt(rule.getColumnData(uniqueIdColumnName).getRawValue()));
+                Integer.parseInt(rule.getColumnData(metaData.getUniqueIdColumnName()).getRawValue()));
 
         // Locate and delete the rule from the trie
         Stack<RSNode> stack = new Stack<>();
         RSNode currNode = this.root;
 
-        for (RuleInputMetaData rimd : this.inputColumnList) {
+        for (RuleInputMetaData rimd : metaData.getInputColumnList()) {
             String value = rule.getColumnData(rimd.getName()).getRawValue();
             value = (value == null) ? "" : value;
 
@@ -547,8 +557,8 @@ public class RuleSystem implements Serializable {
             currNode = nextNode;
         }
 
-        if (!currNode.getRule().getColumnData(uniqueIdColumnName).equals(
-                rule.getColumnData(uniqueIdColumnName))) {
+        if (!currNode.getRule().getColumnData(metaData.getUniqueIdColumnName()).equals(
+                rule.getColumnData(metaData.getUniqueIdColumnName()))) {
             throw new Exception("The rule to be deleted and the rule found are not the same."
                     + "Something went horribly wrong");
         }
@@ -573,48 +583,32 @@ public class RuleSystem implements Serializable {
     }
 
     public String getName() {
-        return this.name;
+        return metaData.getRuleSystemName();
     }
 
     public List<String> getAllColumnNames() {
         List<String> columnNames = new ArrayList<>();
-        columnNames.add(this.uniqueIdColumnName);
-        for (RuleInputMetaData rimd : this.inputColumnList) {
+        columnNames.add(metaData.getUniqueIdColumnName());
+        for (RuleInputMetaData rimd : metaData.getInputColumnList()) {
             columnNames.add(rimd.getName());
         }
-        columnNames.add(this.uniqueOutputColumnName);
+        columnNames.add(metaData.getUniqueOutputColumnName());
 
         return columnNames;
     }
 
     public List<String> getInputColumnNames() {
         List<String> columnNames = new ArrayList<>();
-        for (RuleInputMetaData rimd : this.inputColumnList) {
+        for (RuleInputMetaData rimd : metaData.getInputColumnList()) {
             columnNames.add(rimd.getName());
         }
 
         return columnNames;
     }
 
-    /**
-     * Use this method to set the dao to be used by the Rule System. This is
-     * optional as the rule has a default implementation of all database
-     * operations.
-     *
-     * Inserting your custom dao is a big responsibility that must not be taken
-     * up lightly. You can ,however, use this facility in case you must work
-     * with pre-existing database systems or to integrate with frameworks like
-     * Hibernate.
-     *
-     * @param dao
-     */
-    public void setRuleSystemDao(RuleSystemDao dao) {
-        this.dao = dao;
-    }
-
     public static void main(String[] args) throws Exception {
         long stime = new Date().getTime();
-        RuleSystem rs = new RuleSystem("vendor_terms_rule_system", "rule_id", "rule_output_id", null);
+        RuleSystem rs = new RuleSystem("vendor_terms_rule_system", null);
         long etime = new Date().getTime();
         System.out.println("Time taken to init rule system : " + (etime - stime));
 
