@@ -94,11 +94,14 @@ import rulesystem.validator.Validator;
  * <li>5. Put the jar in your class path.</li>
  *</ol>
  * That's it! The rule system is all set up and ready to use.
- *
- * Sample usage:
+ * <br/>
+ * 
+ * <b>Sample usage</b>
  * <code>
+ * <pre>
  * RuleSystem rs = new RuleSystem("rule system name");
  * Rule r = rs.getRule(25L);
+ * </pre>
  * </code>
  *
  * @author Kislay Verma
