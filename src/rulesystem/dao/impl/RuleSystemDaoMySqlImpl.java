@@ -46,11 +46,11 @@ public class RuleSystemDaoMySqlImpl extends BaseDaoMySqlImpl implements RuleSyst
 
         for (RuleInputMetaData col : metaData.getInputColumnList()) {
             nameListBuilder.append(col.getName()).append(",");
-            String val = rule.getColumnData(col.getName()).getValue();
+            String val = rule.getColumnData(col.getName()).getRawValue();
             valueListBuilder.append(val.isEmpty() ? null : "'" + val + "'").append(",");
         }
         nameListBuilder.append(metaData.getUniqueOutputColumnName()).append(",");
-        valueListBuilder.append(rule.getColumnData(metaData.getUniqueOutputColumnName()).getValue()).append(",");
+        valueListBuilder.append(rule.getColumnData(metaData.getUniqueOutputColumnName()).getRawValue()).append(",");
 
         sqlBuilder.append("INSERT INTO ")
                 .append(metaData.getTableName())
@@ -88,7 +88,7 @@ public class RuleSystemDaoMySqlImpl extends BaseDaoMySqlImpl implements RuleSyst
         String sql = "DELETE FROM " + metaData.getTableName()
                 + " WHERE " + metaData.getUniqueIdColumnName() + "= ?";
         PreparedStatement preparedStatement = dataSource.getConnection().prepareStatement(sql);
-        preparedStatement.setString(1, rule.getColumnData(metaData.getUniqueIdColumnName()).getValue());
+        preparedStatement.setString(1, rule.getColumnData(metaData.getUniqueIdColumnName()).getRawValue());
 
         if (preparedStatement.executeUpdate() > 0) {
             return true;
@@ -105,7 +105,7 @@ public class RuleSystemDaoMySqlImpl extends BaseDaoMySqlImpl implements RuleSyst
         StringBuilder updateListBuilder = new StringBuilder();
 
         for (RuleInputMetaData col : metaData.getInputColumnList()) {
-            String val = rule.getColumnData(col.getName()).getValue();
+            String val = rule.getColumnData(col.getName()).getRawValue();
 
             updateListBuilder.append(col.getName())
                     .append("=")
@@ -114,10 +114,10 @@ public class RuleSystemDaoMySqlImpl extends BaseDaoMySqlImpl implements RuleSyst
         }
         updateListBuilder.append(metaData.getUniqueOutputColumnName())
                 .append("=")
-                .append(rule.getColumnData(metaData.getUniqueOutputColumnName()).getValue())
+                .append(rule.getColumnData(metaData.getUniqueOutputColumnName()).getRawValue())
                 .append(",");
 
-        String oldRuleId = rule.getColumnData(metaData.getUniqueIdColumnName()).getValue();
+        String oldRuleId = rule.getColumnData(metaData.getUniqueIdColumnName()).getRawValue();
         sqlBuilder.append("UPDATE ")
                 .append(metaData.getTableName())
                 .append(" SET ")
