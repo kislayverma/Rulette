@@ -52,7 +52,6 @@ public class MetaDataDaoMySqlImpl extends BaseDaoMySqlImpl implements MetaDataDa
             InputDataType dataType = InputDataType.valueOf(resultSet.getString("data_type"));
 
             inputs.add(new RuleInputMetaData(resultSet.getInt("id"),
-                    resultSet.getInt("rule_system_id"),
                     resultSet.getString("name"),
                     resultSet.getInt("priority"),
                     ruleType,

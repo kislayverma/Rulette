@@ -90,11 +90,7 @@ public class RuleSystemDaoMySqlImpl extends BaseDaoMySqlImpl implements RuleSyst
         PreparedStatement preparedStatement = dataSource.getConnection().prepareStatement(sql);
         preparedStatement.setString(1, rule.getColumnData(metaData.getUniqueIdColumnName()).getRawValue());
 
-        if (preparedStatement.executeUpdate() > 0) {
-            return true;
-        }
-
-        return false;
+        return preparedStatement.executeUpdate() > 0;
     }
 
     @Override
@@ -161,11 +157,7 @@ public class RuleSystemDaoMySqlImpl extends BaseDaoMySqlImpl implements RuleSyst
                 inputMap.put(metadata.getUniqueOutputColumnName(),
                     resultSet.getString(metadata.getUniqueOutputColumnName()));
 
-                rules.add(new Rule(metadata.getInputColumnList(),
-                                   inputMap,
-                                   metadata.getUniqueIdColumnName(),
-                                   metadata.getUniqueOutputColumnName())
-                );
+                rules.add(new Rule(metadata.getRuleSystemName(), inputMap));
             }
         }
 

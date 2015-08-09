@@ -9,9 +9,9 @@ public class ValueInput extends RuleInput implements Serializable {
 
     private IInputValue value;
 
-    public ValueInput(int id, int ruleSystemId, String name, int priority, InputDataType inputDataType, String value)
+    public ValueInput(int id, String name, int priority, InputDataType inputDataType, String value)
             throws Exception {
-        this.metaData = new RuleInputMetaData(id, ruleSystemId, name, priority, RuleType.VALUE, inputDataType);
+        this.metaData = new RuleInputMetaData(id, name, priority, RuleType.VALUE, inputDataType);
         this.value = RuleInputValue.createRuleInputValue(inputDataType, value == null ? "" : value);
     }
 
@@ -23,6 +23,8 @@ public class ValueInput extends RuleInput implements Serializable {
     /**
      * The given input conflicts with this if the values are same.
      *
+     * @param input
+     * @return 
      * @throws Exception
      */
     @Override
