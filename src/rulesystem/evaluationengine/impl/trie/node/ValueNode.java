@@ -1,4 +1,4 @@
-package rulesystem.rule;
+package rulesystem.evaluationengine.impl.trie.node;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -7,16 +7,16 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import rulesystem.ruleinput.RuleInput;
 
-public class ValueRSNode extends RSNode implements Serializable {
+public class ValueNode extends Node implements Serializable {
 
-    private Map<String, RSNode> fieldMap = new ConcurrentHashMap<>();
+    private Map<String, Node> fieldMap = new ConcurrentHashMap<>();
 
-    public ValueRSNode(String fieldName) {
+    public ValueNode(String fieldName) {
         super(fieldName);
     }
 
     @Override
-    public void addChildNode(RuleInput ruleInput, RSNode childNode) {
+    public void addChildNode(RuleInput ruleInput, Node childNode) {
         this.fieldMap.put(ruleInput.getRawValue(), childNode);
     }
 
@@ -26,9 +26,9 @@ public class ValueRSNode extends RSNode implements Serializable {
     }
 
     @Override
-    public List<RSNode> getNodes(String value, boolean getAnyValue) {
-        List<RSNode> nodeList = new ArrayList<>();
-        RSNode node = this.fieldMap.get(value);
+    public List<Node> getNodes(String value, boolean getAnyValue) {
+        List<Node> nodeList = new ArrayList<>();
+        Node node = this.fieldMap.get(value);
         if (node != null) {
             nodeList.add(node);
         }
@@ -51,7 +51,7 @@ public class ValueRSNode extends RSNode implements Serializable {
     }
 
     @Override
-    public RSNode getMatchingRule(String value) {
+    public Node getMatchingRule(String value) {
         if (value == null) {
             return null;
         }

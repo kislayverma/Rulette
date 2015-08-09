@@ -8,7 +8,7 @@ import rulesystem.dao.impl.MetaDataDaoMySqlImpl;
 
 public class RuleSystemMetaDataFactory {
 
-    private static RuleSystemMetaDataFactory instance = new RuleSystemMetaDataFactory();
+    private static final RuleSystemMetaDataFactory instance = new RuleSystemMetaDataFactory();
     private MetaDataDao metaDataDao;
     private static Map<String, RuleSystemMetaData> metaDataMap;
 

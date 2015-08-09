@@ -1,21 +1,22 @@
-package rulesystem.rule;
+package rulesystem.evaluationengine.impl.trie.node;
 
 import java.util.List;
+import rulesystem.rule.Rule;
 
 import rulesystem.ruleinput.RuleInput;
 
-public abstract class RSNode {
+public abstract class Node {
 	// This will be populated if this is a leaf node
 	protected Rule rule;
 
 	// Represents the field name modelled by this node
 	protected String name;
 
-	public abstract void addChildNode(RuleInput ruleInput, RSNode childNode);
+	public abstract void addChildNode(RuleInput ruleInput, Node childNode);
 
 	public abstract void removeChildNode(RuleInput ruleInput);
 
-	public abstract List<RSNode> getNodes(String value, boolean getAnyValue) throws Exception;
+	public abstract List<Node> getNodes(String value, boolean getAnyValue) throws Exception;
 
 	public abstract int getCount();
 
@@ -25,9 +26,9 @@ public abstract class RSNode {
 	 * and literally matches them against the keys of the trie. This allows us to locate a 
 	 * specific rule in the trie.
 	 */
-	public abstract RSNode getMatchingRule(String value);
+	public abstract Node getMatchingRule(String value);
 
-	RSNode (String fieldName) {
+	Node (String fieldName) {
 		this.name = fieldName;
 	}
 
