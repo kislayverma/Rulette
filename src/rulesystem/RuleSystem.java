@@ -62,7 +62,7 @@ import rulesystem.validator.Validator;
  * key reference to another table . It may be the actual value you need. It
  * simply doesn't matter to this system. The other columns each represent an
  * input.</li>
- * To do rule evaluation, the system takes the combination of the
+ * <li>To do rule evaluation, the system takes the combination of the
  * different rule inputs given to it, and returns the best fitting rule (if
  * any). 'Best fit' means: a. Value inputs - An exact value match is better than
  * an 'any' match. e.g. if there are two rules, one with value of input X as 1
@@ -159,7 +159,7 @@ public class RuleSystem implements Serializable {
             throw new Exception("Value for rule output not provided");
         }
 
-        return new Rule(metaData.getInputColumnList(), inputMap, metaData.getUniqueIdColumnName(), metaData.getUniqueOutputColumnName());
+        return new Rule(metaData.getRuleSystemName(), inputMap);
     }
 
     /**
@@ -210,7 +210,7 @@ public class RuleSystem implements Serializable {
             return null;
         }
 
-        Rule newRule = new Rule(metaData.getInputColumnList(), inputMap, metaData.getUniqueIdColumnName(), metaData.getUniqueOutputColumnName());
+        Rule newRule = new Rule(metaData.getRuleSystemName(), inputMap);
         return addRule(newRule);
     }
 

@@ -10,9 +10,9 @@ public class RangeInput extends RuleInput implements Serializable {
     private IInputValue lowerBound;
     private IInputValue upperBound;
 
-    public RangeInput(int id, int ruleSystemId, String name, int priority, InputDataType inputDataType, String value)
+    public RangeInput(int id, String name, int priority, InputDataType inputDataType, String value)
             throws Exception {
-        this.metaData = new RuleInputMetaData(id, ruleSystemId, name, priority, RuleType.RANGE, inputDataType);
+        this.metaData = new RuleInputMetaData(id, name, priority, RuleType.RANGE, inputDataType);
         String[] rangeArr = value.split("-");
 
         if (value.isEmpty()) {
