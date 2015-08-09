@@ -1,4 +1,4 @@
-package rulesystem.rule;
+package rulesystem.evaluationengine.impl.trie.node;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -7,16 +7,16 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import rulesystem.ruleinput.RuleInput;
 
-public class RangeRSNode extends RSNode implements Serializable {
+public class RangeNode extends Node implements Serializable {
 
-    private Map<RuleInput, RSNode> fieldMap = new ConcurrentHashMap<>();
+    private Map<RuleInput, Node> fieldMap = new ConcurrentHashMap<>();
 
-    public RangeRSNode(String fieldName) {
+    public RangeNode(String fieldName) {
         super(fieldName);
     }
 
     @Override
-    public void addChildNode(RuleInput ruleInput, RSNode childNode) {
+    public void addChildNode(RuleInput ruleInput, Node childNode) {
         this.fieldMap.put(ruleInput, childNode);
     }
 
@@ -26,9 +26,9 @@ public class RangeRSNode extends RSNode implements Serializable {
     }
 
     @Override
-    public List<RSNode> getNodes(String value, boolean getAnyValue) throws Exception {
-        List<RSNode> nodeList = new ArrayList<>();
-        for (Map.Entry<RuleInput, RSNode> entry : this.fieldMap.entrySet()) {
+    public List<Node> getNodes(String value, boolean getAnyValue) throws Exception {
+        List<Node> nodeList = new ArrayList<>();
+        for (Map.Entry<RuleInput, Node> entry : this.fieldMap.entrySet()) {
             if ("".equals(entry.getKey().getRawValue()) && !getAnyValue) {
                 continue;
             }
@@ -47,8 +47,8 @@ public class RangeRSNode extends RSNode implements Serializable {
     }
 
     @Override
-    public RSNode getMatchingRule(String value) {
-        for (Map.Entry<RuleInput, RSNode> entry : this.fieldMap.entrySet()) {
+    public Node getMatchingRule(String value) {
+        for (Map.Entry<RuleInput, Node> entry : this.fieldMap.entrySet()) {
             if (value.equals(entry.getKey().getRawValue())) {
                 return entry.getValue();
             }
