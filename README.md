@@ -1,8 +1,8 @@
 # Rulette
 This is a lightweight, domain-agnostic implementation intended to model a majority of usual business rules. This is a generic rule definition and evaluation engine, and it has to be wrapped in a domain aware wrapper to be used in a business context.
 
- 1. JARGON : A rule-system is a mapping of elements of an input space comprising of one 
- or more distinct inputs to a well-defined output space. 
+ 1. JARGON : A rule-system is a mapping of elements of an input space comprising of one
+ or more distinct inputs to a well-defined output space.
  2. JARGON : Each element of the input space is called a rule-input. An input can be of type 'value' (discrete valued variable) or a range (intervals).
  3. JARGON : The output of the rule engine is an identifier which is  intrinsically meaningless in this system but meaningful in the business use-case (i.e. primary key of an output data table).
  4. An example of rule : If X= 2 AND Y = 3, THEN Z =42 (X and Y are rule-inputs of type value).
@@ -11,7 +11,7 @@ This is a lightweight, domain-agnostic implementation intended to model a majori
  7. Values of all columns are AND-ed together for evaluating the rule.
  8. A null value of any rule-input means that rule-input has no part to play in the evaluation of that rule. e.g. in the rule : IF X = 2 and Y = null, Z = 42, the output will be 42 for all values of Y so long as X is 2.
  6. Rule inputs can be of type number(float), date, or stringare treated as strings.
- 7. Input have a priority order. This is the order in which they are evaluated to arrive at the 
+ 7. Input have a priority order. This is the order in which they are evaluated to arrive at the
     output. Defining priorities is much like defining database indexes - different choices can 
     cause widely divergent performance. Worse-depending on your domain, incorrect priorities may 
     even lead to incorrect results.
