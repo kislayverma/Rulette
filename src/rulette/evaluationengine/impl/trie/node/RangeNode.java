@@ -9,7 +9,7 @@ import rulette.ruleinput.RuleInput;
 
 public class RangeNode extends Node implements Serializable {
 
-    private Map<RuleInput, Node> fieldMap = new ConcurrentHashMap<>();
+    private final Map<RuleInput, Node> fieldMap = new ConcurrentHashMap<>();
 
     public RangeNode(String fieldName) {
         super(fieldName);
@@ -34,6 +34,18 @@ public class RangeNode extends Node implements Serializable {
             }
 
             if (entry.getKey().evaluate(value)) {
+                nodeList.add(entry.getValue());
+            }
+        }
+
+        return nodeList;
+    }
+
+    @Override
+    public List<Node> getNodesForAddingRule(String value) throws Exception {
+        List<Node> nodeList = new ArrayList<>();
+        for (Map.Entry<RuleInput, Node> entry : this.fieldMap.entrySet()) {
+            if (value.equals(entry.getKey().getRawValue())) {
                 nodeList.add(entry.getValue());
             }
         }

@@ -31,25 +31,19 @@ public class RangeInput extends RuleInput implements Serializable {
 
     @Override
     public boolean evaluate(String value) throws Exception {
-        try {
-            if (lowerBound.isEmpty() && upperBound.isEmpty()) {
-                return true;
-            }
-
-            if (lowerBound.compareTo(value) <= 0 && upperBound.compareTo(value) >= 0) {
-                return true;
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        if (lowerBound.isEmpty() && upperBound.isEmpty()) {
+            return true;
         }
 
-        return false;
+        return (lowerBound.compareTo(value) <= 0 && upperBound.compareTo(value) >= 0);
     }
 
     /**
      * The input rule input conflicts with this if the ranges specified by the
      * two are overlapping.
      *
+     * @param input
+     * @return true is this rule input conflicts with the one passed in, true otherwise
      * @throws Exception
      */
     @Override

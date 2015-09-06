@@ -2,17 +2,18 @@ package rulette.ruleinput.value;
 
 import java.io.Serializable;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 public class InputDateValue extends RuleInputValue implements IInputValue<Date>, Serializable {
 
     private final Date value;
-    private static final SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
+    private static final DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMMdd");
 
     public InputDateValue (String value) throws Exception {
         this.dataType = InputDataType.DATE;
-        this.value = value == null || value.isEmpty() ? null : formatter.parse(value);
+        this.value = value == null || value.isEmpty() ? null : formatter.parseDateTime(value).toDate();
     }
 
     @Override
@@ -27,7 +28,6 @@ public class InputDateValue extends RuleInputValue implements IInputValue<Date>,
 
     @Override
     public int compareTo(String obj) throws ParseException {
-        Date otherValue = formatter.parse(obj);
-        return this.value.compareTo(otherValue);
+        return this.value.compareTo(formatter.parseDateTime(obj).toDate());
     }
 }

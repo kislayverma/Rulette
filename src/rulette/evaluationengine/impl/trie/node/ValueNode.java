@@ -9,7 +9,7 @@ import rulette.ruleinput.RuleInput;
 
 public class ValueNode extends Node implements Serializable {
 
-    private Map<String, Node> fieldMap = new ConcurrentHashMap<>();
+    private final Map<String, Node> fieldMap = new ConcurrentHashMap<>();
 
     public ValueNode(String fieldName) {
         super(fieldName);
@@ -43,6 +43,11 @@ public class ValueNode extends Node implements Serializable {
         }
 
         return nodeList;
+    }
+
+    @Override
+    public List<Node> getNodesForAddingRule(String value) {
+        return getNodes(value, false);
     }
 
     @Override

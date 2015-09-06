@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.concurrent.ConcurrentHashMap;
 import rulette.evaluationengine.IEvaluationEngine;
 import rulette.evaluationengine.impl.trie.node.Node;
 import rulette.evaluationengine.impl.trie.node.RangeNode;
@@ -22,7 +23,7 @@ import rulette.ruleinput.RuleType;
 public class TrieBasedEvaluationEngine implements IEvaluationEngine {
 
     private final RuleSystemMetaData metaData;
-    private Map<Integer, Rule> allRules;
+    private final Map<Integer, Rule> allRules = new ConcurrentHashMap<>();
     private final Node root;
 
     public TrieBasedEvaluationEngine(RuleSystemMetaData metaData) throws Exception {
@@ -87,7 +88,7 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
 
             // 1. See if the current node has a node mapping to the field value
             List<Node> nodeList =
-                    currNode.getNodes(rule.getColumnData(currInput.getName()).getRawValue(), false);
+                currNode.getNodesForAddingRule(rule.getColumnData(currInput.getName()).getRawValue());
 
             // 2. If it doesn't, create a new empty node and map the field value
             //    to the new node.
@@ -104,8 +105,7 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
                     newNode = new ValueNode("");
                 }
 
-                currNode.addChildNode(
-                        rule.getColumnData(currInput.getName()), newNode);
+                currNode.addChildNode(rule.getColumnData(currInput.getName()), newNode);
                 currNode = newNode;
             } // 3. If it does, move to that node.
             else {
@@ -122,7 +122,7 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
     public void deleteRule(Rule rule) throws Exception {
         // Delete the rule from the map
         this.allRules.remove(
-                Integer.parseInt(rule.getColumnData(metaData.getUniqueIdColumnName()).getRawValue()));
+            Integer.parseInt(rule.getColumnData(metaData.getUniqueIdColumnName()).getRawValue()));
 
         // Locate and delete the rule from the trie
         Stack<Node> stack = new Stack<>();
@@ -146,7 +146,6 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
 
         // Get rid of the leaf node
         stack.pop();
-        currNode = null;
 
         // Handle the ancestors of the leaf
         while (!stack.isEmpty()) {

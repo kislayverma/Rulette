@@ -148,7 +148,10 @@ public class RuleSystem implements Serializable {
         this.validator = (validator != null) ? validator : new DefaultValidator();
         this.dao = ruleSystemDao;
 
+        long startTime = new Date().getTime();
         initRuleSystem(ruleSystemName);
+        long endTime = new Date().getTime();
+        System.out.println("Time taken to initialize rule system : " + (endTime - startTime) + " ms.");
     }
 
     public Rule createRuleObject(Map<String, String> inputMap) throws Exception {
@@ -407,7 +410,7 @@ public class RuleSystem implements Serializable {
     }
 
     /*
-     * 1. Get rule system inputs from rule_system..rule_input table.
+     * 1. Get rule system inputs from rule_system.rule_input table.
      * 2. Get rules from the table specified for this rule system in the
      *    rule_system..rule_system table
      */
@@ -428,25 +431,23 @@ public class RuleSystem implements Serializable {
     }
 
     public static void main(String[] args) throws Exception {
-        long stime = new Date().getTime();
         RuleSystem rs = new RuleSystem("vendor_terms_rule_system", null);
-        long etime = new Date().getTime();
-        System.out.println("Time taken to init rule system : " + (etime - stime));
 
         Map<String, String> inputMap = new HashMap<>();
         inputMap.put("vendor_name", "SIA FASHION");
         inputMap.put("brand_name", "SIA Fashion");
         inputMap.put("article_type_name", "Kurtas");
-        inputMap.put("gender", "omen");
+        inputMap.put("gender", "Women");
         inputMap.put("is_active", "1");
-        inputMap.put("valid_date_range", "20140101");
-        Rule rule = null;
-        stime = new Date().getTime();
+        inputMap.put("valid_date_range", "20130820");
+
+        //Rule rule = null;
+        long stime = new Date().getTime();
         for (int i = 0; i < 1; i++) {
-            rule = rs.getRule(inputMap);
-            //System.out.println((rule == null) ? "none" : rule.toString());
+            Rule rule = rs.getRule(inputMap);
+            System.out.println((rule == null) ? "none" : rule.toString());
         }
-        etime = new Date().getTime();
-        System.out.println("Time taken : " + (etime - stime));
+        long etime = new Date().getTime();
+        System.out.println("Time taken to get rule : " + (etime - stime) + " ms.");
     }
 }

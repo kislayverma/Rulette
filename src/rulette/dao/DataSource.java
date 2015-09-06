@@ -39,9 +39,12 @@ public class DataSource {
 
         // test connectivity and initialize pool
         try {
+            System.out.println("Testing DB connection...");
             testConnection = cpds.getConnection();
             testStatement = testConnection.createStatement();
             testStatement.executeQuery("select 1+1 from DUAL");
+            
+            System.out.println("DB connection tested successfully.");
         } catch (SQLException e) {
             throw e;
         } finally {

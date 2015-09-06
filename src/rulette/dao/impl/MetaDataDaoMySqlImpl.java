@@ -21,13 +21,17 @@ public class MetaDataDaoMySqlImpl extends BaseDaoMySqlImpl implements MetaDataDa
     public RuleSystemMetaData getRuleSystemMetaData(String ruleSystemName) throws Exception {
         Statement statement = dataSource.getConnection().createStatement();
         ResultSet resultSet =
-                statement.executeQuery("SELECT * FROM rule_system WHERE name LIKE '" + ruleSystemName + "'");
+            statement.executeQuery("SELECT * FROM rule_system WHERE name LIKE '" + ruleSystemName + "'");
+
+        if (!resultSet.first()) {
+            throw new Exception("No meta data found for rule system name : " + ruleSystemName);
+        }
 
         RuleSystemMetaData metaData = new RuleSystemMetaData(
             resultSet.getString("name"),
             resultSet.getString("table_name"),
-            resultSet.getString("uniqueIdColumnName"),
-            resultSet.getString("uniqueOutputColumnName"),
+            resultSet.getString("unique_id_column_name"),
+            resultSet.getString("output_column_name"),
             getInputs(ruleSystemName));
 
         return metaData;
@@ -49,7 +53,7 @@ public class MetaDataDaoMySqlImpl extends BaseDaoMySqlImpl implements MetaDataDa
             RuleType ruleType =
                     "Value".equalsIgnoreCase(resultSet.getString("rule_type"))
                     ? RuleType.VALUE : RuleType.RANGE;
-            InputDataType dataType = InputDataType.valueOf(resultSet.getString("data_type"));
+            InputDataType dataType = InputDataType.valueOf(resultSet.getString("data_type").toUpperCase());
 
             inputs.add(new RuleInputMetaData(resultSet.getInt("id"),
                     resultSet.getString("name"),

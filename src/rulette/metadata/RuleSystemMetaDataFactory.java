@@ -1,6 +1,7 @@
 package rulette.metadata;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import rulette.dao.MetaDataDao;
@@ -10,7 +11,7 @@ public class RuleSystemMetaDataFactory {
 
     private static final RuleSystemMetaDataFactory instance = new RuleSystemMetaDataFactory();
     private MetaDataDao metaDataDao;
-    private static Map<String, RuleSystemMetaData> metaDataMap;
+    private static Map<String, RuleSystemMetaData> metaDataMap = new ConcurrentHashMap<>();
 
     private RuleSystemMetaDataFactory() {
         try {

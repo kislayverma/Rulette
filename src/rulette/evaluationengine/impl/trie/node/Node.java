@@ -18,13 +18,17 @@ public abstract class Node {
 
 	public abstract List<Node> getNodes(String value, boolean getAnyValue) throws Exception;
 
-	public abstract int getCount();
+	public abstract List<Node> getNodesForAddingRule(String value) throws Exception;
+
+    public abstract int getCount();
 
 	/**
 	 * This method is specifically added to enable traversal of the rule system trie to 
 	 * find a specific rule. It takes the exact values of rule input fields (value or range) 
 	 * and literally matches them against the keys of the trie. This allows us to locate a 
 	 * specific rule in the trie.
+     * @param value
+     * @return 
 	 */
 	public abstract Node getMatchingRule(String value);
 
