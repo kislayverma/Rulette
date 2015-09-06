@@ -9,20 +9,26 @@ import rulette.dao.impl.MetaDataDaoMySqlImpl;
 
 public class RuleSystemMetaDataFactory {
 
-    private static final RuleSystemMetaDataFactory instance = new RuleSystemMetaDataFactory();
-    private MetaDataDao metaDataDao;
-    private static Map<String, RuleSystemMetaData> metaDataMap = new ConcurrentHashMap<>();
+    private static RuleSystemMetaDataFactory instance;
+    private static MetaDataDao metaDataDao;
+    private static final Map<String, RuleSystemMetaData> metaDataMap = new ConcurrentHashMap<>();
 
     private RuleSystemMetaDataFactory() {
-        try {
-            metaDataDao = new MetaDataDaoMySqlImpl();
-        } catch (Exception ex) {
-            metaDataDao = null;
-            Logger.getLogger(RuleSystemMetaDataFactory.class.getName()).log(Level.SEVERE, null, ex);
+        if (metaDataDao == null) {
+            try {
+                metaDataDao = new MetaDataDaoMySqlImpl();
+            } catch (Exception ex) {
+                metaDataDao = null;
+                Logger.getLogger(RuleSystemMetaDataFactory.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
 
     public static RuleSystemMetaDataFactory getInstance() {
+        if (instance == null) {
+            instance = new RuleSystemMetaDataFactory();
+        }
+
         return instance;
     }
 

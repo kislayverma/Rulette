@@ -109,10 +109,16 @@ import rulette.validator.Validator;
  */
 public class RuleSystem implements Serializable {
 
-    private final Validator validator;
+    private Validator validator;
     private RuleSystemMetaData metaData;
     private RuleSystemDao dao;
     private IEvaluationEngine evaluationEngine;
+
+    /**
+     * This constructor is added only to support unit testing. Should not be used.
+     */
+    public RuleSystem() {
+    }
 
     /**
      * This constructor accepts a path to a text file containing the following
@@ -124,9 +130,7 @@ public class RuleSystem implements Serializable {
      * @throws Exception
      */
     public RuleSystem(String ruleSystemName, Validator validator) throws Exception {
-        this(ruleSystemName,
-             validator,
-             new RuleSystemDaoMySqlImpl());
+        this(ruleSystemName, validator, new RuleSystemDaoMySqlImpl());
     }
 
     /**
