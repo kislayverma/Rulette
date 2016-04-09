@@ -1,7 +1,7 @@
-package rulette.ruleinput;
+package com.kislay.rulette.ruleinput;
 
+import com.kislay.rulette.ruleinput.value.InputDataType;
 import java.io.Serializable;
-import rulette.ruleinput.value.InputDataType;
 
 public class RuleInputMetaData implements Serializable {
     private final int id;

@@ -1,14 +1,14 @@
-package rulette.rule;
+package com.kislay.rulette.rule;
 
+import com.kislay.rulette.metadata.RuleSystemMetaData;
+import com.kislay.rulette.metadata.RuleSystemMetaDataFactory;
+import com.kislay.rulette.ruleinput.RuleInput;
+import com.kislay.rulette.ruleinput.RuleInputMetaData;
+import com.kislay.rulette.ruleinput.RuleType;
+import com.kislay.rulette.ruleinput.value.InputDataType;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-import rulette.metadata.RuleSystemMetaData;
-import rulette.metadata.RuleSystemMetaDataFactory;
-import rulette.ruleinput.RuleInput;
-import rulette.ruleinput.RuleInputMetaData;
-import rulette.ruleinput.RuleType;
-import rulette.ruleinput.value.InputDataType;
 
 /**
  * This class models a rule in the rule system. It has input columns and an

@@ -1,12 +1,13 @@
-package com.kislay;
+package com.kislay.rulette.rest;
 
+import com.kislay.rulette.rest.controller.RuleSystemController;
+import com.kislay.rulette.rest.controller.SampleController;
 import java.util.Properties;
 
 import org.restexpress.RestExpress;
 import org.restexpress.util.Environment;
 
-public class Configuration
-extends Environment
+public class Configuration extends Environment
 {
 	private static final String DEFAULT_EXECUTOR_THREAD_POOL_SIZE = "20";
 
@@ -19,6 +20,7 @@ extends Environment
 	private int executorThreadPoolSize;
 
 	private SampleController sampleController;
+	private RuleSystemController ruleSystemController;
 
 	@Override
 	protected void fillValues(Properties p)
@@ -29,9 +31,13 @@ extends Environment
 		initialize();
 	}
 
-	private void initialize()
-	{
-		sampleController = new SampleController();
+	private void initialize() {
+        try {
+            sampleController = new SampleController();
+            ruleSystemController = new RuleSystemController();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 	}
 
 	public int getPort()
@@ -52,5 +58,9 @@ extends Environment
 	public SampleController getSampleController()
 	{
 		return sampleController;
+	}
+
+	public RuleSystemController getRuleSystemController() {
+		return ruleSystemController;
 	}
 }

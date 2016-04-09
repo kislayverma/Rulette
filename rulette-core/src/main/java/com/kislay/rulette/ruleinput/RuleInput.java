@@ -1,7 +1,7 @@
-package rulette.ruleinput;
+package com.kislay.rulette.ruleinput;
 
+import com.kislay.rulette.ruleinput.value.InputDataType;
 import java.io.Serializable;
-import rulette.ruleinput.value.InputDataType;
 
 public abstract class RuleInput implements Serializable {
 
@@ -10,7 +10,7 @@ public abstract class RuleInput implements Serializable {
 
     public static RuleInput createRuleInput(
         int id, String name, int priority, RuleType ruleType, 
-        InputDataType dataType, String value) throws Exception {
+            InputDataType dataType, String value) throws Exception {
 
         value = value == null ? "" : value;
 

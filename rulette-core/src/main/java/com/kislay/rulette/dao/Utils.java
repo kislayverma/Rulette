@@ -1,13 +1,9 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-package rulette.dao;
+package com.kislay.rulette.dao;
 
+import com.kislay.rulette.ruleinput.value.InputDataType;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-import rulette.ruleinput.value.InputDataType;
 
 /**
  *

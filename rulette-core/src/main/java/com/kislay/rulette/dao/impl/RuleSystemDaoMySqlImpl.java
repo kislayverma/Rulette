@@ -1,5 +1,10 @@
-package rulette.dao.impl;
+package com.kislay.rulette.dao.impl;
 
+import com.kislay.rulette.dao.RuleSystemDao;
+import com.kislay.rulette.metadata.RuleSystemMetaData;
+import com.kislay.rulette.metadata.RuleSystemMetaDataFactory;
+import com.kislay.rulette.rule.Rule;
+import com.kislay.rulette.ruleinput.RuleInputMetaData;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -9,11 +14,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import rulette.rule.Rule;
-import rulette.dao.RuleSystemDao;
-import rulette.metadata.RuleSystemMetaData;
-import rulette.metadata.RuleSystemMetaDataFactory;
-import rulette.ruleinput.RuleInputMetaData;
 
 public class RuleSystemDaoMySqlImpl extends BaseDaoMySqlImpl implements RuleSystemDao {
 

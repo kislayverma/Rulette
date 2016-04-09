@@ -1,4 +1,4 @@
-package com.kislay;
+package com.kislay.rulette.rest;
 
 import org.restexpress.RestExpress;
 import org.restexpress.pipeline.SimpleConsoleLogMessageObserver;
@@ -6,14 +6,13 @@ import com.kislay.serialization.SerializationProvider;
 
 public class Server
 {
-	private static final String SERVICE_NAME = "TODO: Enter service name";
+	private static final String SERVICE_NAME = "Rulette";
 
 	private RestExpress server;
 	private Configuration config;
 	private boolean isStarted = false;
 
-	public Server(Configuration config)
-	{
+	public Server(Configuration config) {
 		this.config = config;
 		RestExpress.setDefaultSerializationProvider(new SerializationProvider());
 
@@ -26,10 +25,8 @@ public class Server
 		Routes.define(config, server);
 	}
 
-	public Server start()
-	{
-		if (!isStarted)
-		{
+	public Server start() {
+		if (!isStarted) {
 			server.bind(config.getPort());
 			isStarted = true;
 		}
@@ -37,13 +34,11 @@ public class Server
 		return this;
 	}
 
-	public void awaitShutdown()
-	{
+	public void awaitShutdown() {
 		if (isStarted) server.awaitShutdown();
 	}
 
-	public void shutdown()
-	{
+	public void shutdown() {
 		if (isStarted) server.shutdown();
 	}
 }

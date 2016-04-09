@@ -1,11 +1,11 @@
-package rulette.evaluationengine.impl.trie.node;
+package com.kislay.rulette.evaluationengine.impl.trie.node;
 
+import com.kislay.rulette.ruleinput.RuleInput;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import rulette.ruleinput.RuleInput;
 
 public class RangeNode extends Node implements Serializable {
 

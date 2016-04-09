@@ -1,4 +1,4 @@
-package rulette.ruleinput;
+package com.kislay.rulette.ruleinput;
 
 public enum RuleType {
     VALUE,

@@ -1,8 +1,8 @@
-package rulette.dao.impl;
+package com.kislay.rulette.dao.impl;
 
+import com.kislay.rulette.dao.DataSource;
 import java.io.IOException;
 import java.sql.SQLException;
-import rulette.dao.DataSource;
 
 public class BaseDaoMySqlImpl {
 

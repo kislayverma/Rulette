@@ -1,9 +1,8 @@
-package rulette.evaluationengine.impl.trie.node;
+package com.kislay.rulette.evaluationengine.impl.trie.node;
 
+import com.kislay.rulette.rule.Rule;
+import com.kislay.rulette.ruleinput.RuleInput;
 import java.util.List;
-import rulette.rule.Rule;
-
-import rulette.ruleinput.RuleInput;
 
 public abstract class Node {
 	// This will be populated if this is a leaf node

@@ -1,21 +1,21 @@
-package rulette;
+package com.kislay.rulette;
 
-import rulette.rule.Rule;
+import com.kislay.rulette.dao.RuleSystemDao;
+import com.kislay.rulette.dao.impl.RuleSystemDaoMySqlImpl;
+import com.kislay.rulette.evaluationengine.IEvaluationEngine;
+import com.kislay.rulette.evaluationengine.impl.trie.TrieBasedEvaluationEngine;
+import com.kislay.rulette.metadata.RuleSystemMetaData;
+import com.kislay.rulette.metadata.RuleSystemMetaDataFactory;
+import com.kislay.rulette.rule.Rule;
+import com.kislay.rulette.ruleinput.RuleInputMetaData;
+import com.kislay.rulette.validator.DefaultValidator;
+import com.kislay.rulette.validator.Validator;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import rulette.dao.RuleSystemDao;
-import rulette.dao.impl.RuleSystemDaoMySqlImpl;
-import rulette.evaluationengine.IEvaluationEngine;
-import rulette.evaluationengine.impl.trie.TrieBasedEvaluationEngine;
-import rulette.metadata.RuleSystemMetaData;
-import rulette.metadata.RuleSystemMetaDataFactory;
-import rulette.ruleinput.RuleInputMetaData;
-import rulette.validator.DefaultValidator;
-import rulette.validator.Validator;
 
 /**
  * This class models a rule-system comprising of rules and provides appropriate

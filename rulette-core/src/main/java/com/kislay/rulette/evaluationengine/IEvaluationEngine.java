@@ -1,8 +1,8 @@
-package rulette.evaluationengine;
+package com.kislay.rulette.evaluationengine;
 
+import com.kislay.rulette.rule.Rule;
 import java.util.List;
 import java.util.Map;
-import rulette.rule.Rule;
 
 /**
  *

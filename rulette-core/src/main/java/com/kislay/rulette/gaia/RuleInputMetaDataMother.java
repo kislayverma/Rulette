@@ -1,11 +1,11 @@
-package rulette.gaia;
+package com.kislay.rulette.gaia;
 
+import com.kislay.rulette.ruleinput.RuleInputMetaData;
+import com.kislay.rulette.ruleinput.RuleType;
+import com.kislay.rulette.ruleinput.value.InputDataType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import rulette.ruleinput.RuleInputMetaData;
-import rulette.ruleinput.RuleType;
-import rulette.ruleinput.value.InputDataType;
 
 public class RuleInputMetaDataMother {
     private static final Random randGen = new Random();

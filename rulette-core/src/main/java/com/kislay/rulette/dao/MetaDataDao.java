@@ -1,6 +1,6 @@
-package rulette.dao;
+package com.kislay.rulette.dao;
 
-import rulette.metadata.RuleSystemMetaData;
+import com.kislay.rulette.metadata.RuleSystemMetaData;
 
 public interface MetaDataDao {
     RuleSystemMetaData getRuleSystemMetaData(String ruleSystemName) throws Exception;

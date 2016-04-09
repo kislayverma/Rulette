@@ -1,5 +1,13 @@
-package rulette.evaluationengine.impl.trie;
+package com.kislay.rulette.evaluationengine.impl.trie;
 
+import com.kislay.rulette.evaluationengine.IEvaluationEngine;
+import com.kislay.rulette.evaluationengine.impl.trie.node.Node;
+import com.kislay.rulette.evaluationengine.impl.trie.node.RangeNode;
+import com.kislay.rulette.evaluationengine.impl.trie.node.ValueNode;
+import com.kislay.rulette.metadata.RuleSystemMetaData;
+import com.kislay.rulette.rule.Rule;
+import com.kislay.rulette.ruleinput.RuleInputMetaData;
+import com.kislay.rulette.ruleinput.RuleType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -7,14 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
-import rulette.evaluationengine.IEvaluationEngine;
-import rulette.evaluationengine.impl.trie.node.Node;
-import rulette.evaluationengine.impl.trie.node.RangeNode;
-import rulette.evaluationengine.impl.trie.node.ValueNode;
-import rulette.metadata.RuleSystemMetaData;
-import rulette.rule.Rule;
-import rulette.ruleinput.RuleInputMetaData;
-import rulette.ruleinput.RuleType;
 
 /**
  *

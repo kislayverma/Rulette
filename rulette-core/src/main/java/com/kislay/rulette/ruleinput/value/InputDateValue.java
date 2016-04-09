@@ -1,4 +1,4 @@
-package rulette.ruleinput.value;
+package com.kislay.rulette.ruleinput.value;
 
 import java.io.Serializable;
 import java.text.ParseException;

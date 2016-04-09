@@ -1,4 +1,4 @@
-package rulette.ruleinput.value;
+package com.kislay.rulette.ruleinput.value;
 
 public enum InputDataType {
     NUMBER,

@@ -1,4 +1,4 @@
-package com.kislay;
+package com.kislay.rulette.rest;
 
 public class Constants
 {
@@ -8,7 +8,7 @@ public class Constants
 	public class Url
 	{
 		//TODO: Your URL parameter names here...
-		public static final String SAMPLE_ID = "sampleId";
+		public static final String RULE_SYSTEM_NAME = "ruleSystemName";
 	}
 
 	/**

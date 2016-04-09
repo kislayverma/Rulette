@@ -1,11 +1,11 @@
-package rulette.metadata;
+package com.kislay.rulette.metadata;
 
+import com.kislay.rulette.dao.MetaDataDao;
+import com.kislay.rulette.dao.impl.MetaDataDaoMySqlImpl;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import rulette.dao.MetaDataDao;
-import rulette.dao.impl.MetaDataDaoMySqlImpl;
 
 public class RuleSystemMetaDataFactory {
 

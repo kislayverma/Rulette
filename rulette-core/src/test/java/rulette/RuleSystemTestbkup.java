@@ -1,28 +1,23 @@
 package test.java.rulette;
 
+import com.kislay.rulette.RuleSystem;
+import com.kislay.rulette.dao.DataSource;
+import com.kislay.rulette.dao.MetaDataDao;
+import com.kislay.rulette.dao.impl.BaseDaoMySqlImpl;
+import com.kislay.rulette.dao.impl.MetaDataDaoMySqlImpl;
 import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-import rulette.RuleSystem;
-import rulette.dao.DataSource;
-import rulette.dao.MetaDataDao;
-import rulette.dao.impl.BaseDaoMySqlImpl;
-import rulette.gaia.RuleSystemMetaDataMother;
 import org.powermock.modules.junit4.PowerMockRunner;
-import rulette.metadata.RuleSystemMetaDataFactory;
 import org.mockito.MockitoAnnotations;
 import org.powermock.api.easymock.PowerMock;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.api.support.membermodification.MemberModifier;
-import rulette.dao.impl.MetaDataDaoMySqlImpl;
 
 /**
  *

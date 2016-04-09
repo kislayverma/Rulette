@@ -1,8 +1,8 @@
-package rulette.dao;
+package com.kislay.rulette.dao;
 
+import com.kislay.rulette.rule.Rule;
 import java.sql.SQLException;
 import java.util.List;
-import rulette.rule.Rule;
 
 public interface RuleSystemDao {
     List<Rule> getAllRules(String ruleSystemName) throws SQLException, Exception;

@@ -1,13 +1,13 @@
-package rulette.gaia;
+package com.kislay.rulette.gaia;
 
+import com.kislay.rulette.metadata.RuleSystemMetaData;
+import com.kislay.rulette.rule.Rule;
+import com.kislay.rulette.ruleinput.RuleInputMetaData;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import rulette.metadata.RuleSystemMetaData;
-import rulette.rule.Rule;
-import rulette.ruleinput.RuleInputMetaData;
 
 public class RuleMother {
     private static final Random randGen = new Random();

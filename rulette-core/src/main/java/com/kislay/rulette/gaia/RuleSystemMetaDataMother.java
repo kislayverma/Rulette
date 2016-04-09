@@ -1,8 +1,8 @@
-package rulette.gaia;
+package com.kislay.rulette.gaia;
 
+import com.kislay.rulette.metadata.RuleSystemMetaData;
+import com.kislay.rulette.ruleinput.RuleInputMetaData;
 import java.util.List;
-import rulette.metadata.RuleSystemMetaData;
-import rulette.ruleinput.RuleInputMetaData;
 
 public class RuleSystemMetaDataMother {
     private static final String ruleSystemName = "gaia_rule_system";

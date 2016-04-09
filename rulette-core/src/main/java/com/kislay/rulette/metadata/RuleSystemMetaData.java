@@ -1,7 +1,7 @@
-package rulette.metadata;
+package com.kislay.rulette.metadata;
 
+import com.kislay.rulette.ruleinput.RuleInputMetaData;
 import java.util.List;
-import rulette.ruleinput.RuleInputMetaData;
 
 public class RuleSystemMetaData {
 

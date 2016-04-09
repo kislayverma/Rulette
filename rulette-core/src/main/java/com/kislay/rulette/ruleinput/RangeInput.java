@@ -1,9 +1,9 @@
-package rulette.ruleinput;
+package com.kislay.rulette.ruleinput;
 
+import com.kislay.rulette.ruleinput.value.IInputValue;
+import com.kislay.rulette.ruleinput.value.InputDataType;
+import com.kislay.rulette.ruleinput.value.RuleInputValue;
 import java.io.Serializable;
-import rulette.ruleinput.value.InputDataType;
-import rulette.ruleinput.value.IInputValue;
-import rulette.ruleinput.value.RuleInputValue;
 
 public class RangeInput extends RuleInput implements Serializable {
 

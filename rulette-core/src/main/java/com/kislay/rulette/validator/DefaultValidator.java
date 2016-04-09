@@ -1,6 +1,6 @@
-package rulette.validator;
+package com.kislay.rulette.validator;
 
-import rulette.rule.Rule;
+import com.kislay.rulette.rule.Rule;
 
 public class DefaultValidator implements Validator{
 	@Override

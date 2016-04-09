@@ -1,15 +1,15 @@
-package rulette.dao.impl;
+package com.kislay.rulette.dao.impl;
 
+import com.kislay.rulette.dao.MetaDataDao;
+import com.kislay.rulette.metadata.RuleSystemMetaData;
+import com.kislay.rulette.ruleinput.RuleInputMetaData;
+import com.kislay.rulette.ruleinput.RuleType;
+import com.kislay.rulette.ruleinput.value.InputDataType;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import rulette.dao.MetaDataDao;
-import rulette.metadata.RuleSystemMetaData;
-import rulette.ruleinput.RuleInputMetaData;
-import rulette.ruleinput.RuleType;
-import rulette.ruleinput.value.InputDataType;
 
 public class MetaDataDaoMySqlImpl extends BaseDaoMySqlImpl implements MetaDataDao {
 
