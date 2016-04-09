@@ -435,7 +435,7 @@ public class RuleSystem implements Serializable {
     }
 
     public static void main(String[] args) throws Exception {
-        RuleSystem rs = new RuleSystem("vendor_terms_rule_system", null);
+        RuleSystem rs = new RuleSystem("discount_rule_system", null);
 
         Map<String, String> inputMap = new HashMap<>();
         inputMap.put("vendor_name", "SIA FASHION");

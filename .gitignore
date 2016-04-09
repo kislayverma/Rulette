@@ -1,1 +1,4 @@
 /target/
+/test-rexpress/target/
+/rulette-rest/target/
+/rulette-core/target/
