@@ -140,9 +140,9 @@ public class RuleSystemController {
         Set<String> keySet = request.getBodyFromUrlFormEncoded(true).keySet();
         for (String payload : keySet) {
             Map<String, Object> objMap = mapper.readValue(payload, new TypeReference<Map<String, Object>>(){});
-            objMap.entrySet().stream().forEach((entry) -> {
+            for (Map.Entry<String, Object> entry : objMap.entrySet()) {
                 map.put(entry.getKey(), (String) entry.getValue());
-            });
+            }
 
             return map;
         }
