@@ -1,48 +1,152 @@
 package com.kislay.rulette.rest.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kislay.rulette.RuleSystem;
+import com.kislay.rulette.rest.Constants;
 import com.kislay.rulette.rule.Rule;
-import java.util.Collections;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.restexpress.Request;
 import org.restexpress.Response;
 
 public class RuleSystemController {
-    private static RuleSystem RULE_SYSTEM;
+    private final RuleSystemFactory ruleSystemFactory;
 
-    public RuleSystemController() throws Exception {
-        if (RULE_SYSTEM == null) {
-            RULE_SYSTEM = new RuleSystem("discount_rule_system", null);
-        }
+    public RuleSystemController() {
+        this.ruleSystemFactory = new RuleSystemFactory();
     }
 
-	public List<Rule> getAllRules(Request request, Response response) {
-		return RULE_SYSTEM.getAllRules();
+    public List<Rule> getAllRules(Request request, Response response) {
+        String ruleSystemName = request.getHeader(Constants.Url.RULE_SYSTEM_NAME);
+		return getRuleSystem(ruleSystemName).getAllRules();
 	}
 
-    public Object create(Request request, Response response) {
-		//TODO: Your 'POST' logic here...
-		return null;
+	public Rule getApplicableRule(Request request, Response response) throws Exception {
+        try {
+            Map<String, String> map = convertInputJsonToMap(request);
+            String ruleSystemName = request.getHeader(Constants.Url.RULE_SYSTEM_NAME);
+
+            return getRuleSystem(ruleSystemName).getRule(map);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            response.setException(ex);
+            response.setResponseStatus(HttpResponseStatus.BAD_REQUEST);
+        }
+
+        return null;
 	}
 
-	public Object read(Request request, Response response) {
-		//TODO: Your 'GET' logic here...
-		return null;
+	public Rule getNextApplicableRule(Request request, Response response) throws Exception {
+        try {
+            Map<String, String> map = convertInputJsonToMap(request);
+            String ruleSystemName = request.getHeader(Constants.Url.RULE_SYSTEM_NAME);
+
+            return getRuleSystem(ruleSystemName).getNextApplicableRule(map);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            response.setException(ex);
+            response.setResponseStatus(HttpResponseStatus.BAD_REQUEST);
+        }
+
+        return null;
 	}
 
-	public List<Object> readAll(Request request, Response response) {
-		//TODO: Your 'GET collection' logic here...
-		return Collections.emptyList();
+	public Rule getRule(Request request, Response response) {
+        String ruleSystemName = request.getHeader(Constants.Url.RULE_SYSTEM_NAME);
+        String ruleIdStr = request.getHeader(Constants.Url.RULE_ID);
+        Integer ruleId = Integer.parseInt(ruleIdStr);
+
+        return getRuleSystem(ruleSystemName).getRule(ruleId);
 	}
 
-	public void update(Request request, Response response) {
-		//TODO: Your 'PUT' logic here...
-		response.setResponseNoContent();
+    public Rule addRule(Request request, Response response) throws Exception {
+        try {
+            Map<String, String> map = convertInputJsonToMap(request);
+            String ruleSystemName = request.getHeader(Constants.Url.RULE_SYSTEM_NAME);
+
+            return getRuleSystem(ruleSystemName).addRule(map);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            response.setException(ex);
+            response.setResponseStatus(HttpResponseStatus.BAD_REQUEST);
+        }
+
+        return null;
 	}
 
-	public void delete(Request request, Response response) {
-		//TODO: Your 'DELETE' logic here...
-		response.setResponseNoContent();
+	public Rule updateRule(Request request, Response response) throws Exception {
+        try {
+            Map<String, String> map = convertInputJsonToMap(request);
+            String ruleSystemName = request.getHeader(Constants.Url.RULE_SYSTEM_NAME);
+            String ruleIdStr = request.getHeader(Constants.Url.RULE_ID);
+            Integer ruleId = Integer.parseInt(ruleIdStr);
+
+            RuleSystem rs = getRuleSystem(ruleSystemName);
+            Rule oldRule = rs.getRule(ruleId);
+            if (oldRule == null) {
+                throw new RuntimeException("No existing rule found for the input");
+            } else {
+                Rule newRule = rs.createRuleObject(map);
+
+                return rs.updateRule(oldRule, newRule);
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            response.setException(ex);
+            response.setResponseStatus(HttpResponseStatus.BAD_REQUEST);
+        }
+
+        return null;
 	}
+
+	public void deleteRule(Request request, Response response) throws Exception {
+        try {
+            Map<String, String> map = convertInputJsonToMap(request);
+            String ruleSystemName = request.getHeader(Constants.Url.RULE_SYSTEM_NAME);
+            String ruleIdStr = request.getHeader(Constants.Url.RULE_ID);
+            Integer ruleId = Integer.parseInt(ruleIdStr);
+
+            getRuleSystem(ruleSystemName).deleteRule(ruleId);
+            response.setResponseNoContent();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            response.setException(ex);
+            response.setResponseStatus(HttpResponseStatus.BAD_REQUEST);
+        }
+	}
+
+	public void reloadRuleSystem(Request request, Response response) throws Exception {
+        String ruleSystemName = request.getHeader(Constants.Url.RULE_SYSTEM_NAME);
+        ruleSystemFactory.reloadRuleSystem(ruleSystemName);
+        response.setResponseNoContent();
+	}
+
+    private RuleSystem getRuleSystem(String ruleSystemName) {
+        return ruleSystemFactory.getRuleSystem(ruleSystemName);
+    }
+
+    private Map<String, String> convertInputJsonToMap(Request request) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+//        System.out.println(request.getHeaderNames());
+//        System.out.println(request.getBodyFromUrlFormEncoded(true));
+
+        Map<String, String> map = new HashMap<>();
+        Set<String> keySet = request.getBodyFromUrlFormEncoded(true).keySet();
+        for (String payload : keySet) {
+            Map<String, Object> objMap = mapper.readValue(payload, new TypeReference<Map<String, Object>>(){});
+            objMap.entrySet().stream().forEach((entry) -> {
+                map.put(entry.getKey(), (String) entry.getValue());
+            });
+
+            return map;
+        }
+
+        return null;
+    }
 }

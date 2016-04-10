@@ -246,11 +246,12 @@ public class RuleSystem implements Serializable {
             if (newRule != null) {
                 evaluationEngine.addRule(newRule);
             }
+
+            return newRule;
         } else {
             throw new RuntimeException("The following existing rules conflict with "
                     + "the given input : " + overlappingRules);
         }
-        throw new RuntimeException("Faild to save rule. Check logs for errors");
     }
 
     /**
@@ -292,7 +293,7 @@ public class RuleSystem implements Serializable {
                         + "the given input : " + overlappingRules);
             }
         }
-
+        newRule = newRule.setColumnData(metaData.getUniqueIdColumnName(), oldRuleId);
         Rule resultantRule = dao.updateRule(metaData.getRuleSystemName(), newRule);
         if (resultantRule != null) {
             evaluationEngine.deleteRule(oldRule);

@@ -9,6 +9,7 @@ public class Constants
 	{
 		//TODO: Your URL parameter names here...
 		public static final String RULE_SYSTEM_NAME = "ruleSystemName";
+		public static final String RULE_ID = "ruleId";
 	}
 
 	/**
