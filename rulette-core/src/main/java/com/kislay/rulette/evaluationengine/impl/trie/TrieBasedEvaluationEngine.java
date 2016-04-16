@@ -176,6 +176,8 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
                     List<Node> eligibleRules = node.getNodes(value, true);
                     if (eligibleRules != null && !eligibleRules.isEmpty()) {
                         nextStack.addAll(eligibleRules);
+                    } else {
+                        throw new RuntimeException("No rule found. Field " + rimd.getName() + " mismatched");
                     }
                 }
                 currStack = nextStack;
