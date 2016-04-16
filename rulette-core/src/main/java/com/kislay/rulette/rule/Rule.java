@@ -21,8 +21,8 @@ public class Rule implements Serializable {
 
     private final String ruleSystemName;
     private final Map<String, RuleInput> fieldMap;
-    private static final int UNIQUE_ID_INPUT_ID = -1;
-    private static final int UNIQUE_OUTPUT_ID_INPUT_ID = -2;
+    private final int UNIQUE_ID_INPUT_ID = -1;
+    private final int UNIQUE_OUTPUT_ID_INPUT_ID = -2;
 
     /**
      * This constructor takes the list of columns in the rule system and a map
