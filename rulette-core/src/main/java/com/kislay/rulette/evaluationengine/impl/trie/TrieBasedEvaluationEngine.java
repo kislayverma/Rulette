@@ -61,7 +61,7 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
 
     @Override
     public Rule getRule(Map<String, String> inputMap) throws Exception {
-        List<Rule> eligibleRules = getEligibleRules(inputMap);
+        List<Rule> eligibleRules = getAllApplicableRules(inputMap);
         if (eligibleRules != null && !eligibleRules.isEmpty()) {
             return eligibleRules.get(0);
         }
@@ -71,7 +71,7 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
 
     @Override
     public Rule getNextApplicableRule(Map<String, String> inputMap) throws Exception {
-        List<Rule> eligibleRules = getEligibleRules(inputMap);
+        List<Rule> eligibleRules = getAllApplicableRules(inputMap);
 
         if (eligibleRules != null && eligibleRules.size() > 1) {
             return eligibleRules.get(1);
@@ -162,7 +162,8 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
         }
     }
 
-    private List<Rule> getEligibleRules(Map<String, String> inputMap) throws Exception {
+    @Override
+    public List<Rule> getAllApplicableRules(Map<String, String> inputMap) throws Exception {
         if (inputMap != null) {
             Stack<Node> currStack = new Stack<>();
             currStack.add(root);

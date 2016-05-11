@@ -178,6 +178,15 @@ public class RuleSystem implements Serializable {
     }
 
     /**
+     * This method returns a list of all the rules in the rule system.
+     * @param inputMap
+     * @return 
+     */
+    public List<Rule> getAllApplicableRules(Map<String, String> inputMap) throws Exception {
+        return evaluationEngine.getAllApplicableRules(inputMap);
+    }
+
+    /**
      * This method returns the rule applicable for the given combination of rule
      * inputs.
      *

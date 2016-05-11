@@ -39,6 +39,19 @@ public interface IEvaluationEngine {
     Rule getRule(Map<String, String> inputMap) throws Exception;
 
     /**
+     * This method returns all rules applicable for the given combination of rule
+     * inputs.
+     *
+     * @param inputMap Map with input names as keys and their String values as
+     * values
+     * @return null if input is null, null if no rule is applicable for the
+     * given input combination the applicable rule otherwise.
+     * 
+     * @throws java.lang.Exception
+     */
+    List<Rule> getAllApplicableRules(Map<String, String> inputMap) throws Exception;
+
+    /**
      * This method returns the next rule that will be applicable to the inputs
      * if the current rule applicable to the were to be deleted.
      *
