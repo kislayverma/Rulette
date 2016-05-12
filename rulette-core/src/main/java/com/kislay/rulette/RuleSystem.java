@@ -449,9 +449,9 @@ public class RuleSystem implements Serializable {
 
         Map<String, String> inputMap = new HashMap<>();
         inputMap.put("article_id", "1");
-        inputMap.put("source_state_code", "HAR");
-        inputMap.put("destination_state_code", "WES");
-        inputMap.put("courier_code", "ML");
+//        inputMap.put("source_state_code", "HAR");
+//        inputMap.put("destination_state_code", "WES");
+//        inputMap.put("courier_code", "ML");
 //        inputMap.put("article_type_name", "Kurtas");
 //        inputMap.put("gender", "Women");
 //        inputMap.put("is_active", "1");
@@ -461,10 +461,10 @@ public class RuleSystem implements Serializable {
         long stime = new Date().getTime();
         for (int i = 0; i < 1; i++) {
             Rule rule = rs.getRule(inputMap);
-//            System.out.println((rule == null) ? "none" : rule.toString());
+            System.out.println((rule == null) ? "none" : rule.toString());
 //            System.out.println("\n---------------------------\n");
 //            List<Rule> rules = rs.getAllApplicableRules(inputMap);
-//            System.out.println((rules == null) ? "none" : rules.toString());
+//            System.out.println((rules == null) ? "none" : rules.size());
         }
 
         long etime = new Date().getTime();
