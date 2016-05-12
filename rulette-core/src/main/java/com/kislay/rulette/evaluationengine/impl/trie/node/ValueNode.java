@@ -28,17 +28,21 @@ public class ValueNode extends Node implements Serializable {
     @Override
     public List<Node> getNodes(String value, boolean getAnyValue) {
         List<Node> nodeList = new ArrayList<>();
-        Node node = this.fieldMap.get(value);
-        if (node != null) {
-            nodeList.add(node);
-        }
-
-        // If 'any' matches are also requested, and the rule input isn't
-        // already an 'Any' value.
-        if (getAnyValue && !"".equals(value)) {
-            node = this.fieldMap.get("");
+        if (value == null || value.equals("")) {
+            nodeList.addAll(this.fieldMap.values());
+        } else {
+            Node node = this.fieldMap.get(value);
             if (node != null) {
                 nodeList.add(node);
+            }
+
+            // If 'any' matches are also requested, and the rule input isn't
+            // already an 'Any' value.
+            if (getAnyValue && !"".equals(value)) {
+                node = this.fieldMap.get("");
+                if (node != null) {
+                    nodeList.add(node);
+                }
             }
         }
 

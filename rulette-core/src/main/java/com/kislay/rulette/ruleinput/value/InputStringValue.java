@@ -23,6 +23,7 @@ public class InputStringValue extends RuleInputValue implements IInputValue<Stri
 
     @Override
     public int compareTo(String o) {
-        return this.value.compareTo(o);
+        String x = (o == null) ? "" : o;
+        return this.value.compareTo(x);
     }
 }

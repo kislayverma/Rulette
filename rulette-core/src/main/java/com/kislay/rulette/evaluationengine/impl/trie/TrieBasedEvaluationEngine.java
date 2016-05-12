@@ -63,7 +63,11 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
     public Rule getRule(Map<String, String> inputMap) throws Exception {
         List<Rule> eligibleRules = getAllApplicableRules(inputMap);
         if (eligibleRules != null && !eligibleRules.isEmpty()) {
-            return eligibleRules.get(0);
+//            return eligibleRules.get(0);
+            List<Rule> filteredRules = filterAllApplicableRules(eligibleRules, inputMap);
+            if (!filteredRules.isEmpty()) {
+                return filteredRules.get(0);
+            }
         }
 
         return null;
@@ -74,7 +78,11 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
         List<Rule> eligibleRules = getAllApplicableRules(inputMap);
 
         if (eligibleRules != null && eligibleRules.size() > 1) {
-            return eligibleRules.get(1);
+//            return eligibleRules.get(1);
+            List<Rule> filteredRules = filterAllApplicableRules(eligibleRules, inputMap);
+            if (!filteredRules.isEmpty()) {
+                return filteredRules.get(1);
+            }
         }
 
         return null;
@@ -192,12 +200,27 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
                     }
                 }
 
-                Collections.sort(rules, new RuleComparator());
+//                Collections.sort(rules, new RuleComparator());
                 return rules;
             }
         }
 
         return null;
+    }
+
+    private List<Rule> filterAllApplicableRules(List<Rule> applicableRules, Map<String, String> inputMap) throws Exception {
+        List<Rule> remainingRules = new ArrayList<>();
+        for (Rule applicableRule : applicableRules) {
+            if (applicableRule.evaluate(inputMap)) {
+                remainingRules.add(applicableRule);
+            }
+        }
+
+        if (!remainingRules.isEmpty()) {
+            Collections.sort(remainingRules, new RuleComparator());
+        }
+
+        return remainingRules;
     }
 
     /*
