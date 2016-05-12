@@ -29,7 +29,8 @@ public class RuleSystemDaoMySqlImpl extends BaseDaoMySqlImpl implements RuleSyst
         ResultSet resultSet =
             statement.executeQuery("SELECT * " + " FROM " + RuleSystemMetaDataFactory.getInstance().getMetaData(ruleSystemName).getTableName());
 
-        if (resultSet.first()) {
+//        if (resultSet.first()) {
+        if (resultSet != null) {
             rules = convertToRules(resultSet, RuleSystemMetaDataFactory.getInstance().getMetaData(ruleSystemName));
         }
 
