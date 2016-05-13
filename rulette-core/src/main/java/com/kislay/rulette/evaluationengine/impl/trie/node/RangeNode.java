@@ -28,7 +28,7 @@ public class RangeNode extends Node implements Serializable {
     @Override
     public List<Node> getNodes(String value, boolean getAnyValue) throws Exception {
         List<Node> nodeList = new ArrayList<>();
-        if (value == null || value.equals("")) {
+        if (getAnyValue && (value == null || value.equals(""))) {
             nodeList.addAll(this.fieldMap.values());
         } else {
             for (Map.Entry<RuleInput, Node> entry : this.fieldMap.entrySet()) {
