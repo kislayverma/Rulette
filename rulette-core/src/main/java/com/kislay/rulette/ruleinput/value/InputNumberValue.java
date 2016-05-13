@@ -18,7 +18,15 @@ public class InputNumberValue extends RuleInputValue implements IInputValue<Doub
 
     @Override
     public int compareTo(String obj) {
-        return this.value.compareTo(Double.parseDouble(obj));
+        if ((obj == null || "".equals(obj)) && (this.value == null || "".equals(this.value))) {
+            return 0;
+        } else if (obj == null || "".equals(obj)) {
+            return 1;
+        } else if (this.value == null) {
+            return -1;
+        } else {
+            return this.value.compareTo(Double.parseDouble(obj));
+        }
     }
 
     @Override

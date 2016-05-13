@@ -28,13 +28,17 @@ public class RangeNode extends Node implements Serializable {
     @Override
     public List<Node> getNodes(String value, boolean getAnyValue) throws Exception {
         List<Node> nodeList = new ArrayList<>();
-        for (Map.Entry<RuleInput, Node> entry : this.fieldMap.entrySet()) {
-            if ("".equals(entry.getKey().getRawValue()) && !getAnyValue) {
-                continue;
-            }
+        if (getAnyValue && (value == null || value.equals(""))) {
+            nodeList.addAll(this.fieldMap.values());
+        } else {
+            for (Map.Entry<RuleInput, Node> entry : this.fieldMap.entrySet()) {
+                if ("".equals(entry.getKey().getRawValue()) && !getAnyValue) {
+                    continue;
+                }
 
-            if (entry.getKey().evaluate(value)) {
-                nodeList.add(entry.getValue());
+                if (entry.getKey().evaluate(value)) {
+                    nodeList.add(entry.getValue());
+                }
             }
         }
 

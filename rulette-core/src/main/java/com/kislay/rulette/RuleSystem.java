@@ -445,22 +445,28 @@ public class RuleSystem implements Serializable {
     }
 
     public static void main(String[] args) throws Exception {
-        RuleSystem rs = new RuleSystem("discount_rule_system", null);
+        RuleSystem rs = new RuleSystem("govt_vat_rule_system", null);
 
         Map<String, String> inputMap = new HashMap<>();
-        inputMap.put("vendor_name", "SIA FASHION");
-        inputMap.put("brand_name", "SIA Fashion");
-        inputMap.put("article_type_name", "Kurtas");
-        inputMap.put("gender", "Women");
-        inputMap.put("is_active", "1");
-        inputMap.put("valid_date_range", "20130820");
+        inputMap.put("article_id", "1");
+//        inputMap.put("source_state_code", "HAR");
+//        inputMap.put("destination_state_code", "WES");
+//        inputMap.put("courier_code", "ML");
+//        inputMap.put("article_type_name", "Kurtas");
+//        inputMap.put("gender", "Women");
+//        inputMap.put("is_active", "1");
+//        inputMap.put("valid_date_range", "20130820");
 
-        //Rule rule = null;
+        // Rule rule = null;
         long stime = new Date().getTime();
         for (int i = 0; i < 1; i++) {
             Rule rule = rs.getRule(inputMap);
             System.out.println((rule == null) ? "none" : rule.toString());
+//            System.out.println("\n---------------------------\n");
+//            List<Rule> rules = rs.getAllApplicableRules(inputMap);
+//            System.out.println((rules == null) ? "none" : rules.size());
         }
+
         long etime = new Date().getTime();
         System.out.println("Time taken to get rule : " + (etime - stime) + " ms.");
     }
