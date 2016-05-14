@@ -1,14 +1,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.kislay</groupId>
+        <groupId>com.github.kislayverma</groupId>
         <artifactId>rulette</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.kislay</groupId>
+    <groupId>com.github.kislayverma.rulette</groupId>
     <artifactId>rulette-core</artifactId>
     <name>rulette-core</name>
+    <description>A lightweight rule storage, definition and evaluation engine intended for the most business use-cases</description>
 
     <dependencies>
         <dependency>
@@ -77,7 +78,7 @@
                     <target>1.7</target>
                 </configuration>
             </plugin>
-            <plugin>
+<!--            <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.7.4.201502262128</version>
@@ -128,7 +129,7 @@
                         </configuration>
                     </execution>
                 </executions>            
-            </plugin>
+            </plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -179,11 +180,6 @@
                   </goals>
                 </execution>
               </executions>
-            </plugin>
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-release-plugin</artifactId>
-              <version>2.5.3</version>
             </plugin>
         </plugins>
     </build>

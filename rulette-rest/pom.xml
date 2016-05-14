@@ -2,15 +2,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.kislay</groupId>
+        <groupId>com.github.kislayverma</groupId>
         <artifactId>rulette</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.kislay</groupId>
+    <groupId>com.github.kislayverma.rulette</groupId>
     <artifactId>rulette-rest</artifactId>
-	<name>rulette-rest</name>
 	<packaging>jar</packaging>
+	<name>rulette-rest</name>
+    <description>A containerless deployment of rulette-core to expose its capabilities as REST services</description>
 	<!-- 
 		To run the project: mvn clean package exec:java
 		To create a project deployable assembly:
@@ -20,7 +21,7 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>com.kislay</groupId>
+			<groupId>com.github.kislayverma.rulette</groupId>
 			<artifactId>rulette-core</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
@@ -80,13 +81,18 @@
 						<configuration>
 							<transformers>
 								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<mainClass>com.kislay.Main</mainClass>
+									<mainClass>com.github.kislayverma.Main</mainClass>
 								</transformer>
 							</transformers>
 						</configuration>
 					</execution>
 				</executions>
 			</plugin>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-release-plugin</artifactId>
+              <version>2.5.3</version>
+            </plugin>
 		</plugins>
 	</build>
 
