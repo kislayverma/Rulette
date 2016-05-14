@@ -2,3 +2,4 @@
 /test-rexpress/target/
 /rulette-rest/target/
 /rulette-core/target/
+rulette-core/lib/datasource.properties
