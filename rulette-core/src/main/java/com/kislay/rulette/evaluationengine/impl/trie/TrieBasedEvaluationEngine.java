@@ -11,8 +11,10 @@ import com.kislay.rulette.ruleinput.RuleType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -169,38 +171,37 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
             }
         }
     }
-
     @Override
     public List<Rule> getAllApplicableRules(Map<String, String> inputMap) throws Exception {
         if (inputMap != null) {
-            Stack<Node> currStack = new Stack<>();
-            currStack.add(root);
+            Queue<Node> nodeQueue = new LinkedList<>();
+            nodeQueue.add(root);
 
             for (RuleInputMetaData rimd : metaData.getInputColumnList()) {
-                Stack<Node> nextStack = new Stack<>();
-                for (Node node : currStack) {
-                    String value = inputMap.get(rimd.getName());
-                    value = (value == null) ? "" : value;
+                Queue<Node> nextQueue = new LinkedList<>();
+                while (!nodeQueue.isEmpty()) {
+                    Node node = nodeQueue.poll();
+                    if (node.getName().equals(rimd.getName())) {
+                        String value = inputMap.get(rimd.getName());
+                        value = (value == null) ? "" : value;
 
-                    List<Node> eligibleRules = node.getNodes(value, true);
-                    if (eligibleRules != null && !eligibleRules.isEmpty()) {
-                        nextStack.addAll(eligibleRules);
-                    } else {
-                        throw new RuntimeException("No rule found. Field " + rimd.getName() + " mismatched");
+                        List<Node> eligibleRules = node.getNodes(value, true);
+                        if (eligibleRules != null && !eligibleRules.isEmpty()) {
+                            nextQueue.addAll(eligibleRules);
+                        }
                     }
                 }
-                currStack = nextStack;
+                nodeQueue = nextQueue;
             }
 
-            if (!currStack.isEmpty()) {
+            if (!nodeQueue.isEmpty()) {
                 List<Rule> rules = new ArrayList<>();
-                for (Node node : currStack) {
+                for (Node node : nodeQueue) {
                     if (node.getRule() != null) {
                         rules.add(node.getRule());
                     }
                 }
 
-//                Collections.sort(rules, new RuleComparator());
                 return rules;
             }
         }

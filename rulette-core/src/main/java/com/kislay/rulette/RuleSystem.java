@@ -20,81 +20,6 @@ import java.util.Map;
 /**
  * This class models a rule-system comprising of rules and provides appropriate
  * APIs to interact with it.
- *
- * A rule-system, in this context, is a mapping of elements of an input space
- * comprising of one or more distinct inputs to a well-defined output space.
- * This is a generic implementation which allows for creation and management of
- * these mappings. Much can be read about rule-systems elsewhere (Drools is a
- * particularly well known and elaborate implementation), so I will just lay out
- * the specifics of this particular implementation:
- *<ol>
- * <li>This is a lightweight, easy to setup implementation, agnostic to the input
- * and output domains. The offered APIs deal only with mappings (henceforth
- * called rules) and take no cognizance of what the inputs and output mean. This
- * is by design. To use this in an application, I would expect that you would
- * wrap this core engine with a module which understands the semantics of your
- * application.</li>
- * <li>An example of a rule would be If X= 2 AND Y = 3, THEN Z =42.
- * To match any value of an input, just pass null, like so : If X= null AND Y =
- * 3, THEN Z = 51 
- * </li>
- * <li>A 'rule input' is a criterion, which in combination with
- * other of its kind, decides an outcome. In #2, X and Y are rule inputs.</li>
- * <li>2 types of rule input are supported : 'Value' and 'Range'. Value inputs are
- * discrete valued criteria, while range inputs define ranges in the input
- * space.</li>
- * <li>Only 'AND' operation between the rule inputs is supported.</li>
- * <li>All rule inputs are treated as strings. The ranges defined by range inputs are
- * also interpreted as string ranges. This might require you to invest some
- * thought into how you want to model your rules. e.g. To have a date range an
- * an input, then a possible way to specify it as CCYYMMDD representations of
- * the start and end dates. This defines a range just as well as actual dates.</li>
- * <li>Input have a priority order. This is the order in which they are evaluated
- * to arrive at the output. Defining priorities is much like defining database
- * indexes - different choices can cause widely divergent performance.
- * Worse-depending on your domain, incorrect priorities may even lead to
- * incorrect results.</li>
- * <li>Rules are captured in database tables (one per rule
- * system). These tables must have two columns : 'rule_id' (unique id for the
- * rule, preferable an auto-incrementing primary key) and 'rule_output_id'
- * (unique identifier for the output). The engine doesn't care what you do with
- * the rule_output_id. It is simply what the inputs map to. It may be a foreign
- * key reference to another table . It may be the actual value you need. It
- * simply doesn't matter to this system. The other columns each represent an
- * input.</li>
- * <li>To do rule evaluation, the system takes the combination of the
- * different rule inputs given to it, and returns the best fitting rule (if
- * any). 'Best fit' means: a. Value inputs - An exact value match is better than
- * an 'any' match. e.g. if there are two rules, one with value of input X as 1
- * and the other as any, then on passing X = 1, the former rule will be
- * returned. On passing X = 2, the latter will be returned (as the former
- * obviously doesn't match). b. Range inputs : A tighter range is a better fit
- * than a wider range. e.g. if there are two rules, one with value of input X as
- * Jan 1 2013 to Dec31, 2013 and the other as Feb 1 2013 to March 1 2013, then
- * on passing X = Feb 15, 2013, the latter will be returned.</li>
- * <li>Conflicting rules are those that will, if present in the system, cause ambiguity at the
- * time of rule evaluation. The addRule APIs provided do not allow addition of
- * conflicting rules.</li>
- *</ol>
- *
- * <b>Pre-requisites</b>
- * <ol>
- * <li>Java 1.7 2</li>
- * <li>MySQL 5.x (Support for other databases will be added on demand)</li>
- * </ol>
- *
- * <b>How to setup</b>
- * <ol>
- * <li>Execute the setup.sql script on your MySQL server. This creates a database called rule_system and creates the necessary
- * table in it.</li>
- * <li>Create a table containing your rules as defined in #7 above</li>
- * <li>Map this table in the rule_system.rule_system table as shown in the sample-0setup.sql script.</li>
- * <li>For each rule input, add a row to the rule_system.rule_input table with the
- * input's type (Value/Range) and priority order.</li>
- * <li>5. Put the jar in your class path.</li>
- *</ol>
- * That's it! The rule system is all set up and ready to use.
- *
  * 
  * <b>Sample usage</b>
  * <pre>
@@ -181,6 +106,7 @@ public class RuleSystem implements Serializable {
      * This method returns a list of all the rules in the rule system.
      * @param inputMap
      * @return 
+     * @throws java.lang.Exception 
      */
     public List<Rule> getAllApplicableRules(Map<String, String> inputMap) throws Exception {
         return evaluationEngine.getAllApplicableRules(inputMap);
@@ -448,11 +374,11 @@ public class RuleSystem implements Serializable {
         RuleSystem rs = new RuleSystem("govt_vat_rule_system", null);
 
         Map<String, String> inputMap = new HashMap<>();
-        inputMap.put("article_id", "1");
+        inputMap.put("article_id", "7");
 //        inputMap.put("source_state_code", "HAR");
-//        inputMap.put("destination_state_code", "WES");
-//        inputMap.put("courier_code", "ML");
-//        inputMap.put("article_type_name", "Kurtas");
+//        inputMap.put("destination_state_code", "GUJ");
+//        inputMap.put("courier_code", "IP");
+//        inputMap.put("mrp_threshold", "5");
 //        inputMap.put("gender", "Women");
 //        inputMap.put("is_active", "1");
 //        inputMap.put("valid_date_range", "20130820");
@@ -464,7 +390,7 @@ public class RuleSystem implements Serializable {
             System.out.println((rule == null) ? "none" : rule.toString());
 //            System.out.println("\n---------------------------\n");
 //            List<Rule> rules = rs.getAllApplicableRules(inputMap);
-//            System.out.println((rules == null) ? "none" : rules.size());
+//            System.out.println((rules == null) ? "none" : rules.toString());
         }
 
         long etime = new Date().getTime();
