@@ -17,6 +17,9 @@ public class ValueInput extends RuleInput implements Serializable {
 
     @Override
     public boolean evaluate(String value) throws Exception {
+        if (this.value.isEmpty()) {
+            return true;
+        }
         return this.value.compareTo(value) == 0;
     }
 
