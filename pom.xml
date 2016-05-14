@@ -5,8 +5,32 @@
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Rulette</name>
+    <description>A lightweight rule storage, definition and evaluation engine intended for the most business use-cases</description>
+    <url>https://github.com/kislayverma/Rulette</url>
 
-    <properties>
+    <licenses>
+      <license>
+        <name>The Apache License, Version 2.0</name>
+        <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      </license>
+    </licenses>
+
+    <developers>
+      <developer>
+        <name>Kislay Verma</name>
+        <email>kislay.nsit@gmail.com</email>
+        <organization>None</organization>
+        <organizationUrl>https://bitbucket.org/kislayverma/</organizationUrl>
+      </developer>
+    </developers>
+
+    <scm>
+      <connection>scm:git:git@bitbucket.org:kislayverma/rulette.git</connection>
+      <developerConnection>scm:git:git@bitbucket.org:kislayverma/rulette.git</developerConnection>
+      <url>https://bitbucket.org/kislayverma/rulette</url>
+    </scm>
+
+     <properties>
         <powermock.version>1.6.2</powermock.version>
     </properties>
 
