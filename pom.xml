@@ -25,8 +25,8 @@
     </developers>
 
     <scm>
-      <connection>scm:git:ssh@bitbucket.org:kislayverma/rulette.git</connection>
-      <developerConnection>scm:git:ssh@bitbucket.org:kislayverma/rulette.git</developerConnection>
+      <connection>scm:git:https://kislayverma@bitbucket.org/kislayverma/rulette.git</connection>
+      <developerConnection>scm:git:https://kislayverma@bitbucket.org/kislayverma/rulette.git</developerConnection>
       <url>https://bitbucket.org/kislayverma/rulette</url>
     </scm>
 
