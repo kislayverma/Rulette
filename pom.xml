@@ -15,7 +15,6 @@
       </license>
     </licenses>
 
-
     <developers>
       <developer>
         <name>Kislay Verma</name>
@@ -26,8 +25,8 @@
     </developers>
 
     <scm>
-      <connection>scm:git:git@bitbucket.org:kislayverma/rulette.git</connection>
-      <developerConnection>scm:git:git@bitbucket.org:kislayverma/rulette.git</developerConnection>
+      <connection>scm:git:ssh@bitbucket.org:kislayverma/rulette.git</connection>
+      <developerConnection>scm:git:ssh@bitbucket.org:kislayverma/rulette.git</developerConnection>
       <url>https://bitbucket.org/kislayverma/rulette</url>
     </scm>
 
