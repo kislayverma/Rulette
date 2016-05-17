@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.kislayverma</groupId>
     <artifactId>rulette</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Rulette</name>
     <description>A lightweight rule storage, definition and evaluation engine intended for the most business use-cases</description>
@@ -28,9 +28,10 @@
       <connection>scm:git:https://kislayverma@bitbucket.org/kislayverma/rulette.git</connection>
       <developerConnection>scm:git:https://kislayverma@bitbucket.org/kislayverma/rulette.git</developerConnection>
       <url>https://bitbucket.org/kislayverma/rulette</url>
+      <tag>HEAD</tag>
     </scm>
 
-     <properties>
+    <properties>
         <powermock.version>1.6.2</powermock.version>
     </properties>
 
@@ -38,4 +39,16 @@
         <module>rulette-core</module>
         <module>rulette-rest</module>
     </modules>
+
+    <distributionManagement>
+      <snapshotRepository>
+        <id>ossrh</id>
+        <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      </snapshotRepository>
+      <repository>
+        <id>ossrh</id>
+        <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+      </repository>
+    </distributionManagement>
+
 </project>
