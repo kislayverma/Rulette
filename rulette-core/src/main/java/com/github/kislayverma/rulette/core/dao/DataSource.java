@@ -1,6 +1,7 @@
 package com.github.kislayverma.rulette.core.dao;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
+import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -25,6 +26,11 @@ public class DataSource {
         // load datasource properties
         props = Utils.readProperties(fileName);
         cpds = new ComboPooledDataSource();
+        try {
+            cpds.setDriverClass(props.getProperty("driverClass"));
+        } catch (PropertyVetoException ex) {
+            throw new RuntimeException(ex);
+        }
         cpds.setJdbcUrl(props.getProperty("jdbcUrl"));
         cpds.setUser(props.getProperty("username"));
         cpds.setPassword(props.getProperty("password"));
