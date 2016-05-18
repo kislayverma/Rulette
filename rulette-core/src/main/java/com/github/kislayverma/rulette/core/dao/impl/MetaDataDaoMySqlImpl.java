@@ -19,7 +19,7 @@ public class MetaDataDaoMySqlImpl extends BaseDaoMySqlImpl implements MetaDataDa
 
     @Override
     public RuleSystemMetaData getRuleSystemMetaData(String ruleSystemName) throws Exception {
-        Statement statement = dataSource.getConnection().createStatement();
+        Statement statement = getConnection().createStatement();
         ResultSet resultSet =
             statement.executeQuery("SELECT * FROM rule_system WHERE name LIKE '" + ruleSystemName + "'");
 
@@ -40,7 +40,7 @@ public class MetaDataDaoMySqlImpl extends BaseDaoMySqlImpl implements MetaDataDa
     private List<RuleInputMetaData> getInputs(String ruleSystemName) throws SQLException, Exception {
         List<RuleInputMetaData> inputs = new ArrayList<>();
 
-        Statement statement = dataSource.getConnection().createStatement();
+        Statement statement = getConnection().createStatement();
         ResultSet resultSet =
                 statement.executeQuery("SELECT b.* "
                 + "FROM rule_system AS a "

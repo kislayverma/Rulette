@@ -2,13 +2,15 @@ package com.github.kislayverma.rulette.core.dao.impl;
 
 import com.github.kislayverma.rulette.core.dao.DataSource;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 
 public class BaseDaoMySqlImpl {
 
-    protected static DataSource dataSource;
+//    private DataSource dataSource;
     private static boolean INITIALIZED = false;
 
+    // Source of the copy-paste : http://www.vogella.com/articles/MySQLJava/article.html
     public BaseDaoMySqlImpl() throws Exception {
         if (!INITIALIZED) {
             // This will load the MySQL driver
@@ -18,13 +20,16 @@ public class BaseDaoMySqlImpl {
                 throw new Exception(e);
             }
 
-            initDatabaseConnection();
+//            initDatabaseConnection();
             INITIALIZED = true;
         }
     }
 
-    // Source of the copy-paste : http://www.vogella.com/articles/MySQLJava/article.html
-    private void initDatabaseConnection() throws SQLException, IOException {
-        dataSource = DataSource.getInstance();
+    protected Connection getConnection() throws SQLException, IOException {
+        return DataSource.getInstance(null).getConnection();
     }
+
+//    private void initDatabaseConnection() throws SQLException, IOException {
+//        dataSource = DataSource.init();
+//    }
 }

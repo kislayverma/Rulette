@@ -21,9 +21,9 @@ public class DataSource {
     private ComboPooledDataSource cpds;
     private static DataSource datasource;
 
-    private DataSource() throws IOException, SQLException {
+    private DataSource(String fileName) throws IOException, SQLException {
         // load datasource properties
-        props = Utils.readProperties("datasource.properties");
+        props = Utils.readProperties(fileName);
         cpds = new ComboPooledDataSource();
         cpds.setJdbcUrl(props.getProperty("jdbcUrl"));
         cpds.setUser(props.getProperty("username"));
@@ -55,9 +55,16 @@ public class DataSource {
         }
     }
 
-    public static DataSource getInstance() throws IOException, SQLException {
+    public static void init(String fileName) throws IOException, SQLException {
         if (datasource == null) {
-            datasource = new DataSource();
+            System.out.println("File name is " + fileName);
+            datasource = new DataSource(fileName);
+        }
+    }
+
+    public static DataSource getInstance(String fileName) throws IOException, SQLException {
+        if (datasource == null) {
+            init(fileName);
         }
 
         return datasource;

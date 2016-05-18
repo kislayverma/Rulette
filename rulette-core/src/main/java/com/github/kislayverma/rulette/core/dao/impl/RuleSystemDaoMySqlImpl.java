@@ -25,7 +25,7 @@ public class RuleSystemDaoMySqlImpl extends BaseDaoMySqlImpl implements RuleSyst
     public List<Rule> getAllRules(String ruleSystemName) throws SQLException, Exception {
         List<Rule> rules = new ArrayList<>();
 
-        Statement statement = dataSource.getConnection().createStatement();
+        Statement statement = getConnection().createStatement();
         ResultSet resultSet =
             statement.executeQuery("SELECT * " + " FROM " + RuleSystemMetaDataFactory.getInstance().getMetaData(ruleSystemName).getTableName());
 
@@ -58,7 +58,7 @@ public class RuleSystemDaoMySqlImpl extends BaseDaoMySqlImpl implements RuleSyst
                 .append(" (").append(nameListBuilder.toString().substring(0, nameListBuilder.length() - 1)).append(") ")
                 .append(" VALUES (").append(valueListBuilder.toString().substring(0, valueListBuilder.length() - 1)).append(") ");
 
-        Connection connection = dataSource.getConnection();
+        Connection connection = getConnection();
         PreparedStatement preparedStatement =
                 connection.prepareStatement("SELECT * " + " FROM " + metaData.getTableName());
 
@@ -88,7 +88,7 @@ public class RuleSystemDaoMySqlImpl extends BaseDaoMySqlImpl implements RuleSyst
 
         String sql = "DELETE FROM " + metaData.getTableName()
                 + " WHERE " + metaData.getUniqueIdColumnName() + "= ?";
-        PreparedStatement preparedStatement = dataSource.getConnection().prepareStatement(sql);
+        PreparedStatement preparedStatement = getConnection().prepareStatement(sql);
         preparedStatement.setString(1, rule.getColumnData(metaData.getUniqueIdColumnName()).getRawValue());
 
         return preparedStatement.executeUpdate() > 0;
@@ -124,7 +124,7 @@ public class RuleSystemDaoMySqlImpl extends BaseDaoMySqlImpl implements RuleSyst
                 .append("=")
                 .append(oldRuleId);
 
-        Connection connection = dataSource.getConnection();
+        Connection connection = getConnection();
         PreparedStatement preparedStatement =
                 connection.prepareStatement(sqlBuilder.toString());
         if (preparedStatement.executeUpdate() > 0) {

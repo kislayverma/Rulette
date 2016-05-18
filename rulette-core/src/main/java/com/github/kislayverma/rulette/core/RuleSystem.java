@@ -1,5 +1,6 @@
 package com.github.kislayverma.rulette.core;
 
+import com.github.kislayverma.rulette.core.dao.DataSource;
 import com.github.kislayverma.rulette.core.dao.RuleSystemDao;
 import com.github.kislayverma.rulette.core.dao.impl.RuleSystemDaoMySqlImpl;
 import com.github.kislayverma.rulette.core.evaluationengine.IEvaluationEngine;
@@ -10,6 +11,7 @@ import com.github.kislayverma.rulette.core.rule.Rule;
 import com.github.kislayverma.rulette.core.ruleinput.RuleInputMetaData;
 import com.github.kislayverma.rulette.core.validator.DefaultValidator;
 import com.github.kislayverma.rulette.core.validator.Validator;
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -55,7 +57,21 @@ public class RuleSystem implements Serializable {
      * @throws Exception
      */
     public RuleSystem(String ruleSystemName, Validator validator) throws Exception {
-        this(ruleSystemName, validator, new RuleSystemDaoMySqlImpl());
+        this(ruleSystemName, validator, null, null);
+    }
+
+    public RuleSystem(String ruleSystemName, Validator validator, RuleSystemDao ruleSystemDao, String datasourceUrl) throws Exception {
+        // Set up database classes
+        datasourceUrl = (datasourceUrl == null || datasourceUrl.equals("")) ? "rulette-datasource.properties" : datasourceUrl;
+        DataSource.init(datasourceUrl);
+        this.dao = (ruleSystemDao == null) ? new RuleSystemDaoMySqlImpl() : ruleSystemDao;
+
+        this.validator = (validator != null) ? validator : new DefaultValidator();
+
+        long startTime = new Date().getTime();
+        initRuleSystem(ruleSystemName);
+        long endTime = new Date().getTime();
+        System.out.println("Time taken to initialize rule system : " + (endTime - startTime) + " ms.");
     }
 
     /**
@@ -371,7 +387,10 @@ public class RuleSystem implements Serializable {
     }
 
     public static void main(String[] args) throws Exception {
-        RuleSystem rs = new RuleSystem("govt_vat_rule_system", null);
+        File f = new File("/Users/kislay.verma/Applications/apache-tomcat-7.0.53/conf/rulette-datasource.properties");
+        RuleSystem rs = new RuleSystem("govt_vat_rule_system", null, null, f.getPath());
+//        RuleSystem rs = new RuleSystem("govt_vat_rule_system", null, null, "rulette-datasource.properties");
+//        RuleSystem rs = new RuleSystem("govt_vat_rule_system", null, null, null);
 
         Map<String, String> inputMap = new HashMap<>();
         inputMap.put("article_id", "7");
