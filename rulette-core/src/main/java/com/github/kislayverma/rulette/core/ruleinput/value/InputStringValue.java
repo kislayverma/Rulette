@@ -7,7 +7,7 @@ public class InputStringValue extends RuleInputValue implements IInputValue<Stri
     private final String value;
 
     public InputStringValue (String value) throws Exception {
-        this.dataType = InputDataType.STRING;
+        this.dataType = RuleInputDataType.STRING;
         this.value = value;
     }
 

@@ -7,7 +7,7 @@ public class InputNumberValue extends RuleInputValue implements IInputValue<Doub
     private final Double value;
 
     public InputNumberValue (String value) throws Exception {
-        this.dataType = InputDataType.NUMBER;
+        this.dataType = RuleInputDataType.NUMBER;
         this.value = value == null || value.isEmpty() ? null : Double.parseDouble(value);
     }
 

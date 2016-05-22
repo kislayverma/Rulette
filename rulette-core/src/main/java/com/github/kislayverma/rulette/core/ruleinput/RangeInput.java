@@ -1,7 +1,7 @@
 package com.github.kislayverma.rulette.core.ruleinput;
 
+import com.github.kislayverma.rulette.core.ruleinput.value.RuleInputDataType;
 import com.github.kislayverma.rulette.core.ruleinput.value.IInputValue;
-import com.github.kislayverma.rulette.core.ruleinput.value.InputDataType;
 import com.github.kislayverma.rulette.core.ruleinput.value.RuleInputValue;
 import java.io.Serializable;
 
@@ -10,22 +10,22 @@ public class RangeInput extends RuleInput implements Serializable {
     private IInputValue lowerBound;
     private IInputValue upperBound;
 
-    public RangeInput(int id, String name, int priority, InputDataType inputDataType, String value)
+    public RangeInput(int id, String name, int priority, RuleInputDataType inputDataType, String value)
             throws Exception {
-        this.metaData = new RuleInputMetaData(id, name, priority, RuleType.RANGE, inputDataType);
+        this.metaData = new RuleInputMetaData(id, name, priority, RuleInputType.RANGE, inputDataType);
         String[] rangeArr = value.split("-");
 
         if (value.isEmpty()) {
             // The'any' case
-            this.lowerBound = RuleInputValue.createRuleInputValue(metaData.getRuleDataType(), "");
-            this.upperBound = RuleInputValue.createRuleInputValue(metaData.getRuleDataType(), "");
+            this.lowerBound = RuleInputValue.createRuleInputValue(metaData.getRuleInputDataType(), "");
+            this.upperBound = RuleInputValue.createRuleInputValue(metaData.getRuleInputDataType(), "");
         } else if (rangeArr.length < 2) {
             throw new Exception("Improper value for field " + this.metaData.getName()
                     + ". Range fields must be given in the format 'a-b' (with "
                     + "a and b as inclusive lower and upper bound respectively.)");
         } else {
-            this.lowerBound = RuleInputValue.createRuleInputValue(metaData.getRuleDataType(), rangeArr[0] == null ? "" : rangeArr[0]);
-            this.upperBound = RuleInputValue.createRuleInputValue(metaData.getRuleDataType(), rangeArr[0] == null ? "" : rangeArr[1]);
+            this.lowerBound = RuleInputValue.createRuleInputValue(metaData.getRuleInputDataType(), rangeArr[0] == null ? "" : rangeArr[0]);
+            this.upperBound = RuleInputValue.createRuleInputValue(metaData.getRuleInputDataType(), rangeArr[0] == null ? "" : rangeArr[1]);
         }
     }
 
@@ -48,7 +48,7 @@ public class RangeInput extends RuleInput implements Serializable {
      */
     @Override
     public boolean isConflicting(RuleInput input) throws Exception {
-        if (!input.getDataType().equals(this.getDataType())) {
+        if (!input.getRuleInputDataType().equals(this.getRuleInputDataType())) {
             throw new Exception("Compared rule inputs '" + this.getName() + "' and '"
                     + input.getName() + "' are not the same type.");
         }

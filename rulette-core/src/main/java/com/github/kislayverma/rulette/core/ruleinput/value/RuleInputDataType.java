@@ -1,6 +1,6 @@
 package com.github.kislayverma.rulette.core.ruleinput.value;
 
-public enum InputDataType {
+public enum RuleInputDataType {
     NUMBER,
     DATE,
     STRING

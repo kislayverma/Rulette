@@ -3,8 +3,8 @@ package com.github.kislayverma.rulette.core.dao.impl;
 import com.github.kislayverma.rulette.core.dao.MetaDataDao;
 import com.github.kislayverma.rulette.core.metadata.RuleSystemMetaData;
 import com.github.kislayverma.rulette.core.ruleinput.RuleInputMetaData;
-import com.github.kislayverma.rulette.core.ruleinput.RuleType;
-import com.github.kislayverma.rulette.core.ruleinput.value.InputDataType;
+import com.github.kislayverma.rulette.core.ruleinput.RuleInputType;
+import com.github.kislayverma.rulette.core.ruleinput.value.RuleInputDataType;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -50,10 +50,10 @@ public class MetaDataDaoMySqlImpl extends BaseDaoMySqlImpl implements MetaDataDa
                 + "ORDER BY b.priority ASC ");
 
         while (resultSet.next()) {
-            RuleType ruleType =
+            RuleInputType ruleType =
                     "Value".equalsIgnoreCase(resultSet.getString("rule_type"))
-                    ? RuleType.VALUE : RuleType.RANGE;
-            InputDataType dataType = InputDataType.valueOf(resultSet.getString("data_type").toUpperCase());
+                    ? RuleInputType.VALUE : RuleInputType.RANGE;
+            RuleInputDataType dataType = RuleInputDataType.valueOf(resultSet.getString("data_type").toUpperCase());
 
             inputs.add(new RuleInputMetaData(resultSet.getInt("id"),
                     resultSet.getString("name"),

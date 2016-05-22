@@ -12,7 +12,7 @@ public class InputDateValue extends RuleInputValue implements IInputValue<Date>,
     private static final DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMMdd");
 
     public InputDateValue (String value) throws Exception {
-        this.dataType = InputDataType.DATE;
+        this.dataType = RuleInputDataType.DATE;
         this.value = value == null || value.isEmpty() ? null : formatter.parseDateTime(value).toDate();
     }
 
