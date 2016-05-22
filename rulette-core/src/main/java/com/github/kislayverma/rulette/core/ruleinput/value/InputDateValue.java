@@ -9,10 +9,15 @@ import org.joda.time.format.DateTimeFormatter;
 public class InputDateValue extends RuleInputValue implements IInputValue<Date>, Serializable {
 
     private final Date value;
-    private static final DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMMdd");
+    private final DateTimeFormatter formatter;
 
     public InputDateValue (String value) throws Exception {
+        this(value, DateTimeFormat.forPattern("yyyyMMdd"));
+    }
+
+    public InputDateValue (String value, DateTimeFormatter formatter) throws Exception {
         this.dataType = InputDataType.DATE;
+        this.formatter = formatter;
         this.value = value == null || value.isEmpty() ? null : formatter.parseDateTime(value).toDate();
     }
 
