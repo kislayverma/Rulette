@@ -1,7 +1,7 @@
 package com.github.kislayverma.rulette.core.ruleinput;
 
+import com.github.kislayverma.rulette.core.ruleinput.value.RuleInputDataType;
 import com.github.kislayverma.rulette.core.ruleinput.value.IInputValue;
-import com.github.kislayverma.rulette.core.ruleinput.value.InputDataType;
 import com.github.kislayverma.rulette.core.ruleinput.value.RuleInputValue;
 import java.io.Serializable;
 
@@ -9,9 +9,9 @@ public class ValueInput extends RuleInput implements Serializable {
 
     private IInputValue value;
 
-    public ValueInput(int id, String name, int priority, InputDataType inputDataType, String value)
+    public ValueInput(int id, String name, int priority, RuleInputDataType inputDataType, String value)
             throws Exception {
-        this.metaData = new RuleInputMetaData(id, name, priority, RuleType.VALUE, inputDataType);
+        this.metaData = new RuleInputMetaData(id, name, priority, RuleInputType.VALUE, inputDataType);
         this.value = RuleInputValue.createRuleInputValue(inputDataType, value == null ? "" : value);
     }
 
@@ -32,7 +32,7 @@ public class ValueInput extends RuleInput implements Serializable {
      */
     @Override
     public boolean isConflicting(RuleInput input) throws Exception {
-        if (!input.getDataType().equals(this.getDataType())) {
+        if (!input.getRuleInputDataType().equals(this.getRuleInputDataType())) {
             throw new Exception("Compared rule inputs '" + this.getName() + "' and '"
                     + input.getName() + "' are not the same type.");
         }

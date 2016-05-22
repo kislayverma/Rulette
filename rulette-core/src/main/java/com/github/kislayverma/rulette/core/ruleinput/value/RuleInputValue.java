@@ -2,9 +2,9 @@ package com.github.kislayverma.rulette.core.ruleinput.value;
 
 public abstract class RuleInputValue {
 
-    protected InputDataType dataType;
+    protected RuleInputDataType dataType;
 
-    public static IInputValue createRuleInputValue (InputDataType ruleDataType, String value) throws Exception {
+    public static IInputValue createRuleInputValue (RuleInputDataType ruleDataType, String value) throws Exception {
         switch (ruleDataType) {
             case NUMBER:
                 return new InputNumberValue(value);

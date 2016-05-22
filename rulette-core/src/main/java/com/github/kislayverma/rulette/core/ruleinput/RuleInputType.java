@@ -1,6 +1,6 @@
 package com.github.kislayverma.rulette.core.ruleinput;
 
-public enum RuleType {
+public enum RuleInputType {
     VALUE,
     RANGE
 }
