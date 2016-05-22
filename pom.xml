@@ -9,26 +9,26 @@
     <url>https://github.com/kislayverma/Rulette</url>
 
     <licenses>
-      <license>
-        <name>The Apache License, Version 2.0</name>
-        <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-      </license>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
     </licenses>
 
     <developers>
-      <developer>
-        <name>Kislay Verma</name>
-        <email>kislay.nsit@gmail.com</email>
-        <organization>None</organization>
-        <organizationUrl>https://bitbucket.org/kislayverma/</organizationUrl>
-      </developer>
+        <developer>
+            <name>Kislay Verma</name>
+            <email>kislay.nsit@gmail.com</email>
+            <organization>None</organization>
+            <organizationUrl>https://bitbucket.org/kislayverma/</organizationUrl>
+        </developer>
     </developers>
 
     <scm>
-      <connection>scm:git:https://kislayverma@bitbucket.org/kislayverma/rulette.git</connection>
-      <developerConnection>scm:git:https://kislayverma@bitbucket.org/kislayverma/rulette.git</developerConnection>
-      <url>https://bitbucket.org/kislayverma/rulette</url>
-      <tag>HEAD</tag>
+        <connection>scm:git:https://kislayverma@bitbucket.org/kislayverma/rulette.git</connection>
+        <developerConnection>scm:git:https://kislayverma@bitbucket.org/kislayverma/rulette.git</developerConnection>
+        <url>https://bitbucket.org/kislayverma/rulette</url>
+        <tag>HEAD</tag>
     </scm>
 
     <properties>
@@ -41,14 +41,14 @@
     </modules>
 
     <distributionManagement>
-      <snapshotRepository>
-        <id>ossrh</id>
-        <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-      </snapshotRepository>
-      <repository>
-        <id>ossrh</id>
-        <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-      </repository>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
     </distributionManagement>
 
     <build>
@@ -67,29 +67,28 @@
                     </execution>
                 </executions>
             </plugin>
-<!--            <plugin>
-              <groupId>org.sonatype.plugins</groupId>
-              <artifactId>nexus-staging-maven-plugin</artifactId>
-              <version>1.6.7</version>
-              <extensions>true</extensions>
-              <configuration>
-                 <serverId>ossrh</serverId>
-                 <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                 <autoReleaseAfterClose>true</autoReleaseAfterClose>
-              </configuration>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.7</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>ossrh</serverId>
+                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                </configuration>
             </plugin>
             <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-release-plugin</artifactId>
-              <version>2.5.3</version>
-              <configuration>
-                <autoVersionSubmodules>true</autoVersionSubmodules>
-                <useReleaseProfile>false</useReleaseProfile>
-                <releaseProfiles>release</releaseProfiles>
-                <goals>deploy</goals>
-              </configuration>
-            </plugin>-->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.3</version>
+                <configuration>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <useReleaseProfile>false</useReleaseProfile>
+                    <releaseProfiles>release</releaseProfiles>
+                    <goals>deploy</goals>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
-
 </project>
