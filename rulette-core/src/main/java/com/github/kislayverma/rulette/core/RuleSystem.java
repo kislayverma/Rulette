@@ -9,8 +9,6 @@ import com.github.kislayverma.rulette.core.metadata.RuleSystemMetaData;
 import com.github.kislayverma.rulette.core.metadata.RuleSystemMetaDataFactory;
 import com.github.kislayverma.rulette.core.rule.Rule;
 import com.github.kislayverma.rulette.core.ruleinput.RuleInputMetaData;
-import com.github.kislayverma.rulette.core.validator.DefaultValidator;
-import com.github.kislayverma.rulette.core.validator.Validator;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -36,7 +34,6 @@ import java.util.Map;
  */
 public class RuleSystem implements Serializable {
 
-    private Validator validator;
     private RuleSystemMetaData metaData;
     private RuleSystemDao dao;
     private IEvaluationEngine evaluationEngine;
@@ -53,47 +50,19 @@ public class RuleSystem implements Serializable {
      * file containing the rules
      *
      * @param ruleSystemName
-     * @param validator
      * @throws Exception
      */
-    public RuleSystem(String ruleSystemName, Validator validator) throws Exception {
-        this(ruleSystemName, validator, null, null);
+    public RuleSystem(String ruleSystemName) throws Exception {
+        this(ruleSystemName, null);
     }
 
-    public RuleSystem(String ruleSystemName, Validator validator, RuleSystemDao ruleSystemDao, String datasourceUrl) throws Exception {
+    public RuleSystem(String ruleSystemName, String datasourceUrl) throws Exception {
         // Set up database classes
+        long startTime = new Date().getTime();
         datasourceUrl = (datasourceUrl == null || datasourceUrl.equals("")) ? "rulette-datasource.properties" : datasourceUrl;
         DataSource.init(datasourceUrl);
-        this.dao = (ruleSystemDao == null) ? new RuleSystemDaoMySqlImpl() : ruleSystemDao;
+        this.dao = new RuleSystemDaoMySqlImpl();
 
-        this.validator = (validator != null) ? validator : new DefaultValidator();
-
-        long startTime = new Date().getTime();
-        initRuleSystem(ruleSystemName);
-        long endTime = new Date().getTime();
-        System.out.println("Time taken to initialize rule system : " + (endTime - startTime) + " ms.");
-    }
-
-    /**
-     * Use this constructor to explicitly set the dao to be used by the Rule System.
-     * This is optional as the rule has a default implementation of all database
-     * operations.
-     *
-     * Inserting your custom dao is a big responsibility that must not be taken
-     * up lightly. You can ,however, use this facility in case you must work
-     * with pre-existing database systems or to integrate with frameworks like
-     * Hibernate.
-     * 
-     * @param ruleSystemName
-     * @param validator
-     * @param ruleSystemDao
-     * @throws java.lang.Exception
-     */
-    public RuleSystem(String ruleSystemName, Validator validator, RuleSystemDao ruleSystemDao) throws Exception {
-        this.validator = (validator != null) ? validator : new DefaultValidator();
-        this.dao = ruleSystemDao;
-
-        long startTime = new Date().getTime();
         initRuleSystem(ruleSystemName);
         long endTime = new Date().getTime();
         System.out.println("Time taken to initialize rule system : " + (endTime - startTime) + " ms.");
@@ -182,7 +151,7 @@ public class RuleSystem implements Serializable {
      * @throws Exception
      */
     public Rule addRule(Rule newRule) throws Exception {
-        if (newRule == null || !this.validator.isValid(newRule)) {
+        if (newRule == null) {
             return null;
         }
 
@@ -219,7 +188,7 @@ public class RuleSystem implements Serializable {
      * not actually exist.
      */
     public Rule updateRule(Rule oldRule, Rule newRule) throws Exception {
-        if (oldRule == null || newRule == null || !this.validator.isValid(newRule)) {
+        if (oldRule == null || newRule == null) {
             return null;
         }
 
@@ -380,15 +349,13 @@ public class RuleSystem implements Serializable {
         this.evaluationEngine = new TrieBasedEvaluationEngine(metaData);
 
         for (Rule rule : rules) {
-            if (this.validator.isValid(rule)) {
-                evaluationEngine.addRule(rule);
-            }
+            evaluationEngine.addRule(rule);
         }
     }
 
     public static void main(String[] args) throws Exception {
         File f = new File("/Users/kislay.verma/Applications/apache-tomcat-7.0.53/conf/rulette-datasource.properties");
-        RuleSystem rs = new RuleSystem("govt_vat_rule_system", null, null, f.getPath());
+        RuleSystem rs = new RuleSystem("govt_vat_rule_system", f.getPath());
 //        RuleSystem rs = new RuleSystem("govt_vat_rule_system", null, null, "rulette-datasource.properties");
 //        RuleSystem rs = new RuleSystem("govt_vat_rule_system", null, null, null);
 
