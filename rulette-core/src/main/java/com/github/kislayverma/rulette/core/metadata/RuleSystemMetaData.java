@@ -31,7 +31,7 @@ public class RuleSystemMetaData {
      * Input and output columns always get default configuration.
      * 
      * @param configuration Custom configuration for rule inputs
-     * @throws Exception 
+     * @throws Exception on failure to register rule input configuration
      */
     public void applyCustomConfiguration(RuleInputConfigurator configuration) throws Exception {
         RuleInputValueFactory.getInstance().registerRuleInputBuilder(

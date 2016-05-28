@@ -54,8 +54,8 @@ public class RuleSystem implements Serializable {
      * values on separate lines: 1. Name of the rule system 2. Full path of the
      * file containing the rules
      *
-     * @param ruleSystemName
-     * @throws Exception
+     * @param ruleSystemName name of the rule system to initialize
+     * @throws Exception on rule system initialization failure
      */
     public RuleSystem(String ruleSystemName) throws Exception {
         this(ruleSystemName, null);
@@ -68,7 +68,7 @@ public class RuleSystem implements Serializable {
      * 
      * @param ruleSystemName Name of the rule system to be instantiated
      * @param datasourceUrl Path to a properties file containing data source configuration
-     * @throws Exception 
+     * @throws Exception on rule system initialization failure
      */
     public RuleSystem(String ruleSystemName, String datasourceUrl) throws Exception {
         this(ruleSystemName, datasourceUrl, null);
@@ -83,7 +83,7 @@ public class RuleSystem implements Serializable {
      * @param ruleSystemName Name of the rule system to be instantiated
      * @param datasourceUrl Path to a properties file containing data source configuration
      * @param inputConfig Configuration to support custom data types and behaviour for rule inputs
-     * @throws Exception 
+     * @throws Exception if rule system could not be initialized
      */
     public RuleSystem(String ruleSystemName, String datasourceUrl, RuleInputConfigurator inputConfig) throws Exception {
         // Set up database classes
@@ -110,7 +110,7 @@ public class RuleSystem implements Serializable {
 
     /**
      * This method returns a list of all the rules in the rule system.
-     * @return 
+     * @return List of all rules configured in the rule system
      */
     public List<Rule> getAllRules() {
         return evaluationEngine.getAllRules();
@@ -118,9 +118,9 @@ public class RuleSystem implements Serializable {
 
     /**
      * This method returns a list of all the rules in the rule system.
-     * @param inputMap
-     * @return 
-     * @throws java.lang.Exception 
+     * @param inputMap map of rule input values for which applicable rules are to be returned
+     * @return List of all rules applicable to the given input
+     * @throws java.lang.Exception if rule evaluation fails
      */
     public List<Rule> getAllApplicableRules(Map<String, String> inputMap) throws Exception {
         return evaluationEngine.getAllApplicableRules(inputMap);
@@ -134,7 +134,7 @@ public class RuleSystem implements Serializable {
      * values
      * @return null if input is null, null if no rule is applicable for the
      * given input combination the applicable rule otherwise.
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception on rule evaluation error
      */
     public Rule getRule(Map<String, String> inputMap) throws Exception {
         return evaluationEngine.getRule(inputMap);
@@ -155,11 +155,11 @@ public class RuleSystem implements Serializable {
      * This method adds a new rule to the rule system. There is no need to
      * provide the rule_id field in the input - it will be auto-populated.
      *
-     * @param inputMap
+     * @param inputMap The rule input values for which a new rule is to be added
      * @return the added rule if there are no overlapping rules null if there
      * are overlapping rules null if the input constitutes an invalid rule as
      * per the validation policy in use.
-     * @throws Exception
+     * @throws Exception on failure
      */
     public Rule addRule(Map<String, String> inputMap) throws Exception {
         if (inputMap == null) {
@@ -173,11 +173,11 @@ public class RuleSystem implements Serializable {
     /**
      * This method adds the given rule to the rule system with a new rule id.
      *
-     * @param newRule
+     * @param newRule The new rule to be added
      * @return the added rule if there are no overlapping rules null if there
      * are overlapping rules null if the input constitutes an invalid rule as
      * per the validation policy in use.
-     * @throws Exception
+     * @throws Exception on failure
      */
     public Rule addRule(Rule newRule) throws Exception {
         if (newRule == null) {
@@ -259,7 +259,7 @@ public class RuleSystem implements Serializable {
      * @return true if the rule with given rule id was successfully deleted
      * false if the given rule does not exist false if the given rule could not
      * be deleted (for whatever reason).
-     * @throws Exception
+     * @throws Exception on error in deleting rule
      */
     public boolean deleteRule(Integer ruleId) throws Exception {
         if (ruleId != null) {
@@ -277,7 +277,7 @@ public class RuleSystem implements Serializable {
      * @return true if the given rule was successfully deleted false if the
      * given rule does not exist false if the given rule could not be deleted
      * (for whatever reason).
-     * @throws Exception
+     * @throws Exception on failure
      */
     public boolean deleteRule(Rule rule) throws Exception {
         if (rule == null) {
@@ -298,7 +298,7 @@ public class RuleSystem implements Serializable {
      *
      * @param rule {@link Rule} object
      * @return List of conflicting rules if any, empty list otherwise.
-     * @throws Exception
+     * @throws Exception on rule evaluation failure
      */
     public List<Rule> getConflictingRules(Rule rule) throws Exception {
         if (rule == null) {
@@ -325,7 +325,7 @@ public class RuleSystem implements Serializable {
      * applicable rule is deleted. null if no rule is applicable after the
      * currently applicable rule is deleted. null id no rule is currently
      * applicable.
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception on rule evaluation failure
      */
     public Rule getNextApplicableRule(Map<String, String> inputMap) throws Exception {
         return evaluationEngine.getNextApplicableRule(inputMap);
@@ -339,10 +339,19 @@ public class RuleSystem implements Serializable {
         return metaData.getUniqueOutputColumnName();
     }
 
+    /**
+     * Returns the name of the rule system
+     * @return the name of the rule system
+     */
     public String getName() {
         return metaData.getRuleSystemName();
     }
 
+    /**
+     * Returns the names of all the columns in the rule system, including the unique 
+     * input and output column names
+     * @return names of all the columns in the rule system
+     */
     public List<String> getAllColumnNames() {
         List<String> columnNames = new ArrayList<>();
         columnNames.add(metaData.getUniqueIdColumnName());
@@ -354,6 +363,11 @@ public class RuleSystem implements Serializable {
         return columnNames;
     }
 
+    /**
+     * Returns the names of all the columns in the rule system, excluding the unique 
+     * input and output column names
+     * @return names of all columns for evaluation in the rule system
+     */
     public List<String> getInputColumnNames() {
         List<String> columnNames = new ArrayList<>();
         for (RuleInputMetaData rimd : metaData.getInputColumnList()) {
