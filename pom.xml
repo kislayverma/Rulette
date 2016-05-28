@@ -20,14 +20,14 @@
             <name>Kislay Verma</name>
             <email>kislay.nsit@gmail.com</email>
             <organization>None</organization>
-            <organizationUrl>https://bitbucket.org/kislayverma/</organizationUrl>
+            <organizationUrl>https://github.com/kislayverma</organizationUrl>
         </developer>
     </developers>
 
     <scm>
         <connection>scm:git:https://kislayverma@bitbucket.org/kislayverma/rulette.git</connection>
         <developerConnection>scm:git:https://kislayverma@bitbucket.org/kislayverma/rulette.git</developerConnection>
-        <url>https://bitbucket.org/kislayverma/rulette</url>
+        <url>https://github.com/kislayverma/Rulette</url>
         <tag>HEAD</tag>
     </scm>
 
