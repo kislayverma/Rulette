@@ -32,13 +32,6 @@ public class Utils {
 
         return props;
     }
-//    public static Properties readProperties(String filename) throws IOException {
-//        Properties props = new Properties();
-//        ClassLoader loader = Thread.currentThread().getContextClassLoader();
-//        InputStream stream = loader.getResourceAsStream(filename);
-//        props.load(stream);
-//        return props;
-//    }
 
 //    public static final RuleInputDataType getRuleInputDataTypeFromName(String name) {
 //        switch (name.toLowerCase()) {

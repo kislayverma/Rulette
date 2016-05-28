@@ -7,6 +7,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -14,13 +16,10 @@ import java.util.Properties;
  */
 public class DataSource {
 
-    /*
-     * A singleton that represents a pooled datasource. It is composed of a C3PO
-     * pooled datasource. Can be changed to any connect pool provider
-     */
     private Properties props;
     private ComboPooledDataSource cpds;
     private static DataSource datasource;
+    private static final Logger LOGGER = LoggerFactory.getLogger(DataSource.class);
 
     private DataSource(String fileName) throws IOException, SQLException {
         // load datasource properties
@@ -45,12 +44,12 @@ public class DataSource {
 
         // test connectivity and initialize pool
         try {
-            System.out.println("Testing DB connection...");
+            LOGGER.info("Testing DB connection...");
             testConnection = cpds.getConnection();
             testStatement = testConnection.createStatement();
             testStatement.executeQuery("select 1+1 from DUAL");
             
-            System.out.println("DB connection tested successfully.");
+            LOGGER.info("DB connection tested successfully.");
         } catch (SQLException e) {
             throw e;
         } finally {
@@ -64,7 +63,7 @@ public class DataSource {
     public static void init(String fileName) throws IOException, SQLException {
         if (datasource == null) {
             loadDriverClass();
-            System.out.println("File name is " + fileName);
+            LOGGER.debug("File name is " + fileName);
             datasource = new DataSource(fileName);
         }
     }
