@@ -12,7 +12,7 @@ public interface IEvaluationEngine {
 
     /**
      * This method returns a list of all the rules in the rule system.
-     * @return 
+     * @return List of all rules configured in the rule system
      */
     List<Rule> getAllRules();
 
@@ -34,7 +34,7 @@ public interface IEvaluationEngine {
      * @return null if input is null, null if no rule is applicable for the
      * given input combination the applicable rule otherwise.
      * 
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception on rule evaluation error
      */
     Rule getRule(Map<String, String> inputMap) throws Exception;
 
@@ -47,7 +47,7 @@ public interface IEvaluationEngine {
      * @return null if input is null, null if no rule is applicable for the
      * given input combination the applicable rule otherwise.
      * 
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception on rule evaluation error
      */
     List<Rule> getAllApplicableRules(Map<String, String> inputMap) throws Exception;
 
@@ -62,7 +62,7 @@ public interface IEvaluationEngine {
      * currently applicable rule is deleted. null id no rule is currently
      * applicable.
      * 
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception on rule evaluation error
      */
     Rule getNextApplicableRule(Map<String, String> inputMap) throws Exception;
 
