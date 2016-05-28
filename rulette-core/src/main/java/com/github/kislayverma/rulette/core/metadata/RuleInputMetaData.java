@@ -9,7 +9,6 @@ public class RuleInputMetaData implements Serializable {
     private final int priority;
     private final RuleInputType ruleInputType;
     private final String dataType;
-//    private IInputValueBuilder builder;
 
     public RuleInputMetaData(int id, String name, int priority, RuleInputType ruleType, String dataType)
             throws Exception {

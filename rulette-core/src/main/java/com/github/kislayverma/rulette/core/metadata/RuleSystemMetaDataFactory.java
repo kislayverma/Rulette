@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RuleSystemMetaDataFactory {
 
     private static RuleSystemMetaDataFactory instance;
-    private MetaDataDao metaDataDao;
+    private final MetaDataDao metaDataDao;
     private static final Map<String, RuleSystemMetaData> metaDataMap = new ConcurrentHashMap<>();
 
     private RuleSystemMetaDataFactory(MetaDataDao metaDataDao) {

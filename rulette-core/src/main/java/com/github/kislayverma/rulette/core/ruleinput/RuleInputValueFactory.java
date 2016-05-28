@@ -4,15 +4,18 @@ import com.github.kislayverma.rulette.core.ruleinput.value.IInputValue;
 import com.github.kislayverma.rulette.core.ruleinput.value.IInputValueBuilder;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RuleInputValueFactory {
     private static RuleInputValueFactory INSTANCE;
     private final Map<String, IInputValueBuilder> builderMap;
+    private static final Logger LOGGER = LoggerFactory.getLogger(RuleInputValueFactory.class);
 
     private RuleInputValueFactory() {
-        System.out.println("Initializing input data type factory...");
+        LOGGER.info("Initializing input data type factory...");
         this.builderMap = new ConcurrentHashMap<>();
-        System.out.println("Input data type factory initialized");
+        LOGGER.info("Input data type factory initialized");
     }
 
     public static RuleInputValueFactory getInstance() {

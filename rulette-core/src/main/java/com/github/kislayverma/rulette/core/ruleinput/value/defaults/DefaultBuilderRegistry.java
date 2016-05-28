@@ -3,12 +3,16 @@ package com.github.kislayverma.rulette.core.ruleinput.value.defaults;
 import com.github.kislayverma.rulette.core.ruleinput.value.IInputValueBuilder;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DefaultBuilderRegistry {
     private final Map<String, IInputValueBuilder> builderRegister;
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultBuilderRegistry.class);
 
     public DefaultBuilderRegistry() {
-        System.out.println("Initializing default builder registry...");
+        LOGGER.info("Initializing default builder registry...");
+
         this.builderRegister = new ConcurrentHashMap<>();
         this.builderRegister.put("STRING", new DefaultStringInputBuilder());
         this.builderRegister.put("DATE", new DefaultDateInputBuilder());
