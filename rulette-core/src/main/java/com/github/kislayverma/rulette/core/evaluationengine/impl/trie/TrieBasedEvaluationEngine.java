@@ -6,8 +6,8 @@ import com.github.kislayverma.rulette.core.evaluationengine.impl.trie.node.Range
 import com.github.kislayverma.rulette.core.evaluationengine.impl.trie.node.ValueNode;
 import com.github.kislayverma.rulette.core.metadata.RuleSystemMetaData;
 import com.github.kislayverma.rulette.core.rule.Rule;
-import com.github.kislayverma.rulette.core.ruleinput.RuleInputMetaData;
-import com.github.kislayverma.rulette.core.ruleinput.RuleInputType;
+import com.github.kislayverma.rulette.core.metadata.RuleInputMetaData;
+import com.github.kislayverma.rulette.core.ruleinput.type.RuleInputType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;

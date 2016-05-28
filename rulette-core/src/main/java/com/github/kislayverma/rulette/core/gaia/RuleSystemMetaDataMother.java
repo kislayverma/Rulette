@@ -1,7 +1,7 @@
 package com.github.kislayverma.rulette.core.gaia;
 
 import com.github.kislayverma.rulette.core.metadata.RuleSystemMetaData;
-import com.github.kislayverma.rulette.core.ruleinput.RuleInputMetaData;
+import com.github.kislayverma.rulette.core.metadata.RuleInputMetaData;
 import java.util.List;
 
 public class RuleSystemMetaDataMother {

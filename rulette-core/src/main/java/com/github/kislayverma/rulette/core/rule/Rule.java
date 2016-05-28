@@ -3,9 +3,9 @@ package com.github.kislayverma.rulette.core.rule;
 import com.github.kislayverma.rulette.core.metadata.RuleSystemMetaData;
 import com.github.kislayverma.rulette.core.metadata.RuleSystemMetaDataFactory;
 import com.github.kislayverma.rulette.core.ruleinput.RuleInput;
-import com.github.kislayverma.rulette.core.ruleinput.RuleInputMetaData;
-import com.github.kislayverma.rulette.core.ruleinput.RuleInputType;
-import com.github.kislayverma.rulette.core.ruleinput.value.RuleInputDataType;
+import com.github.kislayverma.rulette.core.metadata.RuleInputMetaData;
+import com.github.kislayverma.rulette.core.ruleinput.type.RuleInputType;
+import com.github.kislayverma.rulette.core.ruleinput.value.DefaultDataType;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,7 +49,7 @@ public class Rule implements Serializable {
                 col.getName(),
                 col.getPriority(),
                 col.getRuleInputType(),
-                col.getRuleInputDataType(),
+                col.getDataType(),
                 (inputVal == null) ? "" : inputVal));
         }
 
@@ -60,7 +60,7 @@ public class Rule implements Serializable {
             ruleSystemMetaData.getUniqueIdColumnName(),
             UNIQUE_ID_INPUT_ID,
             RuleInputType.VALUE,
-            RuleInputDataType.NUMBER,
+            DefaultDataType.NUMBER.name(),
             (ruleId == null) ? "" : ruleId));
 
         // Construct rule input object representing ouput column
@@ -70,7 +70,7 @@ public class Rule implements Serializable {
             ruleSystemMetaData.getUniqueOutputColumnName(),
             UNIQUE_OUTPUT_ID_INPUT_ID,
             RuleInputType.VALUE,
-            RuleInputDataType.NUMBER,
+            DefaultDataType.NUMBER.name(),
             (ruleOutputId == null) ? "" : ruleOutputId));
     }
 

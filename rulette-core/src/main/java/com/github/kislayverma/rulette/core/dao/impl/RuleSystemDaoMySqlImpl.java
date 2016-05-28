@@ -4,7 +4,7 @@ import com.github.kislayverma.rulette.core.dao.RuleSystemDao;
 import com.github.kislayverma.rulette.core.metadata.RuleSystemMetaData;
 import com.github.kislayverma.rulette.core.metadata.RuleSystemMetaDataFactory;
 import com.github.kislayverma.rulette.core.rule.Rule;
-import com.github.kislayverma.rulette.core.ruleinput.RuleInputMetaData;
+import com.github.kislayverma.rulette.core.metadata.RuleInputMetaData;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
