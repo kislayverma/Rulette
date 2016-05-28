@@ -25,12 +25,11 @@
     </developers>
 
     <scm>
-        <connection>scm:git:https://kislayverma@bitbucket.org/kislayverma/rulette.git</connection>
-        <developerConnection>scm:git:https://kislayverma@bitbucket.org/kislayverma/rulette.git</developerConnection>
-        <url>https://github.com/kislayverma/Rulette</url>
+        <connection>scm:git:git@github.com:kislayverma/Rulette.git</connection>
+        <developerConnection>scm:git:git@github.com:kislayverma/Rulette.git</developerConnection>
+        <url>scm:git:git@github.com:kislayverma/Rulette.git</url>
         <tag>HEAD</tag>
     </scm>
-
     <properties>
         <powermock.version>1.6.2</powermock.version>
     </properties>
