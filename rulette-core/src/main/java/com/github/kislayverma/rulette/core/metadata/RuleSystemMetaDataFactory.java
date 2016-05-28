@@ -1,7 +1,7 @@
 package com.github.kislayverma.rulette.core.metadata;
 
 import com.github.kislayverma.rulette.core.dao.MetaDataDao;
-import com.github.kislayverma.rulette.core.dao.impl.MetaDataDaoMySqlImpl;
+import com.github.kislayverma.rulette.core.dao.impl.mysql.MetaDataDaoImpl;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -17,7 +17,7 @@ public class RuleSystemMetaDataFactory {
 
     public static RuleSystemMetaDataFactory getInstance() {
         if (instance == null) {
-            instance = new RuleSystemMetaDataFactory(new MetaDataDaoMySqlImpl());
+            instance = new RuleSystemMetaDataFactory(new MetaDataDaoImpl());
         }
 
         return instance;

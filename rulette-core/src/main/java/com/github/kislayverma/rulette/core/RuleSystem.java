@@ -2,7 +2,7 @@ package com.github.kislayverma.rulette.core;
 
 import com.github.kislayverma.rulette.core.dao.DataSource;
 import com.github.kislayverma.rulette.core.dao.RuleSystemDao;
-import com.github.kislayverma.rulette.core.dao.impl.RuleSystemDaoMySqlImpl;
+import com.github.kislayverma.rulette.core.dao.impl.mysql.RuleSystemDaoImpl;
 import com.github.kislayverma.rulette.core.evaluationengine.IEvaluationEngine;
 import com.github.kislayverma.rulette.core.evaluationengine.impl.trie.TrieBasedEvaluationEngine;
 import com.github.kislayverma.rulette.core.metadata.RuleSystemMetaData;
@@ -90,7 +90,7 @@ public class RuleSystem implements Serializable {
         long startTime = new Date().getTime();
         datasourceUrl = (datasourceUrl == null || datasourceUrl.equals("")) ? "rulette-datasource.properties" : datasourceUrl;
         DataSource.init(datasourceUrl);
-        this.dao = new RuleSystemDaoMySqlImpl();
+        this.dao = new RuleSystemDaoImpl();
 
         initRuleSystem(ruleSystemName, inputConfig);
         long endTime = new Date().getTime();
