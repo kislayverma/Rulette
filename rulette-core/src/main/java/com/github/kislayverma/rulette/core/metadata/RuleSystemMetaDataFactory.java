@@ -4,29 +4,20 @@ import com.github.kislayverma.rulette.core.dao.MetaDataDao;
 import com.github.kislayverma.rulette.core.dao.impl.MetaDataDaoMySqlImpl;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class RuleSystemMetaDataFactory {
 
     private static RuleSystemMetaDataFactory instance;
-    private static MetaDataDao metaDataDao;
+    private MetaDataDao metaDataDao;
     private static final Map<String, RuleSystemMetaData> metaDataMap = new ConcurrentHashMap<>();
 
-    private RuleSystemMetaDataFactory() {
-        if (metaDataDao == null) {
-            try {
-                metaDataDao = new MetaDataDaoMySqlImpl();
-            } catch (Exception ex) {
-                metaDataDao = null;
-                Logger.getLogger(RuleSystemMetaDataFactory.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
+    private RuleSystemMetaDataFactory(MetaDataDao metaDataDao) {
+         this.metaDataDao = metaDataDao;
     }
 
     public static RuleSystemMetaDataFactory getInstance() {
         if (instance == null) {
-            instance = new RuleSystemMetaDataFactory();
+            instance = new RuleSystemMetaDataFactory(new MetaDataDaoMySqlImpl());
         }
 
         return instance;
