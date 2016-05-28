@@ -1,9 +1,9 @@
-package com.github.kislayverma.rulette.core.evaluationengine.impl.trie;
+package com.github.kislayverma.rulette.core.engine.impl.trie;
 
-import com.github.kislayverma.rulette.core.evaluationengine.IEvaluationEngine;
-import com.github.kislayverma.rulette.core.evaluationengine.impl.trie.node.Node;
-import com.github.kislayverma.rulette.core.evaluationengine.impl.trie.node.RangeNode;
-import com.github.kislayverma.rulette.core.evaluationengine.impl.trie.node.ValueNode;
+import com.github.kislayverma.rulette.core.engine.IEvaluationEngine;
+import com.github.kislayverma.rulette.core.engine.impl.trie.node.Node;
+import com.github.kislayverma.rulette.core.engine.impl.trie.node.RangeNode;
+import com.github.kislayverma.rulette.core.engine.impl.trie.node.ValueNode;
 import com.github.kislayverma.rulette.core.metadata.RuleSystemMetaData;
 import com.github.kislayverma.rulette.core.rule.Rule;
 import com.github.kislayverma.rulette.core.metadata.RuleInputMetaData;

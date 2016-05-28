@@ -1,4 +1,4 @@
-package com.github.kislayverma.rulette.core.evaluationengine;
+package com.github.kislayverma.rulette.core.engine;
 
 import com.github.kislayverma.rulette.core.rule.Rule;
 import java.util.List;
