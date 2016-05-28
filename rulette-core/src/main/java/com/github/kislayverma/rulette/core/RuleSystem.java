@@ -16,6 +16,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class models a rule-system comprising of rules and provides appropriate
@@ -37,6 +39,8 @@ public class RuleSystem implements Serializable {
     private RuleSystemMetaData metaData;
     private RuleSystemDao dao;
     private IEvaluationEngine evaluationEngine;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RuleSystem.class);
 
     /**
      * This constructor is added only to support unit testing. Should not be used.
@@ -65,7 +69,7 @@ public class RuleSystem implements Serializable {
 
         initRuleSystem(ruleSystemName);
         long endTime = new Date().getTime();
-        System.out.println("Time taken to initialize rule system : " + (endTime - startTime) + " ms.");
+        LOGGER.info("Time taken to initialize rule system : " + (endTime - startTime) + " ms.");
     }
 
     public Rule createRuleObject(Map<String, String> inputMap) throws Exception {
@@ -342,9 +346,9 @@ public class RuleSystem implements Serializable {
     private void initRuleSystem(String ruleSystemName) throws Exception {
         this.metaData = RuleSystemMetaDataFactory.getInstance().getMetaData(ruleSystemName);
 
-        System.out.println("Loading rules from DB...");
+        LOGGER.info("Loading rules from DB...");
         List<Rule> rules = dao.getAllRules(ruleSystemName);
-        System.out.println(rules.size() + " rules loaded");
+        LOGGER.info(rules.size() + " rules loaded");
 
         this.evaluationEngine = new TrieBasedEvaluationEngine(metaData);
 
