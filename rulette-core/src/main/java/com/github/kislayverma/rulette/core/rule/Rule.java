@@ -29,10 +29,10 @@ public class Rule implements Serializable {
      * of value to populate the fields of this rule. Any fields missing in the
      * input are set to blank (meaning 'Any').
      *
-     * @param ruleSystemName
-     * @param inputMap
+     * @param ruleSystemName Name of the rule system
+     * @param inputMap input values for constructing the rule
      *
-     * @throws Exception
+     * @throws Exception on rule construction error
      */
     public Rule(String ruleSystemName, Map<String, String> inputMap) throws Exception {
         RuleSystemMetaData ruleSystemMetaData =
@@ -87,9 +87,9 @@ public class Rule implements Serializable {
      * </ol>
      * In all other cases false is returned.
      *
-     * @param inputMap
-     * @return
-     * @throws java.lang.Exception
+     * @param inputMap rule input values for evaluation
+     * @return true if input values match this rule
+     * @throws java.lang.Exception on rule evaluation error
      */
     public boolean evaluate(Map<String, String> inputMap) throws Exception {
         RuleSystemMetaData ruleSystemMetaData =
@@ -116,6 +116,12 @@ public class Rule implements Serializable {
         return true;
     }
 
+    /**
+     * Returns true if the give rule conflicts with this rule.
+     * @param rule input rule to be checked for conflict
+     * @return true if input rule conflicts with this rule, false otherwise
+     * @throws Exception on evaluation error
+     */
     public boolean isConflicting(Rule rule) throws Exception {
         RuleSystemMetaData ruleSystemMetaData =
             RuleSystemMetaDataFactory.getInstance().getMetaData(this.ruleSystemName);
@@ -149,10 +155,10 @@ public class Rule implements Serializable {
      * overwrites the specified column with the given value, and returns a new
      * rule. This keeps rule objects unmodifiable to a reasonable extent.
      *
-     * @param colName
-     * @param value
-     * @return
-     * @throws Exception
+     * @param colName column name whose value is to be set
+     * @param value the value to be set
+     * @return New rule object with the new value set
+     * @throws Exception if new rule construction fails
      */
     public Rule setColumnData(String colName, String value) throws Exception {
         Map<String, String> inputMap = new HashMap<>();

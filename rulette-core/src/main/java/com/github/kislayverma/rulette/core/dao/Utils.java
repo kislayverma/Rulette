@@ -13,11 +13,11 @@ import java.util.Properties;
 public class Utils {
 
     /**
-     * Read a properties file from the classpath and return a Properties object
+     * Read a properties file from the class path and return a Properties object
      *
-     * @param fileName
-     * @return
-     * @throws IOException
+     * @param fileName file to read
+     * @return Properties object loaded with properties from the given file
+     * @throws IOException on file reading error
      */
     public static Properties readProperties(String fileName) throws IOException {
         File f = new File(fileName);

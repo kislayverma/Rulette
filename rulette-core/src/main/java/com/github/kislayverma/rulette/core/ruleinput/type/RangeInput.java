@@ -20,8 +20,6 @@ public class RangeInput extends RuleInput implements Serializable {
             // The'any' case
             this.lowerBound = RuleInputValueFactory.getInstance().buildRuleInputVaue(name, "");
             this.upperBound = RuleInputValueFactory.getInstance().buildRuleInputVaue(name, "");
-//            this.lowerBound = RuleInputValue.createRuleInputValue(metaData.getRuleInputDataType(), "");
-//            this.upperBound = RuleInputValue.createRuleInputValue(metaData.getRuleInputDataType(), "");
         } else if (rangeArr.length < 2) {
             throw new Exception("Improper value for field " + this.metaData.getName()
                     + ". Range fields must be given in the format 'a-b' (with "
@@ -45,9 +43,9 @@ public class RangeInput extends RuleInput implements Serializable {
      * The input rule input conflicts with this if the ranges specified by the
      * two are overlapping.
      *
-     * @param input
+     * @param input input to be checked for conflict
      * @return true is this rule input conflicts with the one passed in, true otherwise
-     * @throws Exception
+     * @throws Exception on failure of conflict evaluation
      */
     @Override
     public boolean isConflicting(RuleInput input) throws Exception {

@@ -27,9 +27,9 @@ public class ValueInput extends RuleInput implements Serializable {
     /**
      * The given input conflicts with this if the values are same.
      *
-     * @param input
-     * @return 
-     * @throws Exception
+     * @param input input to be checked for conflict
+     * @return true is this rule input conflicts with the one passed in, true otherwise
+     * @throws Exception on failure of conflict evaluation
      */
     @Override
     public boolean isConflicting(RuleInput input) throws Exception {

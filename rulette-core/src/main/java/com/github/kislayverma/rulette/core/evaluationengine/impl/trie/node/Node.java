@@ -26,8 +26,8 @@ public abstract class Node {
 	 * find a specific rule. It takes the exact values of rule input fields (value or range) 
 	 * and literally matches them against the keys of the trie. This allows us to locate a 
 	 * specific rule in the trie.
-     * @param value
-     * @return 
+     * @param value value to be matched
+     * @return matching node if one exists, null otherwise
 	 */
 	public abstract Node getMatchingRule(String value);
 
