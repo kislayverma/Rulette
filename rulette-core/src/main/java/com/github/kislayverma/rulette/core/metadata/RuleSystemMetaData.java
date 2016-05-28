@@ -8,7 +8,7 @@ import com.github.kislayverma.rulette.core.ruleinput.value.defaults.DefaultBuild
 import java.util.List;
 
 public class RuleSystemMetaData {
-    private static final DefaultBuilderRegistry BUILDER_REGISTRY = new DefaultBuilderRegistry();
+    private final DefaultBuilderRegistry BUILDER_REGISTRY = new DefaultBuilderRegistry();
 
     private final String ruleSystemName;
     private final String tableName;
