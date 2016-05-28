@@ -1,13 +1,13 @@
-package com.github.kislayverma.rulette.core.ruleinput.value;
+package com.github.kislayverma.rulette.core.ruleinput.value.defaults;
 
+import com.github.kislayverma.rulette.core.ruleinput.value.IInputValue;
 import java.io.Serializable;
 
-public class InputStringValue extends RuleInputValue implements IInputValue<String>, Serializable {
+class InputStringValue implements IInputValue<String>, Serializable {
 
     private final String value;
 
     public InputStringValue (String value) throws Exception {
-        this.dataType = InputDataType.STRING;
         this.value = value;
     }
 
@@ -25,5 +25,10 @@ public class InputStringValue extends RuleInputValue implements IInputValue<Stri
     public int compareTo(String o) {
         String x = (o == null) ? "" : o;
         return this.value.compareTo(x);
+    }
+
+    @Override
+    public String getDataType() {
+        return String.class.getName();
     }
 }

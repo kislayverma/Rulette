@@ -8,9 +8,8 @@ import com.github.kislayverma.rulette.core.evaluationengine.impl.trie.TrieBasedE
 import com.github.kislayverma.rulette.core.metadata.RuleSystemMetaData;
 import com.github.kislayverma.rulette.core.metadata.RuleSystemMetaDataFactory;
 import com.github.kislayverma.rulette.core.rule.Rule;
-import com.github.kislayverma.rulette.core.ruleinput.RuleInputMetaData;
-import com.github.kislayverma.rulette.core.validator.DefaultValidator;
-import com.github.kislayverma.rulette.core.validator.Validator;
+import com.github.kislayverma.rulette.core.ruleinput.RuleInputConfigurator;
+import com.github.kislayverma.rulette.core.metadata.RuleInputMetaData;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -18,6 +17,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class models a rule-system comprising of rules and provides appropriate
@@ -36,10 +37,11 @@ import java.util.Map;
  */
 public class RuleSystem implements Serializable {
 
-    private Validator validator;
     private RuleSystemMetaData metaData;
     private RuleSystemDao dao;
     private IEvaluationEngine evaluationEngine;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RuleSystem.class);
 
     /**
      * This constructor is added only to support unit testing. Should not be used.
@@ -53,50 +55,46 @@ public class RuleSystem implements Serializable {
      * file containing the rules
      *
      * @param ruleSystemName
-     * @param validator
      * @throws Exception
      */
-    public RuleSystem(String ruleSystemName, Validator validator) throws Exception {
-        this(ruleSystemName, validator, null, null);
-    }
-
-    public RuleSystem(String ruleSystemName, Validator validator, RuleSystemDao ruleSystemDao, String datasourceUrl) throws Exception {
-        // Set up database classes
-        datasourceUrl = (datasourceUrl == null || datasourceUrl.equals("")) ? "rulette-datasource.properties" : datasourceUrl;
-        DataSource.init(datasourceUrl);
-        this.dao = (ruleSystemDao == null) ? new RuleSystemDaoMySqlImpl() : ruleSystemDao;
-
-        this.validator = (validator != null) ? validator : new DefaultValidator();
-
-        long startTime = new Date().getTime();
-        initRuleSystem(ruleSystemName);
-        long endTime = new Date().getTime();
-        System.out.println("Time taken to initialize rule system : " + (endTime - startTime) + " ms.");
+    public RuleSystem(String ruleSystemName) throws Exception {
+        this(ruleSystemName, null);
     }
 
     /**
-     * Use this constructor to explicitly set the dao to be used by the Rule System.
-     * This is optional as the rule has a default implementation of all database
-     * operations.
-     *
-     * Inserting your custom dao is a big responsibility that must not be taken
-     * up lightly. You can ,however, use this facility in case you must work
-     * with pre-existing database systems or to integrate with frameworks like
-     * Hibernate.
+     * This constructor initializes a rule system of the given name by reading data from the
+     * credentials given in the data source URL. All rule input will be initiatized with default parameters
+     * and no custom data types will be supported.
      * 
-     * @param ruleSystemName
-     * @param validator
-     * @param ruleSystemDao
-     * @throws java.lang.Exception
+     * @param ruleSystemName Name of the rule system to be instantiated
+     * @param datasourceUrl Path to a properties file containing data source configuration
+     * @throws Exception 
      */
-    public RuleSystem(String ruleSystemName, Validator validator, RuleSystemDao ruleSystemDao) throws Exception {
-        this.validator = (validator != null) ? validator : new DefaultValidator();
-        this.dao = ruleSystemDao;
+    public RuleSystem(String ruleSystemName, String datasourceUrl) throws Exception {
+        this(ruleSystemName, datasourceUrl, null);
+    }
 
+    /**
+     * This constructor initializes a rule system of the given name by reading data from the
+     * credentials given in the data source URL. Rule input will be initiatized with default 
+     * parameters unless an override is provided via the inputConfig parameter. Custom data 
+     * type will be supported only if appropriate configuration is provided.
+     * 
+     * @param ruleSystemName Name of the rule system to be instantiated
+     * @param datasourceUrl Path to a properties file containing data source configuration
+     * @param inputConfig Configuration to support custom data types and behaviour for rule inputs
+     * @throws Exception 
+     */
+    public RuleSystem(String ruleSystemName, String datasourceUrl, RuleInputConfigurator inputConfig) throws Exception {
+        // Set up database classes
         long startTime = new Date().getTime();
-        initRuleSystem(ruleSystemName);
+        datasourceUrl = (datasourceUrl == null || datasourceUrl.equals("")) ? "rulette-datasource.properties" : datasourceUrl;
+        DataSource.init(datasourceUrl);
+        this.dao = new RuleSystemDaoMySqlImpl();
+
+        initRuleSystem(ruleSystemName, inputConfig);
         long endTime = new Date().getTime();
-        System.out.println("Time taken to initialize rule system : " + (endTime - startTime) + " ms.");
+        LOGGER.info("Time taken to initialize rule system : " + (endTime - startTime) + " ms.");
     }
 
     public Rule createRuleObject(Map<String, String> inputMap) throws Exception {
@@ -182,7 +180,7 @@ public class RuleSystem implements Serializable {
      * @throws Exception
      */
     public Rule addRule(Rule newRule) throws Exception {
-        if (newRule == null || !this.validator.isValid(newRule)) {
+        if (newRule == null) {
             return null;
         }
 
@@ -219,7 +217,7 @@ public class RuleSystem implements Serializable {
      * not actually exist.
      */
     public Rule updateRule(Rule oldRule, Rule newRule) throws Exception {
-        if (oldRule == null || newRule == null || !this.validator.isValid(newRule)) {
+        if (oldRule == null || newRule == null) {
             return null;
         }
 
@@ -370,27 +368,24 @@ public class RuleSystem implements Serializable {
      * 2. Get rules from the table specified for this rule system in the
      *    rule_system..rule_system table
      */
-    private void initRuleSystem(String ruleSystemName) throws Exception {
+    private void initRuleSystem(String ruleSystemName, RuleInputConfigurator inputConfig) throws Exception {
         this.metaData = RuleSystemMetaDataFactory.getInstance().getMetaData(ruleSystemName);
+        this.metaData.applyCustomConfiguration(inputConfig);
 
-        System.out.println("Loading rules from DB...");
+        LOGGER.info("Loading rules from DB...");
         List<Rule> rules = dao.getAllRules(ruleSystemName);
-        System.out.println(rules.size() + " rules loaded");
+        LOGGER.info(rules.size() + " rules loaded");
 
         this.evaluationEngine = new TrieBasedEvaluationEngine(metaData);
 
         for (Rule rule : rules) {
-            if (this.validator.isValid(rule)) {
-                evaluationEngine.addRule(rule);
-            }
+            evaluationEngine.addRule(rule);
         }
     }
 
     public static void main(String[] args) throws Exception {
         File f = new File("/Users/kislay.verma/Applications/apache-tomcat-7.0.53/conf/rulette-datasource.properties");
-        RuleSystem rs = new RuleSystem("govt_vat_rule_system", null, null, f.getPath());
-//        RuleSystem rs = new RuleSystem("govt_vat_rule_system", null, null, "rulette-datasource.properties");
-//        RuleSystem rs = new RuleSystem("govt_vat_rule_system", null, null, null);
+        RuleSystem rs = new RuleSystem("govt_vat_rule_system", f.getPath());
 
         Map<String, String> inputMap = new HashMap<>();
         inputMap.put("article_id", "7");
