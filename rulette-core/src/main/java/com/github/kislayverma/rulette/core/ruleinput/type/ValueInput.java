@@ -1,18 +1,19 @@
-package com.github.kislayverma.rulette.core.ruleinput;
+package com.github.kislayverma.rulette.core.ruleinput.type;
 
-import com.github.kislayverma.rulette.core.ruleinput.value.RuleInputDataType;
+import com.github.kislayverma.rulette.core.ruleinput.RuleInput;
+import com.github.kislayverma.rulette.core.metadata.RuleInputMetaData;
+import com.github.kislayverma.rulette.core.ruleinput.RuleInputValueFactory;
 import com.github.kislayverma.rulette.core.ruleinput.value.IInputValue;
-import com.github.kislayverma.rulette.core.ruleinput.value.RuleInputValue;
 import java.io.Serializable;
 
 public class ValueInput extends RuleInput implements Serializable {
 
-    private IInputValue value;
+    private final IInputValue value;
 
-    public ValueInput(int id, String name, int priority, RuleInputDataType inputDataType, String value)
+    public ValueInput(int id, String name, int priority, String inputDataType, String value)
             throws Exception {
         this.metaData = new RuleInputMetaData(id, name, priority, RuleInputType.VALUE, inputDataType);
-        this.value = RuleInputValue.createRuleInputValue(inputDataType, value == null ? "" : value);
+        this.value = RuleInputValueFactory.getInstance().buildRuleInputVaue(name, value == null ? "" : value);
     }
 
     @Override

@@ -8,7 +8,8 @@ import com.github.kislayverma.rulette.core.evaluationengine.impl.trie.TrieBasedE
 import com.github.kislayverma.rulette.core.metadata.RuleSystemMetaData;
 import com.github.kislayverma.rulette.core.metadata.RuleSystemMetaDataFactory;
 import com.github.kislayverma.rulette.core.rule.Rule;
-import com.github.kislayverma.rulette.core.ruleinput.RuleInputMetaData;
+import com.github.kislayverma.rulette.core.ruleinput.RuleInputConfigurator;
+import com.github.kislayverma.rulette.core.metadata.RuleInputMetaData;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -56,14 +57,38 @@ public class RuleSystem implements Serializable {
         this(ruleSystemName, null);
     }
 
+    /**
+     * This constructor initializes a rule system of the given name by reading data from the
+     * credentials given in the data source URL. All rule input will be initiatized with default parameters
+     * and no custom data types will be supported.
+     * 
+     * @param ruleSystemName Name of the rule system to be instantiated
+     * @param datasourceUrl Path to a properties file containing data source configuration
+     * @throws Exception 
+     */
     public RuleSystem(String ruleSystemName, String datasourceUrl) throws Exception {
+        this(ruleSystemName, datasourceUrl, null);
+    }
+
+    /**
+     * This constructor initializes a rule system of the given name by reading data from the
+     * credentials given in the data source URL. Rule input will be initiatized with default 
+     * parameters unless an override is provided via the inputConfig parameter. Custom data 
+     * type will be supported only if appropriate configuration is provided.
+     * 
+     * @param ruleSystemName Name of the rule system to be instantiated
+     * @param datasourceUrl Path to a properties file containing data source configuration
+     * @param inputConfig Configuration to support custom data types and behaviour for rule inputs
+     * @throws Exception 
+     */
+    public RuleSystem(String ruleSystemName, String datasourceUrl, RuleInputConfigurator inputConfig) throws Exception {
         // Set up database classes
         long startTime = new Date().getTime();
         datasourceUrl = (datasourceUrl == null || datasourceUrl.equals("")) ? "rulette-datasource.properties" : datasourceUrl;
         DataSource.init(datasourceUrl);
         this.dao = new RuleSystemDaoMySqlImpl();
 
-        initRuleSystem(ruleSystemName);
+        initRuleSystem(ruleSystemName, inputConfig);
         long endTime = new Date().getTime();
         System.out.println("Time taken to initialize rule system : " + (endTime - startTime) + " ms.");
     }
@@ -339,8 +364,9 @@ public class RuleSystem implements Serializable {
      * 2. Get rules from the table specified for this rule system in the
      *    rule_system..rule_system table
      */
-    private void initRuleSystem(String ruleSystemName) throws Exception {
+    private void initRuleSystem(String ruleSystemName, RuleInputConfigurator inputConfig) throws Exception {
         this.metaData = RuleSystemMetaDataFactory.getInstance().getMetaData(ruleSystemName);
+        this.metaData.applyCustomConfiguration(inputConfig);
 
         System.out.println("Loading rules from DB...");
         List<Rule> rules = dao.getAllRules(ruleSystemName);
@@ -356,8 +382,6 @@ public class RuleSystem implements Serializable {
     public static void main(String[] args) throws Exception {
         File f = new File("/Users/kislay.verma/Applications/apache-tomcat-7.0.53/conf/rulette-datasource.properties");
         RuleSystem rs = new RuleSystem("govt_vat_rule_system", f.getPath());
-//        RuleSystem rs = new RuleSystem("govt_vat_rule_system", null, null, "rulette-datasource.properties");
-//        RuleSystem rs = new RuleSystem("govt_vat_rule_system", null, null, null);
 
         Map<String, String> inputMap = new HashMap<>();
         inputMap.put("article_id", "7");

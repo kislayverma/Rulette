@@ -1,6 +1,5 @@
 package com.github.kislayverma.rulette.core.dao;
 
-import com.github.kislayverma.rulette.core.ruleinput.value.RuleInputDataType;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,16 +40,16 @@ public class Utils {
 //        return props;
 //    }
 
-    public static final RuleInputDataType getRuleInputDataTypeFromName(String name) {
-        switch (name.toLowerCase()) {
-            case("number"):
-                return RuleInputDataType.NUMBER;
-            case("date"):
-                return RuleInputDataType.DATE;
-            case("string"):
-                return RuleInputDataType.STRING;
-            default:
-                return null;
-        }
-    }
+//    public static final RuleInputDataType getRuleInputDataTypeFromName(String name) {
+//        switch (name.toLowerCase()) {
+//            case("number"):
+//                return RuleInputDataType.NUMBER;
+//            case("date"):
+//                return RuleInputDataType.DATE;
+//            case("string"):
+//                return RuleInputDataType.STRING;
+//            default:
+//                return null;
+//        }
+//    }
 }

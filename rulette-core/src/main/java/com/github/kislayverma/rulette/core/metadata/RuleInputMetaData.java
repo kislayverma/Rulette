@@ -1,6 +1,6 @@
-package com.github.kislayverma.rulette.core.ruleinput;
+package com.github.kislayverma.rulette.core.metadata;
 
-import com.github.kislayverma.rulette.core.ruleinput.value.RuleInputDataType;
+import com.github.kislayverma.rulette.core.ruleinput.type.RuleInputType;
 import java.io.Serializable;
 
 public class RuleInputMetaData implements Serializable {
@@ -8,15 +8,16 @@ public class RuleInputMetaData implements Serializable {
     private final String name;
     private final int priority;
     private final RuleInputType ruleInputType;
-    private final RuleInputDataType ruleInputDataType;
+    private final String dataType;
+//    private IInputValueBuilder builder;
 
-    public RuleInputMetaData(int id, String name, int priority, RuleInputType ruleType, RuleInputDataType ruleDataType)
+    public RuleInputMetaData(int id, String name, int priority, RuleInputType ruleType, String dataType)
             throws Exception {
         this.id = id;
         this.name = name;
         this.priority = priority;
         this.ruleInputType = ruleType;
-        this.ruleInputDataType = ruleDataType;
+        this.dataType = dataType;
     }
 
     public int getId() {
@@ -35,7 +36,7 @@ public class RuleInputMetaData implements Serializable {
         return ruleInputType;
     }
 
-    public RuleInputDataType getRuleInputDataType() {
-        return ruleInputDataType;
+    public String getDataType() {
+        return dataType;
     }
 }
