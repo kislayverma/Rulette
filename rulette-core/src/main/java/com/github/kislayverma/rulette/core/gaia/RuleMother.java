@@ -2,7 +2,7 @@ package com.github.kislayverma.rulette.core.gaia;
 
 import com.github.kislayverma.rulette.core.metadata.RuleSystemMetaData;
 import com.github.kislayverma.rulette.core.rule.Rule;
-import com.github.kislayverma.rulette.core.ruleinput.RuleInputMetaData;
+import com.github.kislayverma.rulette.core.metadata.RuleInputMetaData;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

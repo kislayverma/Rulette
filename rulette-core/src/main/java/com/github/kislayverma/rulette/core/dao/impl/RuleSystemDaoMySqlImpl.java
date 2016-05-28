@@ -4,7 +4,7 @@ import com.github.kislayverma.rulette.core.dao.RuleSystemDao;
 import com.github.kislayverma.rulette.core.metadata.RuleSystemMetaData;
 import com.github.kislayverma.rulette.core.metadata.RuleSystemMetaDataFactory;
 import com.github.kislayverma.rulette.core.rule.Rule;
-import com.github.kislayverma.rulette.core.ruleinput.RuleInputMetaData;
+import com.github.kislayverma.rulette.core.metadata.RuleInputMetaData;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -17,10 +17,6 @@ import java.util.Map;
 
 public class RuleSystemDaoMySqlImpl extends BaseDaoMySqlImpl implements RuleSystemDao {
 
-    public RuleSystemDaoMySqlImpl() throws Exception {
-        super();
-    }
-
     @Override
     public List<Rule> getAllRules(String ruleSystemName) throws SQLException, Exception {
         List<Rule> rules = new ArrayList<>();
@@ -29,7 +25,6 @@ public class RuleSystemDaoMySqlImpl extends BaseDaoMySqlImpl implements RuleSyst
         ResultSet resultSet =
             statement.executeQuery("SELECT * " + " FROM " + RuleSystemMetaDataFactory.getInstance().getMetaData(ruleSystemName).getTableName());
 
-//        if (resultSet.first()) {
         if (resultSet != null) {
             rules = convertToRules(resultSet, RuleSystemMetaDataFactory.getInstance().getMetaData(ruleSystemName));
         }

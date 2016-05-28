@@ -1,8 +1,7 @@
 package com.github.kislayverma.rulette.core.gaia;
 
 import com.github.kislayverma.rulette.core.ruleinput.RuleInput;
-import com.github.kislayverma.rulette.core.ruleinput.RuleType;
-import com.github.kislayverma.rulette.core.ruleinput.value.InputDataType;
+import com.github.kislayverma.rulette.core.ruleinput.type.RuleInputType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -18,8 +17,7 @@ public class RuleInputMother {
         List<RuleInput> dummyObjs = new ArrayList<>();
         for (int i = 0; i < n; i++) {
             int id = randGen.nextInt();
-            dummyObjs.add(RuleInput.createRuleInput(
-                id, "input-name-" + id, id, RuleType.RANGE, InputDataType.STRING, "inputValue-" + id));
+            dummyObjs.add(RuleInput.createRuleInput(id, "input-name-" + id, id, RuleInputType.RANGE, String.class.getName(), "inputValue-" + id));
         }
 
         return dummyObjs;
@@ -33,8 +31,7 @@ public class RuleInputMother {
         List<RuleInput> dummyObjs = new ArrayList<>();
         for (int i = 0; i < n; i++) {
             int id = randGen.nextInt();
-            dummyObjs.add(RuleInput.createRuleInput(
-                id, "input-name-" + id, id, RuleType.RANGE, InputDataType.STRING, "inputValue-" + id));
+            dummyObjs.add(RuleInput.createRuleInput(id, "input-name-" + id, id, RuleInputType.RANGE, String.class.getName(), "inputValue-" + id));
         }
 
         return dummyObjs;

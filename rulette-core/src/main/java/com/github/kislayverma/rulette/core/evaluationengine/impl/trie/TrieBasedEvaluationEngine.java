@@ -6,8 +6,8 @@ import com.github.kislayverma.rulette.core.evaluationengine.impl.trie.node.Range
 import com.github.kislayverma.rulette.core.evaluationengine.impl.trie.node.ValueNode;
 import com.github.kislayverma.rulette.core.metadata.RuleSystemMetaData;
 import com.github.kislayverma.rulette.core.rule.Rule;
-import com.github.kislayverma.rulette.core.ruleinput.RuleInputMetaData;
-import com.github.kislayverma.rulette.core.ruleinput.RuleType;
+import com.github.kislayverma.rulette.core.metadata.RuleInputMetaData;
+import com.github.kislayverma.rulette.core.ruleinput.type.RuleInputType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -34,7 +34,7 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
 
     public TrieBasedEvaluationEngine(RuleSystemMetaData metaData, List<Rule> rules) throws Exception {
         this.metaData = metaData;
-        if (this.metaData.getInputColumnList().get(0).getRuleType().equals(RuleType.VALUE)) {
+        if (this.metaData.getInputColumnList().get(0).getRuleInputType().equals(RuleInputType.VALUE)) {
             this.root = new ValueNode(this.metaData.getInputColumnList().get(0).getName());
         } else {
             this.root = new RangeNode(this.metaData.getInputColumnList().get(0).getName());
@@ -106,7 +106,7 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
             if (nodeList.isEmpty()) {
                 Node newNode;
                 if (i < metaData.getInputColumnList().size() - 1) {
-                    if (metaData.getInputColumnList().get(i + 1).getRuleType().equals(RuleType.VALUE)) {
+                    if (metaData.getInputColumnList().get(i + 1).getRuleInputType().equals(RuleInputType.VALUE)) {
                         newNode = new ValueNode(metaData.getInputColumnList().get(i + 1).getName());
                     } else {
                         newNode = new RangeNode(metaData.getInputColumnList().get(i + 1).getName());

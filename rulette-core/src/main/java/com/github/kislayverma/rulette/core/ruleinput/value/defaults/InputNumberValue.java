@@ -1,13 +1,13 @@
-package com.github.kislayverma.rulette.core.ruleinput.value;
+package com.github.kislayverma.rulette.core.ruleinput.value.defaults;
 
+import com.github.kislayverma.rulette.core.ruleinput.value.IInputValue;
 import java.io.Serializable;
 
-public class InputNumberValue extends RuleInputValue implements IInputValue<Double>, Serializable {
+class InputNumberValue implements IInputValue<Double>, Serializable {
 
     private final Double value;
 
     public InputNumberValue (String value) throws Exception {
-        this.dataType = InputDataType.NUMBER;
         this.value = value == null || value.isEmpty() ? null : Double.parseDouble(value);
     }
 
@@ -32,5 +32,10 @@ public class InputNumberValue extends RuleInputValue implements IInputValue<Doub
     @Override
     public Double getValue() {
         return this.value;
+    }
+
+    @Override
+    public String getDataType() {
+        return Double.class.getName();
     }
 }
