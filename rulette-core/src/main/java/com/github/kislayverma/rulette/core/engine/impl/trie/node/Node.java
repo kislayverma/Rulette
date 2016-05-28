@@ -1,4 +1,4 @@
-package com.github.kislayverma.rulette.core.evaluationengine.impl.trie.node;
+package com.github.kislayverma.rulette.core.engine.impl.trie.node;
 
 import com.github.kislayverma.rulette.core.rule.Rule;
 import com.github.kislayverma.rulette.core.ruleinput.RuleInput;
