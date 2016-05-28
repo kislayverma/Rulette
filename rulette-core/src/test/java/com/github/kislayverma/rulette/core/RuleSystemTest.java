@@ -2,9 +2,9 @@ package com.github.kislayverma.rulette.core;
 
 import com.github.kislayverma.rulette.core.RuleSystem;
 import com.github.kislayverma.rulette.core.dao.DataSource;
-import com.github.kislayverma.rulette.core.dao.impl.BaseDaoMySqlImpl;
-import com.github.kislayverma.rulette.core.dao.impl.MetaDataDaoMySqlImpl;
-import com.github.kislayverma.rulette.core.dao.impl.RuleSystemDaoMySqlImpl;
+import com.github.kislayverma.rulette.core.dao.impl.mysql.BaseDaoImpl;
+import com.github.kislayverma.rulette.core.dao.impl.mysql.MetaDataDaoImpl;
+import com.github.kislayverma.rulette.core.dao.impl.mysql.RuleSystemDaoImpl;
 import com.github.kislayverma.rulette.core.gaia.RuleMother;
 import com.github.kislayverma.rulette.core.gaia.RuleSystemMetaDataMother;
 import com.github.kislayverma.rulette.core.metadata.RuleSystemMetaData;
@@ -33,9 +33,9 @@ import org.powermock.api.support.membermodification.MemberModifier;
     RuleSystem.class,
     RuleSystemMetaDataFactory.class,
     DataSource.class,
-    MetaDataDaoMySqlImpl.class,
-    RuleSystemDaoMySqlImpl.class,
-    BaseDaoMySqlImpl.class})
+    MetaDataDaoImpl.class,
+    RuleSystemDaoImpl.class,
+    BaseDaoImpl.class})
 public class RuleSystemTest {
 
     @InjectMocks
@@ -55,7 +55,7 @@ public class RuleSystemTest {
     @Before
     public void setUp() throws NoSuchMethodException {
         MockitoAnnotations.initMocks(this);
-        MemberModifier.suppress(BaseDaoMySqlImpl.class.getConstructor());
+        MemberModifier.suppress(BaseDaoImpl.class.getConstructor());
         PowerMock.mockStatic(DataSource.class);
     }
 
@@ -67,13 +67,13 @@ public class RuleSystemTest {
     public void testCreateInvalidName() throws Exception {
         RuleSystemMetaData rsMetaData = RuleSystemMetaDataMother.getDefaultMetaData();
 
-        MetaDataDaoMySqlImpl mockDao = PowerMock.createMock(MetaDataDaoMySqlImpl.class);
-        PowerMock.expectNew(MetaDataDaoMySqlImpl.class).andReturn(mockDao);
+        MetaDataDaoImpl mockDao = PowerMock.createMock(MetaDataDaoImpl.class);
+        PowerMock.expectNew(MetaDataDaoImpl.class).andReturn(mockDao);
         EasyMock.expect(mockDao.getRuleSystemMetaData("wrongName")).andThrow(new Exception());
         PowerMock.replayAll();
 
-        RuleSystemDaoMySqlImpl mockRsDao = PowerMock.createMock(RuleSystemDaoMySqlImpl.class);
-        PowerMock.expectNew(RuleSystemDaoMySqlImpl.class).andReturn(mockRsDao);
+        RuleSystemDaoImpl mockRsDao = PowerMock.createMock(RuleSystemDaoImpl.class);
+        PowerMock.expectNew(RuleSystemDaoImpl.class).andReturn(mockRsDao);
         EasyMock.expect(mockRsDao.getAllRules(rsMetaData.getRuleSystemName()))
                 .andReturn(RuleMother.getDefaultRules(10, rsMetaData));
         PowerMock.replayAll();
@@ -90,13 +90,13 @@ public class RuleSystemTest {
     public void testFullInitialization() throws Exception {
         RuleSystemMetaData rsMetaData = RuleSystemMetaDataMother.getDefaultMetaData();
 
-        MetaDataDaoMySqlImpl mockDao = PowerMock.createMock(MetaDataDaoMySqlImpl.class);
-        PowerMock.expectNew(MetaDataDaoMySqlImpl.class).andReturn(mockDao);
+        MetaDataDaoImpl mockDao = PowerMock.createMock(MetaDataDaoImpl.class);
+        PowerMock.expectNew(MetaDataDaoImpl.class).andReturn(mockDao);
         EasyMock.expect(mockDao.getRuleSystemMetaData(rsMetaData.getRuleSystemName())).andReturn(rsMetaData);
         PowerMock.replayAll();
 
-        RuleSystemDaoMySqlImpl mockRsDao = PowerMock.createMock(RuleSystemDaoMySqlImpl.class);
-        PowerMock.expectNew(RuleSystemDaoMySqlImpl.class).andReturn(mockRsDao);
+        RuleSystemDaoImpl mockRsDao = PowerMock.createMock(RuleSystemDaoImpl.class);
+        PowerMock.expectNew(RuleSystemDaoImpl.class).andReturn(mockRsDao);
         EasyMock.expect(mockRsDao.getAllRules(rsMetaData.getRuleSystemName()))
                 .andReturn(RuleMother.getDefaultRules(10, rsMetaData));
         PowerMock.replayAll();

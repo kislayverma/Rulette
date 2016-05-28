@@ -1,4 +1,4 @@
-package com.github.kislayverma.rulette.core.dao.impl;
+package com.github.kislayverma.rulette.core.dao.impl.mysql;
 
 import com.github.kislayverma.rulette.core.dao.MetaDataDao;
 import com.github.kislayverma.rulette.core.metadata.RuleSystemMetaData;
@@ -10,7 +10,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MetaDataDaoMySqlImpl extends BaseDaoMySqlImpl implements MetaDataDao {
+public class MetaDataDaoImpl extends BaseDaoImpl implements MetaDataDao {
 
     @Override
     public RuleSystemMetaData getRuleSystemMetaData(String ruleSystemName) throws Exception {

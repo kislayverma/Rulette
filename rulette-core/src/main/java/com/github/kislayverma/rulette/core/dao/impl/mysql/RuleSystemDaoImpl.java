@@ -1,4 +1,4 @@
-package com.github.kislayverma.rulette.core.dao.impl;
+package com.github.kislayverma.rulette.core.dao.impl.mysql;
 
 import com.github.kislayverma.rulette.core.dao.RuleSystemDao;
 import com.github.kislayverma.rulette.core.metadata.RuleSystemMetaData;
@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RuleSystemDaoMySqlImpl extends BaseDaoMySqlImpl implements RuleSystemDao {
+public class RuleSystemDaoImpl extends BaseDaoImpl implements RuleSystemDao {
 
     @Override
     public List<Rule> getAllRules(String ruleSystemName) throws SQLException, Exception {
