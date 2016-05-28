@@ -63,8 +63,19 @@ public class DataSource {
 
     public static void init(String fileName) throws IOException, SQLException {
         if (datasource == null) {
+            loadDriverClass();
             System.out.println("File name is " + fileName);
             datasource = new DataSource(fileName);
+        }
+    }
+
+    // This will load the MySQL driver
+    // Source of the copy-paste : http://www.vogella.com/articles/MySQLJava/article.html
+    private static void loadDriverClass() {
+        try {
+            Class.forName("com.mysql.jdbc.Driver").newInstance();
+        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 

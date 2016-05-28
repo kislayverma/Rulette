@@ -13,10 +13,6 @@ import java.util.List;
 
 public class MetaDataDaoMySqlImpl extends BaseDaoMySqlImpl implements MetaDataDao {
 
-    public MetaDataDaoMySqlImpl() throws Exception {
-        super();
-    }
-
     @Override
     public RuleSystemMetaData getRuleSystemMetaData(String ruleSystemName) throws Exception {
         Statement statement = getConnection().createStatement();
