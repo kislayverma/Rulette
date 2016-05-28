@@ -1,4 +1,8 @@
 # Rulette
+
+[javadoc rulette-core 1.x](http://kislayverma.github.io/Rulette/1.x/rulette-core)
+[javadoc rulette-rest 1.x](http://kislayverma.github.io/Rulette/1.x/rulette-rest)
+
 Rulette is a lightweight, domain-agnostic rule modelling, storage, and evaluation engine.
 
  1. JARGON : Rulette is a mapping of elements of a multi-dimensional input space to elements of a well-defined output space.
