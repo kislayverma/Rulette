@@ -3,8 +3,8 @@ package com.github.kislayverma.rulette.core;
 import com.github.kislayverma.rulette.core.RuleSystem;
 import com.github.kislayverma.rulette.core.dao.DataSource;
 import com.github.kislayverma.rulette.core.dao.MetaDataDao;
-import com.github.kislayverma.rulette.core.dao.impl.BaseDaoMySqlImpl;
-import com.github.kislayverma.rulette.core.dao.impl.MetaDataDaoMySqlImpl;
+import com.github.kislayverma.rulette.core.dao.impl.mysql.BaseDaoImpl;
+import com.github.kislayverma.rulette.core.dao.impl.mysql.MetaDataDaoImpl;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -26,9 +26,12 @@ import org.powermock.api.support.membermodification.MemberModifier;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({
     //RuleSystemMetaDataFactory.class,
+    //RuleSystemMetaDataFactory.class,
+    //RuleSystemMetaDataFactory.class,
+    //RuleSystemMetaDataFactory.class,
     DataSource.class,
-    MetaDataDaoMySqlImpl.class,
-    BaseDaoMySqlImpl.class})
+    MetaDataDaoImpl.class,
+    BaseDaoImpl.class})
 public class RuleSystemTestbkup {
 
     @InjectMocks
@@ -48,10 +51,10 @@ public class RuleSystemTestbkup {
     @Before
     public void setUp() throws NoSuchMethodException {
         MockitoAnnotations.initMocks(this);
-        //BaseDaoMySqlImpl bdmi = PowerMockito.mock(BaseDaoMySqlImpl.class);
+        //BaseDaoMySqlImpl bdmi = PowerMockito.mock(BaseDaoImpl.class);
         // Suppress the constructor of the Base dao so that db conections arent set up
-        MemberModifier.suppress(BaseDaoMySqlImpl.class.getConstructor());
-        MemberModifier.suppress(MetaDataDaoMySqlImpl.class.getConstructor());
+        MemberModifier.suppress(BaseDaoImpl.class.getConstructor());
+        MemberModifier.suppress(MetaDataDaoImpl.class.getConstructor());
         PowerMock.mockStatic(DataSource.class);
     }
 
