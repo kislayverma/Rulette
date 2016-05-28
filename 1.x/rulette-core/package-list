@@ -1,0 +1,13 @@
+com.github.kislayverma.rulette.core
+com.github.kislayverma.rulette.core.dao
+com.github.kislayverma.rulette.core.dao.impl
+com.github.kislayverma.rulette.core.evaluationengine
+com.github.kislayverma.rulette.core.evaluationengine.impl.trie
+com.github.kislayverma.rulette.core.evaluationengine.impl.trie.node
+com.github.kislayverma.rulette.core.gaia
+com.github.kislayverma.rulette.core.metadata
+com.github.kislayverma.rulette.core.rule
+com.github.kislayverma.rulette.core.ruleinput
+com.github.kislayverma.rulette.core.ruleinput.type
+com.github.kislayverma.rulette.core.ruleinput.value
+com.github.kislayverma.rulette.core.ruleinput.value.defaults
