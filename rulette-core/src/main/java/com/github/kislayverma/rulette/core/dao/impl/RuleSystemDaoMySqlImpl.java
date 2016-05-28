@@ -17,10 +17,6 @@ import java.util.Map;
 
 public class RuleSystemDaoMySqlImpl extends BaseDaoMySqlImpl implements RuleSystemDao {
 
-    public RuleSystemDaoMySqlImpl() throws Exception {
-        super();
-    }
-
     @Override
     public List<Rule> getAllRules(String ruleSystemName) throws SQLException, Exception {
         List<Rule> rules = new ArrayList<>();
@@ -29,7 +25,6 @@ public class RuleSystemDaoMySqlImpl extends BaseDaoMySqlImpl implements RuleSyst
         ResultSet resultSet =
             statement.executeQuery("SELECT * " + " FROM " + RuleSystemMetaDataFactory.getInstance().getMetaData(ruleSystemName).getTableName());
 
-//        if (resultSet.first()) {
         if (resultSet != null) {
             rules = convertToRules(resultSet, RuleSystemMetaDataFactory.getInstance().getMetaData(ruleSystemName));
         }
