@@ -25,9 +25,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git@github.com:kislayverma/Rulette.git</connection>
-        <developerConnection>scm:git:git@github.com:kislayverma/Rulette.git</developerConnection>
-        <url>scm:git:git@github.com:kislayverma/Rulette.git</url>
+        <connection>scm:git:https://github.com/kislayverma/Rulette.git</connection>
+        <developerConnection>scm:git:https://github.com/kislayverma/Rulette.git</developerConnection>
+        <url>https://github.com/kislayverma/Rulette</url>
         <tag>HEAD</tag>
     </scm>
     <properties>
@@ -48,6 +48,10 @@
             <id>ossrh</id>
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
+        <site>
+            <id>rulette-site</id>
+            <url>scm:git:https://github.com/kislayverma/Rulette.git</url>
+        </site>
     </distributionManagement>
 
     <build>
@@ -89,5 +93,23 @@
                 </configuration>
             </plugin>
         </plugins>
+        <!-- For deploying the maven site on github pages -->
+        <extensions>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-scm</artifactId>
+                <version>2.10</version>
+            </extension>
+            <extension>
+                <groupId>org.apache.maven.scm</groupId>
+                <artifactId>maven-scm-manager-plexus</artifactId>
+                <version>1.9.4</version>
+            </extension>
+            <extension>
+                <groupId>org.apache.maven.scm</groupId>
+                <artifactId>maven-scm-provider-gitexe</artifactId>
+                <version>1.9.4</version>
+            </extension>
+        </extensions>
     </build>
 </project>
