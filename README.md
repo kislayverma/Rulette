@@ -1,5 +1,5 @@
 # Rulette
-
+[![Build Status](https://travis-ci.org/kislayverma/Rulette.svg?branch=master)](https://travis-ci.org/kislayverma/Rulette)
 [javadoc rulette-core 1.x](http://kislayverma.github.io/Rulette/1.x/rulette-core)
 [javadoc rulette-rest 1.x](http://kislayverma.github.io/Rulette/1.x/rulette-rest)
 
