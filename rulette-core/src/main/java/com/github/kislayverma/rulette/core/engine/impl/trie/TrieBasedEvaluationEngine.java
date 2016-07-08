@@ -1,6 +1,5 @@
 package com.github.kislayverma.rulette.core.engine.impl.trie;
 
-import com.github.kislayverma.rulette.common.annotation.RuletteInput;
 import com.github.kislayverma.rulette.core.engine.IEvaluationEngine;
 import com.github.kislayverma.rulette.core.engine.impl.trie.node.Node;
 import com.github.kislayverma.rulette.core.engine.impl.trie.node.RangeNode;
@@ -12,13 +11,11 @@ import com.github.kislayverma.rulette.core.ruleinput.type.RuleInputType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Stack;
-import java.lang.reflect.Field;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
