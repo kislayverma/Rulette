@@ -12,6 +12,7 @@ import com.github.kislayverma.rulette.core.ruleinput.type.RuleInputType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -226,7 +227,7 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
             }
             field.setAccessible(true);
             Object fieldValue = field.get(request);
-            String columnName = ruletteInput.column();
+            String columnName = ruletteInput.name();
             String fieldValueString;
             if(fieldValue == null){
                 fieldValueString = "";
