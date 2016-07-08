@@ -2,3 +2,4 @@
 /rulette-rest/target/
 /rulette-core/target/
 rulette-core/lib/datasource.properties
+/rulette-common/target/
