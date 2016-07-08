@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 
+import com.github.kislayverma.rulette.core.util.RuletteInputProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -139,7 +140,8 @@ public class RuleSystem implements Serializable {
      * @throws java.lang.Exception on rule evaluation error
      */
     public Rule getRule(Object request) throws Exception {
-        return evaluationEngine.getRule(request);
+        Map<String, String> inputMap =RuletteInputProcessor.generateInputMap(request);
+        return evaluationEngine.getRule(inputMap);
     }
 
     /**

@@ -64,11 +64,6 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
         return this.allRules.get(ruleId);
     }
 
-    public Rule getRule(Object request) throws Exception {
-        Map<String, String> inputMap = generateInputMap(request);
-        return getRule(inputMap);
-    }
-
     @Override
     public Rule getRule(Map<String, String> inputMap) throws Exception {
         List<Rule> eligibleRules = getAllApplicableRules(inputMap);
@@ -215,28 +210,6 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
         }
 
         return null;
-    }
-
-    private Map<String, String> generateInputMap(Object request) throws Exception{
-        Map<String, String> inputMap = new HashMap<>();
-        Field[] fieldsInObject = request.getClass().getDeclaredFields();
-        for(Field field : fieldsInObject){
-            RuletteInput ruletteInput = field.getAnnotation(RuletteInput.class);
-            if(ruletteInput == null){
-                continue;
-            }
-            field.setAccessible(true);
-            Object fieldValue = field.get(request);
-            String columnName = ruletteInput.name();
-            String fieldValueString;
-            if(fieldValue == null){
-                fieldValueString = "";
-            }else {
-                fieldValueString = fieldValue.toString();
-            }
-            inputMap.put(columnName,fieldValueString);
-        }
-        return inputMap;
     }
 
     private List<Rule> filterAllApplicableRules(List<Rule> applicableRules, Map<String, String> inputMap) throws Exception {
