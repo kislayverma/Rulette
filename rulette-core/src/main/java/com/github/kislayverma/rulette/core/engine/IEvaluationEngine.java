@@ -25,6 +25,19 @@ public interface IEvaluationEngine {
      */
     Rule getRule(Integer ruleId);
 
+
+    /**
+     * This method returns the rule applicable for the given an Object that has RulletInput annotations on the field to define the column
+     *
+     * @param request an Object that has RulletInput annotations on the field to define the name
+     *
+     * @return null if input is null, null if no rule is applicable for the
+     * given input combination the applicable rule otherwise.
+     *
+     * @throws java.lang.Exception on rule evaluation error
+     */
+    Rule getRule(Object request) throws Exception;
+
     /**
      * This method returns the rule applicable for the given combination of rule
      * inputs.

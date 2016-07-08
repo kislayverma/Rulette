@@ -37,6 +37,7 @@
     <modules>
         <module>rulette-core</module>
         <module>rulette-rest</module>
+        <module>rulette-common</module>
     </modules>
 
     <distributionManagement>

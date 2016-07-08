@@ -17,6 +17,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -130,6 +132,20 @@ public class RuleSystem implements Serializable {
      * This method returns the rule applicable for the given combination of rule
      * inputs.
      *
+     * @param request A simple Object with @RuletteInput annotation on required fields
+     * values
+     * @return null if input is null, null if no rule is applicable for the
+     * given input combination the applicable rule otherwise.
+     * @throws java.lang.Exception on rule evaluation error
+     */
+    public Rule getRule(Object request) throws Exception {
+        return evaluationEngine.getRule(request);
+    }
+
+    /**
+     * This method returns the rule applicable for the given combination of rule
+     * inputs.
+     *
      * @param inputMap Map with input names as keys and their String values as
      * values
      * @return null if input is null, null if no rule is applicable for the
@@ -150,6 +166,7 @@ public class RuleSystem implements Serializable {
     public Rule getRule(Integer ruleId) {
         return evaluationEngine.getRule(ruleId);
     }
+
 
     /**
      * This method adds a new rule to the rule system. There is no need to
