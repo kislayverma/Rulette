@@ -1,6 +1,6 @@
 package com.github.kislayverma.rulette.core.util;
 
-import com.github.kislayverma.rulette.common.annotation.RuletteInput;
+import com.github.kislayverma.rulette.core.annotations.RuletteInput;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;

@@ -1,6 +1,6 @@
 package com.github.kislayverma.rulette.rest.controller;
 
-import com.github.kislayverma.rulette.core.RuleSystem;
+import com.github.kislayverma.rulette.RuleSystem;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 

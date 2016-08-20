@@ -28,7 +28,7 @@ public class RuleMother {
             inputMap.put(rsMetaData.getUniqueIdColumnName(), String.valueOf(id));
             inputMap.put(rsMetaData.getUniqueOutputColumnName(), String.valueOf(id));
 
-            dummyObjs.add(new Rule(rsMetaData.getRuleSystemName(), inputMap));
+            dummyObjs.add(new Rule(rsMetaData, inputMap));
         }
 
         return dummyObjs;

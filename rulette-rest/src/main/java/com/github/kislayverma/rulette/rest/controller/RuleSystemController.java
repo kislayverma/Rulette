@@ -2,7 +2,7 @@ package com.github.kislayverma.rulette.rest.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.kislayverma.rulette.core.RuleSystem;
+import com.github.kislayverma.rulette.RuleSystem;
 import com.github.kislayverma.rulette.rest.Constants;
 import com.github.kislayverma.rulette.core.rule.Rule;
 import io.netty.handler.codec.http.HttpResponseStatus;

@@ -7,15 +7,22 @@
     </parent>
 
     <groupId>com.github.kislayverma.rulette</groupId>
-    <artifactId>rulette-core</artifactId>
-    <name>rulette-core</name>
-    <description>Core classes for Rulette Framework</description>
+    <artifactId>rulette-examples</artifactId>
+    <name>rulette-examples</name>
+    <description>Examples demonstrating how to use Rulette</description>
 
     <dependencies>
         <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-            <version>2.8.2</version>
+            <groupId>com.github.kislayverma.rulette</groupId>
+            <artifactId>rulette-engine</artifactId>
+            <version>1.2.6-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.kislayverma.rulette</groupId>
+            <artifactId>rulette-mysql-provider</artifactId>
+            <version>1.2.6-SNAPSHOT</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -23,34 +30,9 @@
             <version>1.7.21</version>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.10</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>1.10.19</version>
-        </dependency>
-        <dependency>
-            <groupId>org.easymock</groupId>
-            <artifactId>easymock</artifactId>
-            <version>3.3.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-api-easymock</artifactId>
-            <version>${powermock.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-module-junit4</artifactId>
-            <version>${powermock.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-api-mockito</artifactId>
-            <version>${powermock.version}</version>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.21</version>
         </dependency>
     </dependencies>
 

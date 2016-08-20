@@ -3,3 +3,8 @@
 /rulette-core/target/
 rulette-core/lib/datasource.properties
 /rulette-common/target/
+/rulette-mysql-provider/target/
+/rulette-core copy/target/
+/rulette-engine/target/
+/rulette-engine copy/target/
+/rulette-examples/target/
