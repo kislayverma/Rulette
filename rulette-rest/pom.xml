@@ -11,7 +11,7 @@
     <artifactId>rulette-rest</artifactId>
     <packaging>jar</packaging>
     <name>rulette-rest</name>
-    <description>A containerless deployment of rulette-core to expose its capabilities as REST services</description>
+    <description>A containerless deployment of rulette-engine to expose its capabilities as REST services</description>
     <!-- 
        To run the project: mvn clean package exec:java
        To create a project deployable assembly:
@@ -36,7 +36,11 @@
             <version>4.11</version>
             <type>jar</type>
             <scope>test</scope>
-            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.21</version>
         </dependency>
     </dependencies>
 
