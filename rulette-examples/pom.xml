@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.github.kislayverma</groupId>
         <artifactId>rulette</artifactId>
-        <version>1.2.6-SNAPSHOT</version>
+        <version>1.2.6</version>
     </parent>
 
     <groupId>com.github.kislayverma.rulette</groupId>
@@ -15,13 +15,13 @@
         <dependency>
             <groupId>com.github.kislayverma.rulette</groupId>
             <artifactId>rulette-engine</artifactId>
-            <version>1.2.6-SNAPSHOT</version>
+            <version>1.2.6</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.github.kislayverma.rulette</groupId>
             <artifactId>rulette-mysql-provider</artifactId>
-            <version>1.2.6-SNAPSHOT</version>
+            <version>1.2.6</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
