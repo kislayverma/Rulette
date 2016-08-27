@@ -1,7 +1,6 @@
 package com.github.kislayverma.rulette.core.rule;
 
 import com.github.kislayverma.rulette.core.metadata.RuleSystemMetaData;
-import com.github.kislayverma.rulette.core.metadata.RuleSystemMetaDataFactory;
 import com.github.kislayverma.rulette.core.ruleinput.RuleInput;
 import com.github.kislayverma.rulette.core.metadata.RuleInputMetaData;
 import com.github.kislayverma.rulette.core.ruleinput.type.RuleInputType;
@@ -19,7 +18,7 @@ import java.util.Map;
  */
 public class Rule implements Serializable {
 
-    private final String ruleSystemName;
+    private final RuleSystemMetaData ruleSystemMetaData;
     private final Map<String, RuleInput> fieldMap;
     private final int UNIQUE_ID_INPUT_ID = -1;
     private final int UNIQUE_OUTPUT_ID_INPUT_ID = -2;
@@ -29,16 +28,13 @@ public class Rule implements Serializable {
      * of value to populate the fields of this rule. Any fields missing in the
      * input are set to blank (meaning 'Any').
      *
-     * @param ruleSystemName Name of the rule system
+     * @param ruleSystemMetaData
      * @param inputMap input values for constructing the rule
      *
      * @throws Exception on rule construction error
      */
-    public Rule(String ruleSystemName, Map<String, String> inputMap) throws Exception {
-        RuleSystemMetaData ruleSystemMetaData =
-            RuleSystemMetaDataFactory.getInstance().getMetaData(ruleSystemName);
-
-        this.ruleSystemName = ruleSystemName;
+    public Rule(RuleSystemMetaData ruleSystemMetaData, Map<String, String> inputMap) throws Exception {
+        this.ruleSystemMetaData = ruleSystemMetaData;
         this.fieldMap = new HashMap<>();
 
         // Construct all rule inputs
@@ -92,15 +88,12 @@ public class Rule implements Serializable {
      * @throws java.lang.Exception on rule evaluation error
      */
     public boolean evaluate(Map<String, String> inputMap) throws Exception {
-        RuleSystemMetaData ruleSystemMetaData =
-            RuleSystemMetaDataFactory.getInstance().getMetaData(this.ruleSystemName);
-
         // For each input column in order, get the value from the rule and compare against input.
-        for (RuleInputMetaData col : ruleSystemMetaData.getInputColumnList()) {
+        for (RuleInputMetaData col : this.ruleSystemMetaData.getInputColumnList()) {
             String colName = col.getName();
 
-            if (colName.equals(ruleSystemMetaData.getUniqueIdColumnName())
-                    || colName.equals(ruleSystemMetaData.getUniqueOutputColumnName())) {
+            if (colName.equals(this.ruleSystemMetaData.getUniqueIdColumnName())
+                    || colName.equals(this.ruleSystemMetaData.getUniqueOutputColumnName())) {
                 continue;
             }
 
@@ -123,14 +116,11 @@ public class Rule implements Serializable {
      * @throws Exception on evaluation error
      */
     public boolean isConflicting(Rule rule) throws Exception {
-        RuleSystemMetaData ruleSystemMetaData =
-            RuleSystemMetaDataFactory.getInstance().getMetaData(this.ruleSystemName);
-
-        for (RuleInputMetaData col : ruleSystemMetaData.getInputColumnList()) {
+        for (RuleInputMetaData col : this.ruleSystemMetaData.getInputColumnList()) {
             String colName = col.getName();
 
-            if (!colName.equals(ruleSystemMetaData.getUniqueIdColumnName()) &&
-                    !colName.equals(ruleSystemMetaData.getUniqueOutputColumnName())) {
+            if (!colName.equals(this.ruleSystemMetaData.getUniqueIdColumnName()) &&
+                    !colName.equals(this.ruleSystemMetaData.getUniqueOutputColumnName())) {
                 RuleInput thisInput = this.fieldMap.get(colName);
                 RuleInput ruleInput = rule.getColumnData(colName);
 
@@ -171,7 +161,7 @@ public class Rule implements Serializable {
             }
         }
 
-        return new Rule(this.ruleSystemName, inputMap);
+        return new Rule(this.ruleSystemMetaData, inputMap);
     }
 
     @Override
