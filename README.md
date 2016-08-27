@@ -1,66 +1,31 @@
 [![Build Status](https://travis-ci.org/kislayverma/Rulette.svg?branch=master)](https://travis-ci.org/kislayverma/Rulette)
-[javadoc rulette-core 1.x](http://kislayverma.github.io/Rulette/1.x/rulette-core)
-[javadoc rulette-rest 1.x](http://kislayverma.github.io/Rulette/1.x/rulette-rest)
 
-Rulette is a lightweight, domain-agnostic rule modelling, storage, and evaluation engine.
+## What is Rulette
+Rulette is a lightweight, domain-agnostic rule modelling, storage, and evaluation engine.    
 
- 1. JARGON : Rulette is a mapping of elements of a multi-dimensional input space to elements of a well-defined output space.
- 2. JARGON : Each dimension of the input space is called a rule-input. An input can be of type 'value' (discrete valued variable) or a range (intervals).
- 3. JARGON : The output of rule engine is an identifier which has meaning in the business domain.
- 4. An example of rule : If X= 2 AND Y = 3, THEN Z =42 (X and Y are rule-inputs of type value).
- 5. An example of rule : If X= 2 AND 20120101 < Y < 20131231, THEN Z =42 (Y is a rule-inputs of type range).
- 6. Rules are modelled as rows of a database table which has one column per rule-input
- 7. Values of all columns are AND-ed together for evaluating the rule.
- 8. A null value of any rule-input means that rule-input has no part to play in the evaluation of that rule. e.g. in the rule : IF X = 2 and Y = null, Z = 42, the output will be 42 for all values of Y so long as X is 2.
- 6. Rule inputs can be of type number(float), date, or strings.
- 7. Input have a priority order. This is the order in which they are evaluated to arrive at the
-    output. Defining priorities is much like defining database indexes - different choices can 
-    cause widely divergent performance. Worse-depending on your domain, incorrect priorities may 
-    even lead to incorrect results.
- 8. The table which holds the rules must have two columns : 'rule_id' (unique id for the rule, preferable an auto-incrementing primary key) and 'rule_output_id' (unique identifier for the output).
- 9. To do rule evaluation, the system takes the combination of the different rule inputs given 
-    to it, and returns the best fitting rule (if any). 'Best fit' means:
-    a. Value inputs - An exact value match is better than an 'any' match. e.g. if there are two 
-       rules, one with value of input X as 1 and the other as any, then on passing X = 1, the 
-       former rule will be returned. On passing X = 2, the latter will be returned (as the 
-       former obviously doesn't match).
-    b. Range inputs : A tighter range is a better fit than a wider range. e.g. if there are two 
-       rules, one with value of input X as Jan 1 2013 to Dec31, 2013 and the other as Feb 1 2013 
-       to March 1 2013, then on passing X = Feb 15, 2013, the latter will be returned.
- 10. Conflicting rules are those that will, if present in the system, cause ambiguity at the time 
-     of rule evaluation. The addRule APIs do not allow addition of conflicting rules.
+## Rulette is a rule engine
+A rule engine allows the user to store rules, load rules and to evaluate them against a given input arrive at a deterministic output. Rulette does exactly this. It allow you to create a bunch of rules with minimal boilerplate configuration.
 
-The following APIs are exposed for interacting with the rule system:
-```
-List<Rule> getAllRules()
-Rule getRule(Integer rule_id)
-Rule getRule(Map<String, String>)
-Rule addRule(Rule)
-Rule addRule(Map<String, String>)
-Rule deleteRule(Rule)
-Rule deleteRule(Integer rule_id)
-List<Rule> getConflictingRules(Rule)
-Rule getNextApplicableRule(Map<String, String>)
-```
--------------------------
-#  Pre-requisites
- 1. Java 1.7
- 2. MySQL 5.x
--------------------------- 
-# Setup
- 1. Execute the setup.sql script on your MySQL server. This creates a database called rule_system
-    and creates the necessary table in it.
- 2. Create a table containing your rules as defined in #8 above (if you don't have it already).
- 3. Map this table in the rule_system.rule_system table as shown in the sample-setup.sql script.
- 4. For each rule input, add a row to the rule_system.rule_input table with the input's type 
-    (Value/Range) and priority order.
- 5. Put the jar in your class path.
- 
- That's  it! Rulette is all set up and ready to use.
-------------------------------------------------------
-#  Sample usage #
+## Rulette is a multi-tenant rule engine
+Rulette allow users to define multiple rule engines in the same "deployment", so to speak. You just configure multiple rule system each with its own sets of rules with as little as a few lines of SQL.
 
-```
- RuleSystem rs = new RuleSystem(<rule system name>[, <validator>]);
- Rule r = rs.getRule(<ruleid>);
-```
+## Rulette does things out-of-the-box
+Rulette is targeted at practical usages of rule system and doesn't try to cover every possible eventuality. Compared to some other established products like [Apache Drools](http://www.drools.org), a lot of things have been left out.  To compensate Rulette provides a whole bunch of functionality out of the box. 
+* Common input data types - Rulette has in-built support for strings, numbers, and dates as rule inputs.
+* Custom rule inputs - If that doesnt work for you, you can define custom data types(Employee, Vehicle etc.) as inputs. It is easy to define their complete behaviour of these types which just a couple of classes.
+* Mapping input ranges to outputs - Ranges are first class citizens in Rulette.
+
+## Rulette doesn't mess with your business
+Rulette does not try to "figure out" your business and its use cases and stays strictly neutral in terms of inputs and outputs. It is left to the user to decide how to interpret the result of the rule engine. This allows for great flexibility in its application. On the client side, it means clean code which is necessarily decoupled from rules, because Rulette won't let it get coupled.
+
+## Rulette can run standalone
+If you do not have a Java application to use Rulette but would still like to partake of the awesomeness, Rulette also ships as a standalone executable jar which exposes all the rule system capabilities as REST APIs!!! You set up Rulette in the usual way, point rulette-rest jar to the configuration and Voila!!! You have your rule system as a service. No container, no management, no hassle.
+
+## What next
+* Get cracking via our [Quick Start guide](https://github.com/kislayverma/Rulette/wiki/Quick-start).
+* Deep dive into the [innards of Rulette](https://github.com/kislayverma/Rulette/wiki/Architecture) here.
+* Browse the [javadoc](https://github.com/kislayverma/Rulette/wiki/Javadoc)
+
+## Upcoming features
+* PostgreSQL and SQLite support
+* Completely revamped rulette-rest server
