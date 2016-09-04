@@ -23,6 +23,7 @@ If you do not have a Java application to use Rulette but would still like to par
 
 ## What next
 * Get cracking via our [Quick Start guide](https://github.com/kislayverma/Rulette/wiki/Quick-start).
+* See some example under the [rulette-examples](https://github.com/kislayverma/Rulette/tree/master/rulette-examples/src/main/java/com/github/kislayverma/rulette/example) module.   
 * Deep dive into the [innards of Rulette](https://github.com/kislayverma/Rulette/wiki/Architecture) here.
 * Browse the [javadoc](https://github.com/kislayverma/Rulette/wiki/Javadoc)
 
