@@ -36,7 +36,6 @@
 
     <modules>
         <module>rulette-core</module>
-        <module>rulette-rest</module>
         <module>rulette-engine</module>
         <module>rulette-mysql-provider</module>
         <module>rulette-examples</module>
