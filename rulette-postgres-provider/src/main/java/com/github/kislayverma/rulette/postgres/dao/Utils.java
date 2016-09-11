@@ -1,4 +1,4 @@
-package com.github.kislayverma.rulette.mysql.dao;
+package com.github.kislayverma.rulette.postgres.dao;
 
 import java.io.File;
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package com.github.kislayverma.rulette.mysql.dao;
+package com.github.kislayverma.rulette.postgres.dao;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import java.beans.PropertyVetoException;
@@ -48,7 +48,7 @@ public class DataSource {
             testConnection = cpds.getConnection();
             testStatement = testConnection.createStatement();
             testStatement.executeQuery("select 1+1 from DUAL");
-            
+
             LOGGER.info("DB connection tested successfully.");
         } catch (SQLException e) {
             throw e;
@@ -68,11 +68,11 @@ public class DataSource {
         }
     }
 
-    // This will load the MySQL driver
+    // This will load the PostgreSQL driver
     // Source of the copy-paste : http://www.vogella.com/articles/MySQLJava/article.html
     private static void loadDriverClass() {
         try {
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
+            Class.forName("org.postgresql.Driver").newInstance();
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }

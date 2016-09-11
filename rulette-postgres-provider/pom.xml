@@ -7,9 +7,9 @@
     </parent>
 
     <groupId>com.github.kislayverma.rulette</groupId>
-    <artifactId>rulette-mysql-provider</artifactId>
-    <name>rulette-mysql-provider</name>
-    <description>Mysql integration for Rulette</description>
+    <artifactId>rulette-postgres-provider</artifactId>
+    <name>rulette-postgres-provider</name>
+    <description>PostgreSQL integration for Rulette</description>
 
     <dependencies>
         <dependency>
@@ -19,9 +19,9 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.36</version>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>9.4.1209</version>
         </dependency>
         <dependency>
             <groupId>c3p0</groupId>

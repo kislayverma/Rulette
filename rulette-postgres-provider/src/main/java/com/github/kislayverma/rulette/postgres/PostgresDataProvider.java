@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.github.kislayverma.rulette.mysql;
+package com.github.kislayverma.rulette.postgres;
 
 import com.github.kislayverma.rulette.core.data.IDataProvider;
 import com.github.kislayverma.rulette.core.metadata.RuleInputMetaData;
 import com.github.kislayverma.rulette.core.metadata.RuleSystemMetaData;
 import com.github.kislayverma.rulette.core.rule.Rule;
 import com.github.kislayverma.rulette.core.ruleinput.type.RuleInputType;
-import com.github.kislayverma.rulette.mysql.dao.DataSource;
+import com.github.kislayverma.rulette.postgres.dao.DataSource;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -38,10 +38,10 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author kislay.verma
  */
-public class MysqlDataProvider implements IDataProvider {
+public class PostgresDataProvider implements IDataProvider {
     private final Map<String, RuleSystemMetaData> metaDataMap;
 
-    public MysqlDataProvider(String datasourceUrl) throws IOException, SQLException {
+    public PostgresDataProvider(String datasourceUrl) throws IOException, SQLException {
         metaDataMap = new ConcurrentHashMap<>();
         DataSource.init(datasourceUrl);
     }
