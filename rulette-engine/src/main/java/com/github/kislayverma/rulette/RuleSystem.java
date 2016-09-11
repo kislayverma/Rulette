@@ -41,24 +41,6 @@ public class RuleSystem implements Serializable {
     private static final Logger LOGGER = LoggerFactory.getLogger(RuleSystem.class);
 
     /**
-     * This constructor is added only to support unit testing. Should not be used.
-     */
-    public RuleSystem() {
-    }
-
-    /**
-     * This constructor accepts a path to a text file containing the following
-     * values on separate lines: 1. Name of the rule system 2. Full path of the
-     * file containing the rules
-     *
-     * @param ruleSystemName name of the rule system to initialize
-     * @throws Exception on rule system initialization failure
-     */
-    public RuleSystem(String ruleSystemName) throws Exception {
-        this(ruleSystemName, null);
-    }
-
-    /**
      * This constructor initializes a rule system of the given name by reading data from the
      * credentials given in the data source URL. All rule input will be initiatized with default parameters
      * and no custom data types will be supported.
