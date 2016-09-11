@@ -8,3 +8,4 @@ rulette-core/lib/datasource.properties
 /rulette-engine/target/
 /rulette-engine copy/target/
 /rulette-examples/target/
+/rulette-postgres-provider/target/
