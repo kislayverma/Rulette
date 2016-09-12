@@ -65,4 +65,12 @@ public class RangeInput extends RuleInput implements Serializable {
 
         return true;
     }
+
+    public IInputValue getLowerBound() {
+        return lowerBound;
+    }
+
+    public IInputValue getUpperBound() {
+        return upperBound;
+    }
 }

@@ -20,6 +20,7 @@ import com.github.kislayverma.rulette.core.data.IDataProvider;
 import com.github.kislayverma.rulette.core.metadata.RuleInputMetaData;
 import com.github.kislayverma.rulette.core.metadata.RuleSystemMetaData;
 import com.github.kislayverma.rulette.core.rule.Rule;
+import com.github.kislayverma.rulette.core.ruleinput.type.RangeInput;
 import com.github.kislayverma.rulette.core.ruleinput.type.RuleInputType;
 import com.github.kislayverma.rulette.mysql.dao.DataSource;
 import java.io.IOException;
@@ -73,10 +74,22 @@ public class MysqlDataProvider implements IDataProvider {
         StringBuilder nameListBuilder = new StringBuilder();
         StringBuilder valueListBuilder = new StringBuilder();
 
-        for (RuleInputMetaData col : metaData.getInputList()) {
-            nameListBuilder.append(col.getName()).append(",");
-            String val = rule.getColumnData(col.getName()).getRawValue();
-            valueListBuilder.append(val.isEmpty() ? null : "'" + val + "'").append(",");
+        for (RuleInputMetaData input : metaData.getInputList()) {
+            if(input.getRuleInputType() == RuleInputType.RANGE){
+                RangeInput rangeInput = (RangeInput)rule.getColumnData(input.getName());
+                //add lowerbound column
+                nameListBuilder.append(input.getRangeLowerBound()).append(",");
+                String val = (String)rangeInput.getLowerBound().getValue();
+                valueListBuilder.append(val.isEmpty() ? null : "'" + val + "'").append(",");
+                //add upperBound Column
+                nameListBuilder.append(input.getRangeUpperBound()).append(",");
+                val = (String)rangeInput.getUpperBound().getValue();
+                valueListBuilder.append(val.isEmpty() ? null : "'" + val + "'").append(",");
+            }else{
+                nameListBuilder.append(input.getName()).append(",");
+                String val = rule.getColumnData(input.getName()).getRawValue();
+                valueListBuilder.append(val.isEmpty() ? null : "'" + val + "'").append(",");
+            }
         }
         nameListBuilder.append(metaData.getUniqueOutputColumnName()).append(",");
         valueListBuilder.append(rule.getColumnData(metaData.getUniqueOutputColumnName()).getRawValue()).append(",");
@@ -129,13 +142,27 @@ public class MysqlDataProvider implements IDataProvider {
         StringBuilder sqlBuilder = new StringBuilder();
         StringBuilder updateListBuilder = new StringBuilder();
 
-        for (RuleInputMetaData col : metaData.getInputList()) {
-            String val = rule.getColumnData(col.getName()).getRawValue();
-
-            updateListBuilder.append(col.getName())
-                    .append("=")
-                    .append("".equals(val) ? null : "'" + val + "'")
-                    .append(",");
+        for (RuleInputMetaData input : metaData.getInputList()) {
+            if(input.getRuleInputType() == RuleInputType.RANGE){
+                RangeInput rangeInput = (RangeInput)rule.getColumnData(input.getName());
+                //add lowerbound column
+                String val = (String)rangeInput.getLowerBound().getValue();
+                updateListBuilder.append(input.getRangeLowerBound())
+                        .append("=")
+                        .append("".equals(val) ? null : "'" + val + "'")
+                        .append(",");
+                val = (String)rangeInput.getUpperBound().getValue();
+                updateListBuilder.append(input.getRangeUpperBound())
+                        .append("=")
+                        .append("".equals(val) ? null : "'" + val + "'")
+                        .append(",");
+            }else{
+                String val = rule.getColumnData(input.getName()).getRawValue();
+                updateListBuilder.append(input.getName())
+                        .append("=")
+                        .append("".equals(val) ? null : "'" + val + "'")
+                        .append(",");
+            }
         }
         updateListBuilder.append(metaData.getUniqueOutputColumnName())
                 .append("=")
