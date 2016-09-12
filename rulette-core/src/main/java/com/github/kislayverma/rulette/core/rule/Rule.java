@@ -56,7 +56,7 @@ public class Rule implements Serializable {
             ruleSystemMetaData.getUniqueIdColumnName(),
             UNIQUE_ID_INPUT_ID,
             RuleInputType.VALUE,
-            DefaultDataType.NUMBER.name(),
+            DefaultDataType.STRING.name(),
             (ruleId == null) ? "" : ruleId));
 
         // Construct rule input object representing ouput column
@@ -66,7 +66,7 @@ public class Rule implements Serializable {
             ruleSystemMetaData.getUniqueOutputColumnName(),
             UNIQUE_OUTPUT_ID_INPUT_ID,
             RuleInputType.VALUE,
-            DefaultDataType.NUMBER.name(),
+            DefaultDataType.STRING.name(),
             (ruleOutputId == null) ? "" : ruleOutputId));
     }
 
