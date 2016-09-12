@@ -46,18 +46,18 @@ public class Rule implements Serializable {
                 input.getPriority(),
                 input.getRuleInputType(),
                 input.getDataType(),
-                (inputVal == null) ? "" : inputVal, input.getRangeLowerBound(),input.getRangeUpperBound()));
+                (inputVal == null) ? "" : inputVal, inputMap.get(input.getRangeLowerBound()),inputMap.get(input.getRangeUpperBound())));
         }
 
         // Construct rule input object representing unique id
         String ruleId = inputMap.get(ruleSystemMetaData.getUniqueIdColumnName());
         this.fieldMap.put(ruleSystemMetaData.getUniqueIdColumnName(),
             RuleInput.createRuleInput(UNIQUE_ID_INPUT_ID,
-            ruleSystemMetaData.getUniqueIdColumnName(),
-            UNIQUE_ID_INPUT_ID,
-            RuleInputType.VALUE,
-            DefaultDataType.STRING.name(),
-            (ruleId == null) ? "" : ruleId,null,null));
+                    ruleSystemMetaData.getUniqueIdColumnName(),
+                    UNIQUE_ID_INPUT_ID,
+                    RuleInputType.VALUE,
+                    DefaultDataType.STRING.name(),
+                    (ruleId == null) ? "" : ruleId, null,null));
 
         // Construct rule input object representing ouput column
         String ruleOutputId = inputMap.get(ruleSystemMetaData.getUniqueOutputColumnName());
