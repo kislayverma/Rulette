@@ -347,7 +347,7 @@ public class RuleSystem implements Serializable {
     public List<String> getAllColumnNames() {
         List<String> columnNames = new ArrayList<>();
         columnNames.add(metaData.getUniqueIdColumnName());
-        for (RuleInputMetaData rimd : metaData.getInputColumnList()) {
+        for (RuleInputMetaData rimd : metaData.getInputList()) {
             columnNames.add(rimd.getName());
         }
         columnNames.add(metaData.getUniqueOutputColumnName());
@@ -362,7 +362,7 @@ public class RuleSystem implements Serializable {
      */
     public List<String> getInputColumnNames() {
         List<String> columnNames = new ArrayList<>();
-        for (RuleInputMetaData rimd : metaData.getInputColumnList()) {
+        for (RuleInputMetaData rimd : metaData.getInputList()) {
             columnNames.add(rimd.getName());
         }
 

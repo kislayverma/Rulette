@@ -73,7 +73,7 @@ public class MysqlDataProvider implements IDataProvider {
         StringBuilder nameListBuilder = new StringBuilder();
         StringBuilder valueListBuilder = new StringBuilder();
 
-        for (RuleInputMetaData col : metaData.getInputColumnList()) {
+        for (RuleInputMetaData col : metaData.getInputList()) {
             nameListBuilder.append(col.getName()).append(",");
             String val = rule.getColumnData(col.getName()).getRawValue();
             valueListBuilder.append(val.isEmpty() ? null : "'" + val + "'").append(",");
@@ -129,7 +129,7 @@ public class MysqlDataProvider implements IDataProvider {
         StringBuilder sqlBuilder = new StringBuilder();
         StringBuilder updateListBuilder = new StringBuilder();
 
-        for (RuleInputMetaData col : metaData.getInputColumnList()) {
+        for (RuleInputMetaData col : metaData.getInputList()) {
             String val = rule.getColumnData(col.getName()).getRawValue();
 
             updateListBuilder.append(col.getName())
@@ -178,8 +178,13 @@ public class MysqlDataProvider implements IDataProvider {
             while (resultSet.next()) {
                 Map<String, String> inputMap = new HashMap<>();
 
-                for (RuleInputMetaData col : metadata.getInputColumnList()) {
-                    inputMap.put(col.getName(), resultSet.getString(col.getName()));
+                for (RuleInputMetaData input : metadata.getInputList()) {
+                    if(input.getRuleInputType() == RuleInputType.RANGE){
+                        inputMap.put(input.getRangeLowerBound(), resultSet.getString(input.getRangeLowerBound()));
+                        inputMap.put(input.getRangeUpperBound(), resultSet.getString(input.getRangeUpperBound()));
+                    }else {
+                        inputMap.put(input.getName(), resultSet.getString(input.getName()));
+                    }
                 }
                 inputMap.put(metadata.getUniqueIdColumnName(),
                     resultSet.getString(metadata.getUniqueIdColumnName()));
@@ -241,11 +246,21 @@ public class MysqlDataProvider implements IDataProvider {
                     ? RuleInputType.VALUE : RuleInputType.RANGE;
             String dataType = resultSet.getString("data_type").toUpperCase();
 
-            inputs.add(new RuleInputMetaData(resultSet.getInt("id"),
-                    resultSet.getString("name"),
-                    resultSet.getInt("priority"),
-                    ruleType,
-                    dataType));
+            if(ruleType != RuleInputType.RANGE) {
+                inputs.add(new RuleInputMetaData(resultSet.getInt("id"),
+                        resultSet.getString("name"),
+                        resultSet.getInt("priority"),
+                        ruleType,
+                        dataType));
+            }else{
+                inputs.add(new RuleInputMetaData(resultSet.getInt("id"),
+                        resultSet.getString("name"),
+                        resultSet.getInt("priority"),
+                        ruleType,
+                        dataType,
+                        resultSet.getString("range_lower_bound"),
+                        resultSet.getString("range_upper_bound")));
+            }
         }
 
         return inputs;

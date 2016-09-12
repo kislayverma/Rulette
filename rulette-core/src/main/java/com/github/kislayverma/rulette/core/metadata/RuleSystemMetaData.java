@@ -12,7 +12,7 @@ public class RuleSystemMetaData {
 
     private final String ruleSystemName;
     private final String tableName;
-    private final List<RuleInputMetaData> inputColumnList;
+    private final List<RuleInputMetaData> inputList;
     private final String uniqueIdColumnName;
     private final String uniqueOutputColumnName;
 
@@ -22,7 +22,7 @@ public class RuleSystemMetaData {
         this.tableName = tableName;
         this.uniqueIdColumnName = uniqueIdColName;
         this.uniqueOutputColumnName = uniqueOutputColName;
-        this.inputColumnList = inputs;
+        this.inputList = inputs;
     }
 
     /**
@@ -40,12 +40,12 @@ public class RuleSystemMetaData {
             this.uniqueOutputColumnName, BUILDER_REGISTRY.getDefaultBuilder(DefaultDataType.NUMBER.name()));
 
         if (configuration == null) {
-            for (RuleInputMetaData rimd : inputColumnList) {
+            for (RuleInputMetaData rimd : inputList) {
                 RuleInputValueFactory.getInstance().registerRuleInputBuilder(
                     rimd.getName(), BUILDER_REGISTRY.getDefaultBuilder(rimd.getDataType()));
             }
         } else {
-            for (RuleInputMetaData rimd : inputColumnList) {
+            for (RuleInputMetaData rimd : inputList) {
                 RuleInputConfiguration inputConfig = configuration.getConfig(rimd.getName());
                 if (inputConfig != null) {
                     RuleInputValueFactory.getInstance().registerRuleInputBuilder(
@@ -70,8 +70,8 @@ public class RuleSystemMetaData {
         return uniqueOutputColumnName;
     }
 
-    public List<RuleInputMetaData> getInputColumnList() {
-        return inputColumnList;
+    public List<RuleInputMetaData> getInputList() {
+        return inputList;
     }
 
     public String getRuleSystemName() {

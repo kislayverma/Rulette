@@ -9,14 +9,27 @@ public class RuleInputMetaData implements Serializable {
     private final int priority;
     private final RuleInputType ruleInputType;
     private final String dataType;
+    private final String rangeLowerBound;
+    private final String rangeUpperBound;
 
-    public RuleInputMetaData(int id, String name, int priority, RuleInputType ruleType, String dataType)
-            throws Exception {
+    public RuleInputMetaData(int id, String name, int priority, RuleInputType ruleInputType, String dataType) {
         this.id = id;
         this.name = name;
         this.priority = priority;
-        this.ruleInputType = ruleType;
+        this.ruleInputType = ruleInputType;
         this.dataType = dataType;
+        this.rangeLowerBound = null;
+        this.rangeUpperBound = null;
+    }
+
+    public RuleInputMetaData(int id, String name, int priority, RuleInputType ruleInputType, String dataType, String rangeLowerBound, String rangeUpperBound) {
+        this.id = id;
+        this.name = name;
+        this.priority = priority;
+        this.ruleInputType = ruleInputType;
+        this.dataType = dataType;
+        this.rangeLowerBound = rangeLowerBound;
+        this.rangeUpperBound = rangeUpperBound;
     }
 
     public int getId() {
@@ -37,5 +50,13 @@ public class RuleInputMetaData implements Serializable {
 
     public String getDataType() {
         return dataType;
+    }
+
+    public String getRangeLowerBound() {
+        return rangeLowerBound;
+    }
+
+    public String getRangeUpperBound() {
+        return rangeUpperBound;
     }
 }
