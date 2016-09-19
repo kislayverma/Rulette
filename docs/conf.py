@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Rulette documentation build configuration file, created by
-# sphinx-quickstart on Sun Sep 18 22:51:05 2016.
+# sphinx-quickstart on Sun Sep 18 23:18:23 2016.
 #
 # This file is execfile()d with the current directory set to its
 # containing dir.
@@ -16,6 +16,7 @@ import sys
 import os
 import shlex
 
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
@@ -29,7 +30,7 @@ import shlex
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['javasphinx']
+extensions = []
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -282,3 +283,9 @@ texinfo_documents = [
 
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 #texinfo_no_detailmenu = False
+
+from recommonmark.parser import CommonMarkParser
+source_suffix = ['.rst', '.md']
+source_parsers = {
+    '.md': CommonMarkParser,
+}
