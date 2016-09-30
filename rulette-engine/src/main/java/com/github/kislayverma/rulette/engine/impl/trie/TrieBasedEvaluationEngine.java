@@ -34,10 +34,10 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
 
     public TrieBasedEvaluationEngine(RuleSystemMetaData metaData, List<Rule> rules) throws Exception {
         this.metaData = metaData;
-        if (this.metaData.getInputColumnList().get(0).getRuleInputType().equals(RuleInputType.VALUE)) {
-            this.root = new ValueNode(this.metaData.getInputColumnList().get(0).getName());
+        if (this.metaData.getInputList().get(0).getRuleInputType().equals(RuleInputType.VALUE)) {
+            this.root = new ValueNode(this.metaData.getInputList().get(0).getName());
         } else {
-            this.root = new RangeNode(this.metaData.getInputColumnList().get(0).getName());
+            this.root = new RangeNode(this.metaData.getInputList().get(0).getName());
         }
         
         if (rules != null) {
@@ -93,8 +93,8 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
     @Override
     public void addRule(Rule rule) throws Exception {
         Node currNode = this.root;
-        for (int i = 0; i < metaData.getInputColumnList().size(); i++) {
-            RuleInputMetaData currInput = metaData.getInputColumnList().get(i);
+        for (int i = 0; i < metaData.getInputList().size(); i++) {
+            RuleInputMetaData currInput = metaData.getInputList().get(i);
 
             // 1. See if the current node has a node mapping to the field value
             List<Node> nodeList =
@@ -105,11 +105,11 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
             //    Also move to the new node.
             if (nodeList.isEmpty()) {
                 Node newNode;
-                if (i < metaData.getInputColumnList().size() - 1) {
-                    if (metaData.getInputColumnList().get(i + 1).getRuleInputType().equals(RuleInputType.VALUE)) {
-                        newNode = new ValueNode(metaData.getInputColumnList().get(i + 1).getName());
+                if (i < metaData.getInputList().size() - 1) {
+                    if (metaData.getInputList().get(i + 1).getRuleInputType().equals(RuleInputType.VALUE)) {
+                        newNode = new ValueNode(metaData.getInputList().get(i + 1).getName());
                     } else {
-                        newNode = new RangeNode(metaData.getInputColumnList().get(i + 1).getName());
+                        newNode = new RangeNode(metaData.getInputList().get(i + 1).getName());
                     }
                 } else {
                     newNode = new ValueNode("");
@@ -138,7 +138,7 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
         Stack<Node> stack = new Stack<>();
         Node currNode = this.root;
 
-        for (RuleInputMetaData rimd : metaData.getInputColumnList()) {
+        for (RuleInputMetaData rimd : metaData.getInputList()) {
             String value = rule.getColumnData(rimd.getName()).getRawValue();
             value = (value == null) ? "" : value;
 
@@ -177,7 +177,7 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
             Queue<Node> nodeQueue = new LinkedList<>();
             nodeQueue.add(root);
 
-            for (RuleInputMetaData rimd : metaData.getInputColumnList()) {
+            for (RuleInputMetaData rimd : metaData.getInputList()) {
                 Queue<Node> nextQueue = new LinkedList<>();
                 while (!nodeQueue.isEmpty()) {
                     Node node = nodeQueue.poll();
@@ -238,7 +238,7 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
 
         @Override
         public int compare(Rule rule1, Rule rule2) {
-            for (RuleInputMetaData col : metaData.getInputColumnList()) {
+            for (RuleInputMetaData col : metaData.getInputList()) {
                 String colName = col.getName();
 
                 if (colName.equals(metaData.getUniqueIdColumnName())

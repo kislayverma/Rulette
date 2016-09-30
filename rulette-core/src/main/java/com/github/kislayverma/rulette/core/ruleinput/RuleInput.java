@@ -13,7 +13,7 @@ public abstract class RuleInput implements Serializable {
 
     public static RuleInput createRuleInput(
         int id, String name, int priority, RuleInputType ruleType, 
-            String dataType, String value) throws Exception {
+            String dataType, String value, String rangeLowerBound, String rangeUpperBound) throws Exception {
 
         value = value == null ? "" : value;
 
@@ -23,7 +23,7 @@ public abstract class RuleInput implements Serializable {
                 r = new ValueInput(id, name, priority, dataType, value);
                 break;
             case RANGE:
-                r  = new RangeInput(id, name, priority, dataType, value);
+                r = new RangeInput(id, name, priority, dataType, rangeLowerBound, rangeUpperBound);
                 break;
             default:
                 return null;

@@ -38,26 +38,26 @@ public class Rule implements Serializable {
         this.fieldMap = new HashMap<>();
 
         // Construct all rule inputs
-        for (RuleInputMetaData col : ruleSystemMetaData.getInputColumnList()) {
-            String inputVal = inputMap.get(col.getName());
-            this.fieldMap.put(col.getName(),
-                RuleInput.createRuleInput(col.getId(),
-                col.getName(),
-                col.getPriority(),
-                col.getRuleInputType(),
-                col.getDataType(),
-                (inputVal == null) ? "" : inputVal));
+        for (RuleInputMetaData input : ruleSystemMetaData.getInputList()) {
+            String inputVal = inputMap.get(input.getName());
+            this.fieldMap.put(input.getName(),
+                RuleInput.createRuleInput(input.getId(),
+                input.getName(),
+                input.getPriority(),
+                input.getRuleInputType(),
+                input.getDataType(),
+                (inputVal == null) ? "" : inputVal, inputMap.get(input.getRangeLowerBound()),inputMap.get(input.getRangeUpperBound())));
         }
 
         // Construct rule input object representing unique id
         String ruleId = inputMap.get(ruleSystemMetaData.getUniqueIdColumnName());
         this.fieldMap.put(ruleSystemMetaData.getUniqueIdColumnName(),
             RuleInput.createRuleInput(UNIQUE_ID_INPUT_ID,
-            ruleSystemMetaData.getUniqueIdColumnName(),
-            UNIQUE_ID_INPUT_ID,
-            RuleInputType.VALUE,
-            DefaultDataType.NUMBER.name(),
-            (ruleId == null) ? "" : ruleId));
+                    ruleSystemMetaData.getUniqueIdColumnName(),
+                    UNIQUE_ID_INPUT_ID,
+                    RuleInputType.VALUE,
+                    DefaultDataType.STRING.name(),
+                    (ruleId == null) ? "" : ruleId, null,null));
 
         // Construct rule input object representing ouput column
         String ruleOutputId = inputMap.get(ruleSystemMetaData.getUniqueOutputColumnName());
@@ -66,8 +66,8 @@ public class Rule implements Serializable {
             ruleSystemMetaData.getUniqueOutputColumnName(),
             UNIQUE_OUTPUT_ID_INPUT_ID,
             RuleInputType.VALUE,
-            DefaultDataType.NUMBER.name(),
-            (ruleOutputId == null) ? "" : ruleOutputId));
+            DefaultDataType.STRING.name(),
+            (ruleOutputId == null) ? "" : ruleOutputId,null,null));
     }
 
     /**
@@ -89,7 +89,7 @@ public class Rule implements Serializable {
      */
     public boolean evaluate(Map<String, String> inputMap) throws Exception {
         // For each input column in order, get the value from the rule and compare against input.
-        for (RuleInputMetaData col : this.ruleSystemMetaData.getInputColumnList()) {
+        for (RuleInputMetaData col : this.ruleSystemMetaData.getInputList()) {
             String colName = col.getName();
 
             if (colName.equals(this.ruleSystemMetaData.getUniqueIdColumnName())
@@ -116,7 +116,7 @@ public class Rule implements Serializable {
      * @throws Exception on evaluation error
      */
     public boolean isConflicting(Rule rule) throws Exception {
-        for (RuleInputMetaData col : this.ruleSystemMetaData.getInputColumnList()) {
+        for (RuleInputMetaData col : this.ruleSystemMetaData.getInputList()) {
             String colName = col.getName();
 
             if (!colName.equals(this.ruleSystemMetaData.getUniqueIdColumnName()) &&

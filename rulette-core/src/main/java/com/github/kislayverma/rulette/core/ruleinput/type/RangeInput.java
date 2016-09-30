@@ -11,23 +11,13 @@ public class RangeInput extends RuleInput implements Serializable {
     private final IInputValue lowerBound;
     private final IInputValue upperBound;
 
-    public RangeInput(int id, String name, int priority, String inputDataType, String value)
+    public RangeInput(int id, String name, int priority, String inputDataType, String rangeLowerBound, String rangeUpperBound)
             throws Exception {
         this.metaData = new RuleInputMetaData(id, name, priority, RuleInputType.RANGE, inputDataType);
-        String[] rangeArr = value.split("-");
 
-        if (value.isEmpty()) {
-            // The'any' case
-            this.lowerBound = RuleInputValueFactory.getInstance().buildRuleInputVaue(name, "");
-            this.upperBound = RuleInputValueFactory.getInstance().buildRuleInputVaue(name, "");
-        } else if (rangeArr.length < 2) {
-            throw new Exception("Improper value for field " + this.metaData.getName()
-                    + ". Range fields must be given in the format 'a-b' (with "
-                    + "a and b as inclusive lower and upper bound respectively.)");
-        } else {
-            this.lowerBound = RuleInputValueFactory.getInstance().buildRuleInputVaue(name, rangeArr[0] == null ? "" : rangeArr[0]);
-            this.upperBound = RuleInputValueFactory.getInstance().buildRuleInputVaue(name, rangeArr[1] == null ? "" : rangeArr[1]);
-        }
+        this.lowerBound = RuleInputValueFactory.getInstance().buildRuleInputVaue(name, rangeLowerBound == null ? "" : rangeLowerBound);
+        this.upperBound = RuleInputValueFactory.getInstance().buildRuleInputVaue(name, rangeUpperBound == null ? "" : rangeUpperBound);
+
     }
 
     @Override
@@ -74,5 +64,13 @@ public class RangeInput extends RuleInput implements Serializable {
         }
 
         return true;
+    }
+
+    public IInputValue getLowerBound() {
+        return lowerBound;
+    }
+
+    public IInputValue getUpperBound() {
+        return upperBound;
     }
 }

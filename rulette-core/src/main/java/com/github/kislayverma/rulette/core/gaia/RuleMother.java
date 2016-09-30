@@ -22,7 +22,7 @@ public class RuleMother {
             int id = randGen.nextInt();
 
             Map<String, String> inputMap = new HashMap<>();
-            for (RuleInputMetaData col : rsMetaData.getInputColumnList()) {
+            for (RuleInputMetaData col : rsMetaData.getInputList()) {
                 inputMap.put(col.getName(), "inputValue" + id);
             }
             inputMap.put(rsMetaData.getUniqueIdColumnName(), String.valueOf(id));
