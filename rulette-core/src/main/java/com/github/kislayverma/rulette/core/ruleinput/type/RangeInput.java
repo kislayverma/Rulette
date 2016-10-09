@@ -32,8 +32,14 @@ public class RangeInput extends RuleInput implements Serializable {
 
     @Override
     public boolean evaluate(String value) throws Exception {
+        // No bounds are defined, eseentially same as 'Any'
         if (lowerBound.isEmpty() && upperBound.isEmpty()) {
             return true;
+        }
+
+        // If 'Any' is asked but something is defined(lower or upper), this does not match
+        if (value == null && (!lowerBound.isEmpty() || !upperBound.isEmpty())) {
+            return false;
         }
 
         return (lowerBound.compareTo(value) <= 0 && upperBound.compareTo(value) >= 0);
