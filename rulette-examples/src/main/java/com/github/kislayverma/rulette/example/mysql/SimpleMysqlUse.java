@@ -21,7 +21,7 @@ import com.github.kislayverma.rulette.mysql.MysqlDataProvider;
 public class SimpleMysqlUse implements Serializable {
 
     public static void main(String[] args) throws Exception {
-        File f = new File("/Users/kislay.verma/Applications/apache-tomcat-7.0.53/conf/rulette-datasource.properties");
+        File f = new File("rulette-datasource.properties");
         IDataProvider dataProvider = new MysqlDataProvider(f.getPath());
         RuleSystem rs = new RuleSystem("discount_rule_system", dataProvider);
 
@@ -30,7 +30,7 @@ public class SimpleMysqlUse implements Serializable {
         inputMap.put("brand", "Adidas");
         inputMap.put("is_active", "1");
         inputMap.put("style_id", "1");
-//        inputMap.put("valid_date_range", "20131130");
+        inputMap.put("valid_date_range", "20131130");
 
         // Rule rule = null;
         long stime = new Date().getTime();

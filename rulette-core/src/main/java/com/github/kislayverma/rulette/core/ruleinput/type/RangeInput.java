@@ -7,6 +7,7 @@ import com.github.kislayverma.rulette.core.ruleinput.value.IInputValue;
 import java.io.Serializable;
 
 public class RangeInput extends RuleInput implements Serializable {
+    private static final long serialVersionUID = 7246688913819092267L;
 
     private final IInputValue lowerBound;
     private final IInputValue upperBound;
@@ -45,14 +46,6 @@ public class RangeInput extends RuleInput implements Serializable {
         return (lowerBound.compareTo(value) <= 0 && upperBound.compareTo(value) >= 0);
     }
 
-    /**
-     * The input rule input conflicts with this if the ranges specified by the
-     * two are overlapping.
-     *
-     * @param input input to be checked for conflict
-     * @return true is this rule input conflicts with the one passed in, true otherwise
-     * @throws Exception on failure of conflict evaluation
-     */
     @Override
     public boolean isConflicting(RuleInput input) throws Exception {
         if (!input.getRuleInputDataType().equals(this.getRuleInputDataType())) {
@@ -80,5 +73,50 @@ public class RangeInput extends RuleInput implements Serializable {
         }
 
         return true;
+    }
+
+    @Override
+    public boolean isBetterFit(RuleInput input) throws Exception {
+        String inputVal = input.getRawValue();
+        String[] inputArr = inputVal.split("-");
+
+        // If the other input is 'Any', this input can only be equal or better, never worse.
+        // And vice-versa
+        if ("".equals(inputVal)) {
+            return true;
+        } else if (this.lowerBound.isEmpty() && this.upperBound.isEmpty()) {
+            return false;
+        }
+
+        // If this range starts from -INFiNITY
+        if (this.lowerBound.isEmpty()) {
+            // If this input's upper bound is lesser than the other's it is a better fit
+            if (this.upperBound.compareTo(inputArr[1]) < 0) {
+                return true;
+            }
+        } else if (this.upperBound.isEmpty()) {
+            // If this range ends at +INFINITY, this input will be better fit if its lower bound is
+            // greater than the other ones
+            if (this.lowerBound.compareTo(inputArr[0]) > 0) {
+                return true;
+            }
+        } else if ("".equals(inputArr[0])) {
+            // If other input start at -INFINITY, this input will be better if it ends lower than the other
+            if (this.upperBound.compareTo(inputArr[1]) < 0) {
+                return true;
+            }
+        } else if ("".equals(inputArr[1])) {
+            // If other input ends at +INFINITY, this input will be better if it starts higher than the other
+            if (this.lowerBound.compareTo(inputArr[0]) > 0) {
+                return true;
+            }
+        } else {
+            // If INFINITY is not involved, then simply compare bounds
+            if (this.lowerBound.compareTo(inputArr[0]) > 0 && this.upperBound.compareTo(inputArr[1]) < 0) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -8,6 +8,7 @@ import com.github.kislayverma.rulette.core.ruleinput.value.DefaultDataType;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class models a rule in the rule system. It has input columns and an
@@ -17,6 +18,7 @@ import java.util.Map;
  *
  */
 public class Rule implements Serializable {
+    private static final long serialVersionUID = 7025452883240080627L;
 
     private final RuleSystemMetaData ruleSystemMetaData;
     private final Map<String, RuleInput> fieldMap;
@@ -35,7 +37,7 @@ public class Rule implements Serializable {
      */
     public Rule(RuleSystemMetaData ruleSystemMetaData, Map<String, String> inputMap) throws Exception {
         this.ruleSystemMetaData = ruleSystemMetaData;
-        this.fieldMap = new HashMap<>();
+        this.fieldMap = new ConcurrentHashMap<>();
 
         // Construct all rule inputs
         for (RuleInputMetaData col : ruleSystemMetaData.getInputColumnList()) {

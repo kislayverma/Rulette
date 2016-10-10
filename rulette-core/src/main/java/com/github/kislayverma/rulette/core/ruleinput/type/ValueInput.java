@@ -7,6 +7,7 @@ import com.github.kislayverma.rulette.core.ruleinput.value.IInputValue;
 import java.io.Serializable;
 
 public class ValueInput extends RuleInput implements Serializable {
+    private static final long serialVersionUID = -6340405995013946354L;
 
     private final IInputValue value;
 
@@ -24,13 +25,6 @@ public class ValueInput extends RuleInput implements Serializable {
         return this.value.compareTo(value) == 0;
     }
 
-    /**
-     * The given input conflicts with this if the values are same.
-     *
-     * @param input input to be checked for conflict
-     * @return true is this rule input conflicts with the one passed in, true otherwise
-     * @throws Exception on failure of conflict evaluation
-     */
     @Override
     public boolean isConflicting(RuleInput input) throws Exception {
         if (!input.getRuleInputDataType().equals(this.getRuleInputDataType())) {
@@ -39,5 +33,10 @@ public class ValueInput extends RuleInput implements Serializable {
         }
 
         return this.getRawValue().equals(input.getRawValue());
+    }
+
+    @Override
+    public boolean isBetterFit(RuleInput input) throws Exception {
+        return !"".equals(this.getRawValue());
     }
 }
