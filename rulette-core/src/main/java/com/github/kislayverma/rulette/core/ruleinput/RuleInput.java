@@ -90,6 +90,8 @@ public abstract class RuleInput implements Serializable {
         return this.metaData.getDataType();
     }
 
+    public abstract boolean isAny();
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();

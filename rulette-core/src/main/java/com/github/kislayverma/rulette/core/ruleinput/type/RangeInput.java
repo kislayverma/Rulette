@@ -82,9 +82,9 @@ public class RangeInput extends RuleInput implements Serializable {
 
         // If the other input is 'Any', this input can only be equal or better, never worse.
         // And vice-versa
-        if ("".equals(inputVal)) {
+        if (input.isAny()) {
             return true;
-        } else if (this.lowerBound.isEmpty() && this.upperBound.isEmpty()) {
+        } else if (this.isAny()) {
             return false;
         }
 
@@ -118,5 +118,10 @@ public class RangeInput extends RuleInput implements Serializable {
         }
 
         return false;
+    }
+
+    @Override
+    public boolean isAny() {
+        return (this.lowerBound.isEmpty() && this.upperBound.isEmpty());
     }
 }
