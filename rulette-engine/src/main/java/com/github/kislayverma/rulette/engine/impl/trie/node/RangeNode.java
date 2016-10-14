@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class RangeNode extends Node implements Serializable {
+    private static final long serialVersionUID = 8644727351374435060L;
 
     private final Map<RuleInput, Node> fieldMap = new ConcurrentHashMap<>();
 

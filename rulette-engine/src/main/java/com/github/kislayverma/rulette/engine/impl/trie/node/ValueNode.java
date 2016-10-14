@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ValueNode extends Node implements Serializable {
+    private static final long serialVersionUID = -5626901234179734237L;
 
     private final Map<String, Node> fieldMap = new ConcurrentHashMap<>();
 
