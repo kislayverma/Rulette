@@ -92,12 +92,14 @@ public abstract class RuleInput implements Serializable {
 
     public abstract boolean isAny();
 
+    public abstract boolean equals(RuleInput otherInput) throws Exception;
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append(this.metaData.getName())
                 .append(":")
-                .append(this.getRawValue())
+//                .append(this.getRawValue())
                 .append("\t");
         return builder.toString();
     }

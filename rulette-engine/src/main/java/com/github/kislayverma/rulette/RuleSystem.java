@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class RuleSystem implements Serializable {
+    private static final long serialVersionUID = -4642927907092556335L;
 
     private RuleSystemMetaData metaData;
     private IDataProvider dataProvider;
