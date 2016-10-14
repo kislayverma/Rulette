@@ -32,17 +32,20 @@ public class ValueInput extends RuleInput implements Serializable {
                     + input.getName() + "' are not the same type.");
         }
 
-        return this.getRawValue().equals(input.getRawValue());
+        ValueInput castedInput = (ValueInput) input;
+        return this.value.equals(castedInput.getValue());
     }
 
     @Override
     public boolean isBetterFit(RuleInput input) throws Exception {
-        return !"".equals(this.getRawValue());
+        // If this is 'Any', it cant be the better fit (unless the other is also
+        // 'Any', in which it doesnt matter what we return from here)
+        return !this.isAny();
     }
 
     @Override
     public boolean isAny() {
-        return this.getRawValue() == null || "".equals(this.getRawValue());
+        return this.value.isEmpty();
     }
 
     @Override
@@ -51,6 +54,11 @@ public class ValueInput extends RuleInput implements Serializable {
             return true;
         }
 
-        return this.getRawValue().equals(otherInput.getRawValue());
+        ValueInput castedInput = (ValueInput) otherInput;
+        return this.value.equals(castedInput.getValue());
+    }
+
+    public IInputValue getValue() {
+        return this.value;
     }
 }

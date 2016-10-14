@@ -90,8 +90,20 @@ public abstract class RuleInput implements Serializable {
         return this.metaData.getDataType();
     }
 
+    /**
+     * This method returns true if this rule input is of the 'Any' (match all) type.
+     * 
+     * @return true if input is 'Any', false otherwise
+     */
     public abstract boolean isAny();
 
+    /**
+     * This method returns true if this input is exactly same as the given other input.
+     * 
+     * @param otherInput The rule input to compare against
+     * @return true if this and the given inputs are exactly same, false otherwise
+     * @throws Exception on error in evaluation
+     */
     public abstract boolean equals(RuleInput otherInput) throws Exception;
 
     @Override
@@ -99,7 +111,7 @@ public abstract class RuleInput implements Serializable {
         StringBuilder builder = new StringBuilder();
         builder.append(this.metaData.getName())
                 .append(":")
-//                .append(this.getRawValue())
+                .append(this.getRawValue())
                 .append("\t");
         return builder.toString();
     }

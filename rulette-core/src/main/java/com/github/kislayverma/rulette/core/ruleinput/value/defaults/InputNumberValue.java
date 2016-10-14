@@ -4,6 +4,7 @@ import com.github.kislayverma.rulette.core.ruleinput.value.IInputValue;
 import java.io.Serializable;
 
 class InputNumberValue implements IInputValue<Double>, Serializable {
+    private static final long serialVersionUID = 7241569969469955107L;
 
     private final Double value;
 
@@ -37,5 +38,10 @@ class InputNumberValue implements IInputValue<Double>, Serializable {
     @Override
     public String getDataType() {
         return Double.class.getName();
+    }
+
+    @Override
+    public int compareTo(IInputValue<Double> obj) throws Exception {
+        return this.value.compareTo(obj.getValue());
     }
 }

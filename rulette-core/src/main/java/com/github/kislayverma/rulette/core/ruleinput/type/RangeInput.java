@@ -51,22 +51,15 @@ public class RangeInput extends RuleInput implements Serializable {
                     + input.getName() + "' are not the same type.");
         }
 
-        String inputVal = input.getRawValue();
-
-        // If values are same, or both are 'Any'
-        if (this.getRawValue().equals(input.getRawValue())) {
+        // If both are exactly equal ('Any' or otherwise)
+        if (this.equals(input)) {
             return true;
         }
 
-        // If only one is 'Any', there is no conflict
-        if (this.isAny() || input.isAny()) {
-            return false;
-        }
+        RangeInput castedInput = (RangeInput) input;
 
-        String[] inputArr = inputVal.split("-");
-
-        if ((this.lowerBound.compareTo(inputArr[0]) < 0 && this.upperBound.compareTo(inputArr[0]) <= 0)
-                || (this.lowerBound.compareTo(inputArr[1]) > 0 && this.upperBound.compareTo(inputArr[1]) > 0)) {
+        if ((this.lowerBound.compareTo(castedInput.getLowerBound()) < 0 && this.upperBound.compareTo(castedInput.getLowerBound()) <= 0)
+                || (this.lowerBound.compareTo(castedInput.getUpperBound()) > 0 && this.upperBound.compareTo(castedInput.getUpperBound()) > 0)) {
             return false;
         }
 
@@ -75,9 +68,6 @@ public class RangeInput extends RuleInput implements Serializable {
 
     @Override
     public boolean isBetterFit(RuleInput input) throws Exception {
-        String inputVal = input.getRawValue();
-        String[] inputArr = inputVal.split("-");
-
         // If the other input is 'Any', this input can only be equal or better, never worse.
         // And vice-versa
         if (input.isAny()) {
@@ -86,31 +76,34 @@ public class RangeInput extends RuleInput implements Serializable {
             return false;
         }
 
+        RangeInput castedInput = (RangeInput) input;
+
         // If this range starts from -INFiNITY
         if (this.lowerBound.isEmpty()) {
             // If this input's upper bound is lesser than the other's it is a better fit
-            if (this.upperBound.compareTo(inputArr[1]) < 0) {
+            if (this.upperBound.compareTo(castedInput.getUpperBound()) < 0) {
                 return true;
             }
         } else if (this.upperBound.isEmpty()) {
             // If this range ends at +INFINITY, this input will be better fit if its lower bound is
             // greater than the other ones
-            if (this.lowerBound.compareTo(inputArr[0]) > 0) {
+            if (this.lowerBound.compareTo(castedInput.getLowerBound()) > 0) {
                 return true;
             }
-        } else if ("".equals(inputArr[0])) {
+        } else if ("".equals(castedInput.getLowerBound())) {
             // If other input start at -INFINITY, this input will be better if it ends lower than the other
-            if (this.upperBound.compareTo(inputArr[1]) < 0) {
+            if (this.upperBound.compareTo(castedInput.getUpperBound()) < 0) {
                 return true;
             }
-        } else if ("".equals(inputArr[1])) {
+        } else if ("".equals(castedInput.getUpperBound())) {
             // If other input ends at +INFINITY, this input will be better if it starts higher than the other
-            if (this.lowerBound.compareTo(inputArr[0]) > 0) {
+            if (this.lowerBound.compareTo(castedInput.getLowerBound()) > 0) {
                 return true;
             }
         } else {
             // If INFINITY is not involved, then simply compare bounds
-            if (this.lowerBound.compareTo(inputArr[0]) > 0 && this.upperBound.compareTo(inputArr[1]) < 0) {
+            if (this.lowerBound.compareTo(castedInput.getLowerBound()) > 0 &&
+                    this.upperBound.compareTo(castedInput.getUpperBound()) < 0) {
                 return true;
             }
         }
@@ -128,13 +121,22 @@ public class RangeInput extends RuleInput implements Serializable {
         if (this.isAny() && otherInput.isAny()) {
             return true;
         } else {
-            String inputVal = otherInput.getRawValue();
-            String[] inputArr = inputVal.split("-");
-            if (this.lowerBound.compareTo(inputArr[0]) == 0 && this.upperBound.compareTo(inputArr[1]) == 0) {
+            RangeInput castedInput = (RangeInput) otherInput;
+
+            if (this.lowerBound.compareTo(castedInput.getLowerBound()) == 0 &&
+                    this.upperBound.compareTo(castedInput.getUpperBound()) == 0) {
                 return true;
             } else {
                 return false;
             }
         }
+    }
+
+    public IInputValue getLowerBound() {
+        return this.lowerBound;
+    }
+
+    public IInputValue getUpperBound() {
+        return this.upperBound;
     }
 }
