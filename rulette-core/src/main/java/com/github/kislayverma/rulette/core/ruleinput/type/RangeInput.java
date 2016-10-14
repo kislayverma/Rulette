@@ -33,17 +33,15 @@ public class RangeInput extends RuleInput implements Serializable {
 
     @Override
     public boolean evaluate(String value) throws Exception {
-        // No bounds are defined, eseentially same as 'Any'
-        if (lowerBound.isEmpty() && upperBound.isEmpty()) {
+        if (this.isAny()) {
+            // Everything matches 'Any'
             return true;
-        }
-
-        // If 'Any' is asked but something is defined(lower or upper), this does not match
-        if (value == null && (!lowerBound.isEmpty() || !upperBound.isEmpty())) {
+        } else if (value == null) {
+            // If 'Any' is asked but this input isn't 'Any'), this does not match
             return false;
+        } else {
+            return (lowerBound.compareTo(value) <= 0 && upperBound.compareTo(value) >= 0);
         }
-
-        return (lowerBound.compareTo(value) <= 0 && upperBound.compareTo(value) >= 0);
     }
 
     @Override
@@ -61,7 +59,7 @@ public class RangeInput extends RuleInput implements Serializable {
         }
 
         // If only one is 'Any', there is no conflict
-        if ("".equals(this.getRawValue()) || "".equals(input.getRawValue())) {
+        if (this.isAny() || input.isAny()) {
             return false;
         }
 
@@ -82,9 +80,9 @@ public class RangeInput extends RuleInput implements Serializable {
 
         // If the other input is 'Any', this input can only be equal or better, never worse.
         // And vice-versa
-        if ("".equals(inputVal)) {
+        if (input.isAny()) {
             return true;
-        } else if (this.lowerBound.isEmpty() && this.upperBound.isEmpty()) {
+        } else if (this.isAny()) {
             return false;
         }
 
@@ -118,5 +116,25 @@ public class RangeInput extends RuleInput implements Serializable {
         }
 
         return false;
+    }
+
+    @Override
+    public boolean isAny() {
+        return (this.lowerBound.isEmpty() && this.upperBound.isEmpty());
+    }
+
+    @Override
+    public boolean equals(RuleInput otherInput) throws Exception {
+        if (this.isAny() && otherInput.isAny()) {
+            return true;
+        } else {
+            String inputVal = otherInput.getRawValue();
+            String[] inputArr = inputVal.split("-");
+            if (this.lowerBound.compareTo(inputArr[0]) == 0 && this.upperBound.compareTo(inputArr[1]) == 0) {
+                return true;
+            } else {
+                return false;
+            }
+        }
     }
 }

@@ -33,7 +33,7 @@ public class RangeNode extends Node implements Serializable {
             nodeList.addAll(this.fieldMap.values());
         } else {
             for (Map.Entry<RuleInput, Node> entry : this.fieldMap.entrySet()) {
-                if ("".equals(entry.getKey().getRawValue()) && !getAnyValue) {
+                if (entry.getKey().isAny() && !getAnyValue) {
                     continue;
                 }
 

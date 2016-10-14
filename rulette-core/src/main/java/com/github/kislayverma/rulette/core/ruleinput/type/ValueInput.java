@@ -39,4 +39,18 @@ public class ValueInput extends RuleInput implements Serializable {
     public boolean isBetterFit(RuleInput input) throws Exception {
         return !"".equals(this.getRawValue());
     }
+
+    @Override
+    public boolean isAny() {
+        return this.getRawValue() == null || "".equals(this.getRawValue());
+    }
+
+    @Override
+    public boolean equals(RuleInput otherInput) throws Exception {
+        if (this.isAny() && otherInput.isAny()) {
+            return true;
+        }
+
+        return this.getRawValue().equals(otherInput.getRawValue());
+    }
 }

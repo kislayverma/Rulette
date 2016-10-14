@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 public class TrieBasedEvaluationEngine implements IEvaluationEngine {
 
     private final RuleSystemMetaData metaData;
-    private final Map<Integer, Rule> allRules = new ConcurrentHashMap<>();
+    private final Map<String, Rule> allRules = new ConcurrentHashMap<>();
     private final Node root;
     private static final Logger LOGGER = LoggerFactory.getLogger(TrieBasedEvaluationEngine.class);
 
@@ -132,15 +132,13 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
         }
 
         currNode.setRule(rule);
-        this.allRules.put(
-                Integer.parseInt(rule.getColumnData(metaData.getUniqueIdColumnName()).getRawValue()), rule);
+        this.allRules.put(rule.getColumnData(metaData.getUniqueIdColumnName()).getRawValue(), rule);
     }
 
     @Override
     public void deleteRule(Rule rule) throws Exception {
         // Delete the rule from the map
-        this.allRules.remove(
-            Integer.parseInt(rule.getColumnData(metaData.getUniqueIdColumnName()).getRawValue()));
+        this.allRules.remove(rule.getColumnData(metaData.getUniqueIdColumnName()).getRawValue());
 
         // Locate and delete the rule from the trie
         Stack<Node> stack = new Stack<>();
