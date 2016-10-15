@@ -38,7 +38,7 @@ class InputDateValue implements IInputValue<Date>, Serializable {
     }
 
     @Override
-    public int compareTo(IInputValue<Date> obj) throws Exception {
+    public int compareTo(IInputValue<Date> obj) {
         return this.value.compareTo(obj.getValue());
     }
 }

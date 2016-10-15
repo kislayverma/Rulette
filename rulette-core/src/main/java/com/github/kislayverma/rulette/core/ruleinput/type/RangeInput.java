@@ -90,12 +90,12 @@ public class RangeInput extends RuleInput implements Serializable {
             if (this.lowerBound.compareTo(castedInput.getLowerBound()) > 0) {
                 return true;
             }
-        } else if ("".equals(castedInput.getLowerBound())) {
+        } else if (castedInput.getLowerBound().isEmpty()) {
             // If other input start at -INFINITY, this input will be better if it ends lower than the other
             if (this.upperBound.compareTo(castedInput.getUpperBound()) < 0) {
                 return true;
             }
-        } else if ("".equals(castedInput.getUpperBound())) {
+        } else if (castedInput.getUpperBound().isEmpty()) {
             // If other input ends at +INFINITY, this input will be better if it starts higher than the other
             if (this.lowerBound.compareTo(castedInput.getLowerBound()) > 0) {
                 return true;
@@ -117,7 +117,7 @@ public class RangeInput extends RuleInput implements Serializable {
     }
 
     @Override
-    public boolean equals(RuleInput otherInput) throws Exception {
+    public boolean equals(RuleInput otherInput) {
         if (this.isAny() && otherInput.isAny()) {
             return true;
         } else {

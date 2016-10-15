@@ -61,7 +61,7 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
     }
 
     @Override
-    public Rule getRule(Integer ruleId) {
+    public Rule getRule(String ruleId) {
         if (ruleId == null) {
             return null;
         }
@@ -73,7 +73,6 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
     public Rule getRule(Map<String, String> inputMap) throws Exception {
         List<Rule> eligibleRules = getAllApplicableRules(inputMap);
         if (eligibleRules != null && !eligibleRules.isEmpty()) {
-//            return eligibleRules.get(0);
             List<Rule> filteredRules = filterAllApplicableRules(eligibleRules, inputMap);
             if (!filteredRules.isEmpty()) {
                 return filteredRules.get(0);
@@ -106,7 +105,7 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
 
             // 1. See if the current node has a node mapping to the field value
             List<Node> nodeList =
-                currNode.getNodesForAddingRule(rule.getColumnData(currInput.getName()).getRawValue());
+                currNode.getNodesForAddingRule(rule.getColumnData(currInput.getName()));
 
             // 2. If it doesn't, create a new empty node and map the field value
             //    to the new node.
@@ -132,13 +131,13 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
         }
 
         currNode.setRule(rule);
-        this.allRules.put(rule.getColumnData(metaData.getUniqueIdColumnName()).getRawValue(), rule);
+        this.allRules.put(rule.getId(), rule);
     }
 
     @Override
     public void deleteRule(Rule rule) throws Exception {
         // Delete the rule from the map
-        this.allRules.remove(rule.getColumnData(metaData.getUniqueIdColumnName()).getRawValue());
+        this.allRules.remove(rule.getId());
 
         // Locate and delete the rule from the trie
         Stack<Node> stack = new Stack<>();

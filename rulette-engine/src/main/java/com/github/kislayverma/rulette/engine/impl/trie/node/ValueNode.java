@@ -51,8 +51,8 @@ public class ValueNode extends Node implements Serializable {
     }
 
     @Override
-    public List<Node> getNodesForAddingRule(String value) {
-        return getNodes(value, false);
+    public List<Node> getNodesForAddingRule(RuleInput ruleInput) {
+        return getNodes(ruleInput.getRawValue(), false);
     }
 
     @Override
