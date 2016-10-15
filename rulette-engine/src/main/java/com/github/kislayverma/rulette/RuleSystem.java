@@ -253,7 +253,7 @@ public class RuleSystem implements Serializable {
      * be deleted (for whatever reason).
      * @throws Exception on error in deleting rule
      */
-    public boolean deleteRule(Integer ruleId) throws Exception {
+    public boolean deleteRule(String ruleId) throws Exception {
         if (ruleId != null) {
             Rule rule = getRule(ruleId);
             return deleteRule(rule);
@@ -263,7 +263,7 @@ public class RuleSystem implements Serializable {
     }
 
     /**
-     * This method deleted the given rule from the rule system.
+     * This method deletes the given rule from the rule system.
      *
      * @param rule The {@link Rule} to be deleted.
      * @return true if the given rule was successfully deleted false if the

@@ -111,7 +111,7 @@ public abstract class RuleInput implements Serializable {
         StringBuilder builder = new StringBuilder();
         builder.append(this.metaData.getName())
                 .append(":")
-                .append(this.getRawValue())
+                .append(this.rawInput)
                 .append("\t");
         return builder.toString();
     }
