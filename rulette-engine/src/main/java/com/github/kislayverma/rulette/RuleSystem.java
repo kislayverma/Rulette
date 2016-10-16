@@ -114,7 +114,7 @@ public class RuleSystem implements Serializable {
      * @throws java.lang.Exception on rule evaluation error
      */
     public Rule getRule(Object request) throws Exception {
-        Map<String, String> inputMap =RuletteInputProcessor.generateInputMap(request);
+        Map<String, String> inputMap = RuletteInputProcessor.generateInputMap(request);
         return evaluationEngine.getRule(inputMap);
     }
 
@@ -139,7 +139,7 @@ public class RuleSystem implements Serializable {
      * @return A {@link Rule} object if a rule with the given id exists. null
      * otherwise.
      */
-    public Rule getRule(Integer ruleId) {
+    public Rule getRule(String ruleId) {
         return evaluationEngine.getRule(ruleId);
     }
 
@@ -177,8 +177,8 @@ public class RuleSystem implements Serializable {
             return null;
         }
 
-        String ruleOutputId = newRule.getColumnData(metaData.getUniqueOutputColumnName()).getRawValue();
-        if (ruleOutputId == null || ruleOutputId.isEmpty()) {
+        // Rule output must be some proper value, it can not be 'Any'
+        if (newRule.getColumnData(metaData.getUniqueOutputColumnName()).isAny()) {
             throw new RuntimeException("Rule can't be saved without rule_output_id.");
         }
 
@@ -214,8 +214,8 @@ public class RuleSystem implements Serializable {
             return null;
         }
 
-        String oldRuleId = oldRule.getColumnData(metaData.getUniqueIdColumnName()).getRawValue();
-        Rule checkForOldRule = this.getRule(Integer.parseInt(oldRuleId));
+        String oldRuleId = oldRule.getId();
+        Rule checkForOldRule = this.getRule(oldRuleId);
         if (checkForOldRule == null) {
             throw new Exception("No existing rule with id " + oldRuleId);
         }
@@ -224,8 +224,7 @@ public class RuleSystem implements Serializable {
         if (!overlappingRules.isEmpty()) {
             boolean otherOverlappingRules = false;
             for (Rule overlappingRule : overlappingRules) {
-                if (!overlappingRule.getColumnData(metaData.getUniqueIdColumnName()).getRawValue()
-                        .equals(oldRuleId)) {
+                if (!overlappingRule.getId().equals(oldRuleId)) {
                     otherOverlappingRules = true;
                 }
             }
@@ -254,7 +253,7 @@ public class RuleSystem implements Serializable {
      * be deleted (for whatever reason).
      * @throws Exception on error in deleting rule
      */
-    public boolean deleteRule(Integer ruleId) throws Exception {
+    public boolean deleteRule(String ruleId) throws Exception {
         if (ruleId != null) {
             Rule rule = getRule(ruleId);
             return deleteRule(rule);
@@ -264,7 +263,7 @@ public class RuleSystem implements Serializable {
     }
 
     /**
-     * This method deleted the given rule from the rule system.
+     * This method deletes the given rule from the rule system.
      *
      * @param rule The {@link Rule} to be deleted.
      * @return true if the given rule was successfully deleted false if the

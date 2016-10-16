@@ -72,6 +72,10 @@ public class Rule implements Serializable {
             (ruleOutputId == null) ? "" : ruleOutputId));
     }
 
+    public String getId() {
+        return this.getColumnData(ruleSystemMetaData.getUniqueIdColumnName()).getRawValue();
+    }
+
     /**
      * This method accepts a column name to column value mapping and return if
      * the mapping is true for this rule. i.e. It returns true if this rule is

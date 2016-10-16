@@ -41,7 +41,7 @@ class InputNumberValue implements IInputValue<Double>, Serializable {
     }
 
     @Override
-    public int compareTo(IInputValue<Double> obj) throws Exception {
+    public int compareTo(IInputValue<Double> obj) {
         return this.value.compareTo(obj.getValue());
     }
 }

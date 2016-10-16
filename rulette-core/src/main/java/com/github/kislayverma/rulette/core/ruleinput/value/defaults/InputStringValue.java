@@ -34,7 +34,7 @@ class InputStringValue implements IInputValue<String>, Serializable {
     }
 
     @Override
-    public int compareTo(IInputValue<String> obj) throws Exception {
+    public int compareTo(IInputValue<String> obj) {
         return this.value.compareTo(obj.getValue());
     }
 }
