@@ -13,7 +13,7 @@ public abstract class RuleInput implements Serializable {
     protected String rawInput;
 
     public static RuleInput createRuleInput(
-        int id, String name, int priority, RuleInputType ruleType, 
+            String name, int priority, RuleInputType ruleType, 
             String dataType, String value) throws Exception {
 
         value = value == null ? "" : value;
@@ -21,10 +21,10 @@ public abstract class RuleInput implements Serializable {
         RuleInput r;
         switch (ruleType) {
             case VALUE:
-                r = new ValueInput(id, name, priority, dataType, value);
+                r = new ValueInput(name, priority, dataType, value);
                 break;
             case RANGE:
-                r  = new RangeInput(id, name, priority, dataType, value);
+                r  = new RangeInput(name, priority, dataType, value);
                 break;
             default:
                 return null;
@@ -68,10 +68,6 @@ public abstract class RuleInput implements Serializable {
 
     public final String getRawValue() {
         return this.rawInput;
-    }
-
-    public int getId() {
-        return this.metaData.getId();
     }
 
     public String getName() {

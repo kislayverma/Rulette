@@ -22,8 +22,7 @@ public class Rule implements Serializable {
 
     private final RuleSystemMetaData ruleSystemMetaData;
     private final Map<String, RuleInput> fieldMap;
-    private final int UNIQUE_ID_INPUT_ID = -1;
-    private final int UNIQUE_OUTPUT_ID_INPUT_ID = -2;
+    private final int DUMMY_PRIORITY_FOR_INPUT_AND_OUTPUT_ID_COL = -1;
 
     /**
      * This constructor takes the list of columns in the rule system and a map
@@ -43,7 +42,7 @@ public class Rule implements Serializable {
         for (RuleInputMetaData col : ruleSystemMetaData.getInputColumnList()) {
             String inputVal = inputMap.get(col.getName());
             this.fieldMap.put(col.getName(),
-                RuleInput.createRuleInput(col.getId(),
+                RuleInput.createRuleInput(
                 col.getName(),
                 col.getPriority(),
                 col.getRuleInputType(),
@@ -54,9 +53,9 @@ public class Rule implements Serializable {
         // Construct rule input object representing unique id
         String ruleId = inputMap.get(ruleSystemMetaData.getUniqueIdColumnName());
         this.fieldMap.put(ruleSystemMetaData.getUniqueIdColumnName(),
-            RuleInput.createRuleInput(UNIQUE_ID_INPUT_ID,
+            RuleInput.createRuleInput(
             ruleSystemMetaData.getUniqueIdColumnName(),
-            UNIQUE_ID_INPUT_ID,
+            DUMMY_PRIORITY_FOR_INPUT_AND_OUTPUT_ID_COL,
             RuleInputType.VALUE,
             DefaultDataType.STRING.name(),
             (ruleId == null) ? "" : ruleId));
@@ -64,9 +63,9 @@ public class Rule implements Serializable {
         // Construct rule input object representing ouput column
         String ruleOutputId = inputMap.get(ruleSystemMetaData.getUniqueOutputColumnName());
         this.fieldMap.put(ruleSystemMetaData.getUniqueOutputColumnName(),
-            RuleInput.createRuleInput(UNIQUE_OUTPUT_ID_INPUT_ID,
+            RuleInput.createRuleInput(
             ruleSystemMetaData.getUniqueOutputColumnName(),
-            UNIQUE_OUTPUT_ID_INPUT_ID,
+            DUMMY_PRIORITY_FOR_INPUT_AND_OUTPUT_ID_COL,
             RuleInputType.VALUE,
             DefaultDataType.STRING.name(),
             (ruleOutputId == null) ? "" : ruleOutputId));

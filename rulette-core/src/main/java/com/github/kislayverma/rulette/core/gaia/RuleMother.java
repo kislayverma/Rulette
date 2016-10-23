@@ -19,7 +19,7 @@ public class RuleMother {
 
         List<Rule> dummyObjs = new ArrayList<>();
         for (int i = 0; i < n; i++) {
-            int id = randGen.nextInt();
+            String id = "Rule-" + randGen.nextInt();
 
             Map<String, String> inputMap = new HashMap<>();
             for (RuleInputMetaData col : rsMetaData.getInputColumnList()) {
