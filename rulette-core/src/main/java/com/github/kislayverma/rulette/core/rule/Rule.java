@@ -3,7 +3,9 @@ package com.github.kislayverma.rulette.core.rule;
 import com.github.kislayverma.rulette.core.metadata.RuleSystemMetaData;
 import com.github.kislayverma.rulette.core.ruleinput.RuleInput;
 import com.github.kislayverma.rulette.core.metadata.RuleInputMetaData;
+import com.github.kislayverma.rulette.core.ruleinput.type.RangeInput;
 import com.github.kislayverma.rulette.core.ruleinput.type.RuleInputType;
+import com.github.kislayverma.rulette.core.ruleinput.type.ValueInput;
 import com.github.kislayverma.rulette.core.ruleinput.value.DefaultDataType;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -41,32 +43,34 @@ public class Rule implements Serializable {
         // Construct all rule inputs
         for (RuleInputMetaData col : ruleSystemMetaData.getInputColumnList()) {
             String inputVal = inputMap.get(col.getName());
-            this.fieldMap.put(col.getName(),
-                RuleInput.createRuleInput(
-                col.getName(),
-                col.getPriority(),
-                col.getRuleInputType(),
-                col.getDataType(),
-                (inputVal == null) ? "" : inputVal));
+            inputVal = (inputVal == null) ? "" : inputVal;
+            RuleInput ruleInput;
+            if (RuleInputType.RANGE == col.getRuleInputType()) {
+                ruleInput = new RangeInput(col.getName(), col.getPriority(), col.getDataType(), inputVal);
+            } else if (RuleInputType.VALUE == col.getRuleInputType()) {
+                ruleInput = new ValueInput(col.getName(), col.getPriority(), col.getDataType(), inputVal);
+            } else {
+                throw new Exception("Unsupported rule input type " + col.getRuleInputType());
+            }
+
+            this.fieldMap.put(col.getName(), ruleInput);
         }
 
         // Construct rule input object representing unique id
         String ruleId = inputMap.get(ruleSystemMetaData.getUniqueIdColumnName());
         this.fieldMap.put(ruleSystemMetaData.getUniqueIdColumnName(),
-            RuleInput.createRuleInput(
+            new ValueInput(
             ruleSystemMetaData.getUniqueIdColumnName(),
             DUMMY_PRIORITY_FOR_INPUT_AND_OUTPUT_ID_COL,
-            RuleInputType.VALUE,
             DefaultDataType.STRING.name(),
             (ruleId == null) ? "" : ruleId));
 
         // Construct rule input object representing ouput column
         String ruleOutputId = inputMap.get(ruleSystemMetaData.getUniqueOutputColumnName());
         this.fieldMap.put(ruleSystemMetaData.getUniqueOutputColumnName(),
-            RuleInput.createRuleInput(
+            new ValueInput(
             ruleSystemMetaData.getUniqueOutputColumnName(),
             DUMMY_PRIORITY_FOR_INPUT_AND_OUTPUT_ID_COL,
-            RuleInputType.VALUE,
             DefaultDataType.STRING.name(),
             (ruleOutputId == null) ? "" : ruleOutputId));
     }

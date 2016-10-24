@@ -1,7 +1,6 @@
 package com.github.kislayverma.rulette.core.ruleinput.type;
 
 import com.github.kislayverma.rulette.core.ruleinput.RuleInput;
-import com.github.kislayverma.rulette.core.metadata.RuleInputMetaData;
 import com.github.kislayverma.rulette.core.ruleinput.RuleInputValueFactory;
 import com.github.kislayverma.rulette.core.ruleinput.value.IInputValue;
 import java.io.Serializable;
@@ -13,10 +12,11 @@ public class RangeInput extends RuleInput implements Serializable {
     private final IInputValue upperBound;
 
     public RangeInput(String name, int priority, String inputDataType, String value) throws Exception {
-        this.metaData = new RuleInputMetaData(name, priority, RuleInputType.RANGE, inputDataType);
+        super(name, priority, RuleInputType.RANGE, inputDataType, value);
+
         String[] rangeArr = value.split("-");
 
-        if (value == null || value.isEmpty()) {
+        if (value.isEmpty()) {
             // The'any' case
             this.lowerBound = RuleInputValueFactory.getInstance().buildRuleInputVaue(name, "");
             this.upperBound = RuleInputValueFactory.getInstance().buildRuleInputVaue(name, "");

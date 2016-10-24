@@ -1,11 +1,16 @@
 package com.github.kislayverma.rulette.core.gaia;
 
 import com.github.kislayverma.rulette.core.ruleinput.RuleInput;
-import com.github.kislayverma.rulette.core.ruleinput.type.RuleInputType;
+import com.github.kislayverma.rulette.core.ruleinput.type.RangeInput;
+import com.github.kislayverma.rulette.core.ruleinput.type.ValueInput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * This class generates dummy data for unit testing.
+ * @author kislay.verma
+ */
 public class RuleInputMother {
     private static final Random randGen = new Random();
 
@@ -13,8 +18,8 @@ public class RuleInputMother {
         List<RuleInput> dummyObjs = new ArrayList<>();
         for (int i = 0; i < n; i++) {
             int id = randGen.nextInt();
-            dummyObjs.add(RuleInput.createRuleInput(
-                "input-name-" + id, id, RuleInputType.RANGE, String.class.getName(), "inputValue-" + id));
+            dummyObjs.add(new RangeInput(
+                "input-name-" + id, id, String.class.getName(), "inputValue-" + id));
         }
 
         return dummyObjs;
@@ -23,8 +28,8 @@ public class RuleInputMother {
         List<RuleInput> dummyObjs = new ArrayList<>();
         for (int i = 0; i < n; i++) {
             int id = randGen.nextInt();
-            dummyObjs.add(RuleInput.createRuleInput(
-                "input-name-" + id, id, RuleInputType.RANGE, String.class.getName(), null));
+            dummyObjs.add(new RangeInput(
+                "input-name-" + id, id, String.class.getName(), null));
         }
 
         return dummyObjs;
@@ -34,8 +39,8 @@ public class RuleInputMother {
         List<RuleInput> dummyObjs = new ArrayList<>();
         for (int i = 0; i < n; i++) {
             int id = randGen.nextInt();
-            dummyObjs.add(RuleInput.createRuleInput(
-                "input-name-" + id, id, RuleInputType.VALUE, String.class.getName(), "inputValue-" + id));
+            dummyObjs.add(new ValueInput(
+                "input-name-" + id, id, String.class.getName(), "inputValue-" + id));
         }
 
         return dummyObjs;
@@ -45,8 +50,8 @@ public class RuleInputMother {
         List<RuleInput> dummyObjs = new ArrayList<>();
         for (int i = 0; i < n; i++) {
             int id = randGen.nextInt();
-            dummyObjs.add(RuleInput.createRuleInput(
-                "input-name-" + id, id, RuleInputType.VALUE, String.class.getName(), null));
+            dummyObjs.add(new ValueInput(
+                "input-name-" + id, id, String.class.getName(), null));
         }
 
         return dummyObjs;
