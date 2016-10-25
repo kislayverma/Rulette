@@ -19,6 +19,7 @@ import com.github.kislayverma.rulette.mysql.MysqlDataProvider;
  *
  */
 public class SimpleMysqlUse implements Serializable {
+    private static final long serialVersionUID = 6001113209922696345L;
 
     public static void main(String[] args) throws Exception {
         File f = new File("rulette-datasource.properties");

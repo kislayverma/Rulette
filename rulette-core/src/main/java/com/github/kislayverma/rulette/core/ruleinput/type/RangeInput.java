@@ -1,7 +1,6 @@
 package com.github.kislayverma.rulette.core.ruleinput.type;
 
 import com.github.kislayverma.rulette.core.ruleinput.RuleInput;
-import com.github.kislayverma.rulette.core.metadata.RuleInputMetaData;
 import com.github.kislayverma.rulette.core.ruleinput.RuleInputValueFactory;
 import com.github.kislayverma.rulette.core.ruleinput.value.IInputValue;
 import java.io.Serializable;
@@ -12,9 +11,9 @@ public class RangeInput extends RuleInput implements Serializable {
     private final IInputValue lowerBound;
     private final IInputValue upperBound;
 
-    public RangeInput(int id, String name, int priority, String inputDataType, String value)
-            throws Exception {
-        this.metaData = new RuleInputMetaData(id, name, priority, RuleInputType.RANGE, inputDataType);
+    public RangeInput(String name, int priority, String inputDataType, String value) throws Exception {
+        super(name, priority, RuleInputType.RANGE, inputDataType, value);
+
         String[] rangeArr = value.split("-");
 
         if (value.isEmpty()) {
@@ -54,16 +53,20 @@ public class RangeInput extends RuleInput implements Serializable {
         // If both are exactly equal ('Any' or otherwise)
         if (this.equals(input)) {
             return true;
-        }
-
-        RangeInput castedInput = (RangeInput) input;
-
-        if ((this.lowerBound.compareTo(castedInput.getLowerBound()) < 0 && this.upperBound.compareTo(castedInput.getLowerBound()) <= 0)
-                || (this.lowerBound.compareTo(castedInput.getUpperBound()) > 0 && this.upperBound.compareTo(castedInput.getUpperBound()) > 0)) {
+        } else if (this.isAny() || input.isAny()) {
+            // Since they are not equal, they can't cpnflict if either is 'Any'
             return false;
-        }
+        } else {
+            // If they are neither equal nor is either of them 'Any', we have to check for overlap
+            RangeInput castedInput = (RangeInput) input;
 
-        return true;
+            if ((this.lowerBound.compareTo(castedInput.getLowerBound()) < 0 && this.upperBound.compareTo(castedInput.getLowerBound()) <= 0)
+                    || (this.lowerBound.compareTo(castedInput.getUpperBound()) > 0 && this.upperBound.compareTo(castedInput.getUpperBound()) > 0)) {
+                return false;
+            }
+
+            return true;
+        }
     }
 
     @Override
@@ -120,15 +123,15 @@ public class RangeInput extends RuleInput implements Serializable {
     public boolean equals(RuleInput otherInput) {
         if (this.isAny() && otherInput.isAny()) {
             return true;
+        } else if (this.isAny() && !otherInput.isAny()) {
+            return false;
+        } else if (!this.isAny() && otherInput.isAny()) {
+            return false;
         } else {
             RangeInput castedInput = (RangeInput) otherInput;
 
-            if (this.lowerBound.compareTo(castedInput.getLowerBound()) == 0 &&
-                    this.upperBound.compareTo(castedInput.getUpperBound()) == 0) {
-                return true;
-            } else {
-                return false;
-            }
+            return this.lowerBound.compareTo(castedInput.getLowerBound()) == 0 &&
+                   this.upperBound.compareTo(castedInput.getUpperBound()) == 0;
         }
     }
 
