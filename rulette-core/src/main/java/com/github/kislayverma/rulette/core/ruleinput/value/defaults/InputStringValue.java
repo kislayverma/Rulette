@@ -4,6 +4,7 @@ import com.github.kislayverma.rulette.core.ruleinput.value.IInputValue;
 import java.io.Serializable;
 
 class InputStringValue implements IInputValue<String>, Serializable {
+    private static final long serialVersionUID = 8248443566883409848L;
 
     private final String value;
 
@@ -30,5 +31,10 @@ class InputStringValue implements IInputValue<String>, Serializable {
     @Override
     public String getDataType() {
         return String.class.getName();
+    }
+
+    @Override
+    public int compareTo(IInputValue<String> obj) {
+        return this.value.compareTo(obj.getValue());
     }
 }

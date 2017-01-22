@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- *
+ * A MySql based implementation of the Rulette {@link IDataProvider} interface.
  * @author kislay.verma
  */
 public class MysqlDataProvider implements IDataProvider {
@@ -237,15 +237,15 @@ public class MysqlDataProvider implements IDataProvider {
 
         while (resultSet.next()) {
             RuleInputType ruleType =
-                    "Value".equalsIgnoreCase(resultSet.getString("rule_type"))
-                    ? RuleInputType.VALUE : RuleInputType.RANGE;
+                "Value".equalsIgnoreCase(resultSet.getString("rule_type"))
+                ? RuleInputType.VALUE : RuleInputType.RANGE;
             String dataType = resultSet.getString("data_type").toUpperCase();
 
-            inputs.add(new RuleInputMetaData(resultSet.getInt("id"),
-                    resultSet.getString("name"),
-                    resultSet.getInt("priority"),
-                    ruleType,
-                    dataType));
+            inputs.add(new RuleInputMetaData(
+                resultSet.getString("name"),
+                resultSet.getInt("priority"),
+                ruleType,
+                dataType));
         }
 
         return inputs;

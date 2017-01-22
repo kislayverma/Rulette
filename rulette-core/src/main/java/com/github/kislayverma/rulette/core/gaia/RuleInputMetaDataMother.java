@@ -17,7 +17,7 @@ public class RuleInputMetaDataMother {
         List<RuleInputMetaData> dummyObjs = new ArrayList<>();
         for (int i = 0; i < n; i++) {
             int id = randGen.nextInt();
-            dummyObjs.add(new RuleInputMetaData(id, "rule-input-" + id, id, RuleInputType.RANGE, String.class.getName()));
+            dummyObjs.add(new RuleInputMetaData("rule-input-" + id, id, RuleInputType.RANGE, String.class.getName()));
         }
 
         return dummyObjs;
@@ -31,7 +31,7 @@ public class RuleInputMetaDataMother {
         List<RuleInputMetaData> dummyObjs = new ArrayList<>();
         for (int i = 0; i < n; i++) {
             int id = randGen.nextInt();
-            dummyObjs.add(new RuleInputMetaData(id, "rule-input-" + id, id, RuleInputType.VALUE, String.class.getName()));
+            dummyObjs.add(new RuleInputMetaData("rule-input-" + id, id, RuleInputType.VALUE, String.class.getName()));
         }
 
         return dummyObjs;

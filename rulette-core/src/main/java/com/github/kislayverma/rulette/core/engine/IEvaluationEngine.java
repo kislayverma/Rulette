@@ -23,7 +23,7 @@ public interface IEvaluationEngine {
      * @return A {@link Rule} object if a rule with the given id exists. null
      * otherwise.
      */
-    Rule getRule(Integer ruleId);
+    Rule getRule(String ruleId);
 
     /**
      * This method returns the rule applicable for the given combination of rule

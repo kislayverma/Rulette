@@ -4,6 +4,7 @@ import com.github.kislayverma.rulette.core.engine.IEvaluationEngine;
 import com.github.kislayverma.rulette.core.metadata.RuleSystemMetaData;
 import com.github.kislayverma.rulette.core.rule.Rule;
 import com.github.kislayverma.rulette.core.metadata.RuleInputMetaData;
+import com.github.kislayverma.rulette.core.ruleinput.RuleInput;
 import com.github.kislayverma.rulette.core.ruleinput.type.RuleInputType;
 import com.github.kislayverma.rulette.engine.impl.trie.node.Node;
 import com.github.kislayverma.rulette.engine.impl.trie.node.RangeNode;
@@ -17,16 +18,23 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- *
+ * This implementation of the {@link IEvaluationEngine} interface uses a Trie to store and 
+ * locate rules efficiently. The higher priority inputs constitute the top level nodes and
+ * lower priority nodes are set as child nodes. The actual rule output value is found at the
+ * leaf nodes.
+ * 
  * @author kislay.verma
  */
 public class TrieBasedEvaluationEngine implements IEvaluationEngine {
 
     private final RuleSystemMetaData metaData;
-    private final Map<Integer, Rule> allRules = new ConcurrentHashMap<>();
+    private final Map<String, Rule> allRules = new ConcurrentHashMap<>();
     private final Node root;
+    private static final Logger LOGGER = LoggerFactory.getLogger(TrieBasedEvaluationEngine.class);
 
     public TrieBasedEvaluationEngine(RuleSystemMetaData metaData) throws Exception {
         this(metaData, null);
@@ -53,7 +61,7 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
     }
 
     @Override
-    public Rule getRule(Integer ruleId) {
+    public Rule getRule(String ruleId) {
         if (ruleId == null) {
             return null;
         }
@@ -65,7 +73,6 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
     public Rule getRule(Map<String, String> inputMap) throws Exception {
         List<Rule> eligibleRules = getAllApplicableRules(inputMap);
         if (eligibleRules != null && !eligibleRules.isEmpty()) {
-//            return eligibleRules.get(0);
             List<Rule> filteredRules = filterAllApplicableRules(eligibleRules, inputMap);
             if (!filteredRules.isEmpty()) {
                 return filteredRules.get(0);
@@ -98,7 +105,7 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
 
             // 1. See if the current node has a node mapping to the field value
             List<Node> nodeList =
-                currNode.getNodesForAddingRule(rule.getColumnData(currInput.getName()).getRawValue());
+                currNode.getNodesForAddingRule(rule.getColumnData(currInput.getName()));
 
             // 2. If it doesn't, create a new empty node and map the field value
             //    to the new node.
@@ -124,15 +131,13 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
         }
 
         currNode.setRule(rule);
-        this.allRules.put(
-                Integer.parseInt(rule.getColumnData(metaData.getUniqueIdColumnName()).getRawValue()), rule);
+        this.allRules.put(rule.getId(), rule);
     }
 
     @Override
     public void deleteRule(Rule rule) throws Exception {
         // Delete the rule from the map
-        this.allRules.remove(
-            Integer.parseInt(rule.getColumnData(metaData.getUniqueIdColumnName()).getRawValue()));
+        this.allRules.remove(rule.getId());
 
         // Locate and delete the rule from the trie
         Stack<Node> stack = new Stack<>();
@@ -239,26 +244,28 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
         @Override
         public int compare(Rule rule1, Rule rule2) {
             for (RuleInputMetaData col : metaData.getInputColumnList()) {
-                String colName = col.getName();
+                try {
+                    String colName = col.getName();
 
-                if (colName.equals(metaData.getUniqueIdColumnName())
-                        || colName.equals(metaData.getUniqueOutputColumnName())) {
-                    continue;
-                }
+                    if (colName.equals(metaData.getUniqueIdColumnName())
+                            || colName.equals(metaData.getUniqueOutputColumnName())) {
+                        continue;
+                    }
 
-                String colValue1 = rule1.getColumnData(colName).getRawValue();
-                colValue1 = (colValue1 == null) ? "" : colValue1;
-                String colValue2 = rule2.getColumnData(colName).getRawValue();
-                colValue2 = (colValue2 == null) ? "" : colValue2;
+                    RuleInput input1 = rule1.getColumnData(colName);
+                    RuleInput input2 = rule2.getColumnData(colName);
 
-                /*
-                 *  In going down the order of priority of inputs, the first mismatch will
-                 *  yield the answer of the comparison. "" (meaning 'Any') matches everything,
-                 *  but an exact match is better. So if the column values are unequal, whichever
-                 *  rule has non-'Any' as the value will rank higher.
-                 */
-                if (!colValue1.equals(colValue2)) {
-                    return "".equals(colValue1) ? 1 : -1;
+                    /*
+                     *  In going down the order of priority of inputs, the first mismatch will
+                     *  yield the answer of the comparison. "" (meaning 'Any') matches everything,
+                     *  but an exact match is better. So if the column values are unequal, whichever
+                     *  rule has non-'Any' as the value will rank higher.
+                     */
+                    if (!input1.isConflicting(input2)) {
+                        return input1.isBetterFit(input2) ? 1 : -1;
+                    }
+                } catch (Exception ex) {
+                    LOGGER.error("Error sorting rules", ex);
                 }
             }
 

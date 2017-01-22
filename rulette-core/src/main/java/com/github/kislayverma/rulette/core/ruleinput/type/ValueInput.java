@@ -1,18 +1,17 @@
 package com.github.kislayverma.rulette.core.ruleinput.type;
 
 import com.github.kislayverma.rulette.core.ruleinput.RuleInput;
-import com.github.kislayverma.rulette.core.metadata.RuleInputMetaData;
 import com.github.kislayverma.rulette.core.ruleinput.RuleInputValueFactory;
 import com.github.kislayverma.rulette.core.ruleinput.value.IInputValue;
 import java.io.Serializable;
 
 public class ValueInput extends RuleInput implements Serializable {
+    private static final long serialVersionUID = -6340405995013946354L;
 
     private final IInputValue value;
 
-    public ValueInput(int id, String name, int priority, String inputDataType, String value)
-            throws Exception {
-        this.metaData = new RuleInputMetaData(id, name, priority, RuleInputType.VALUE, inputDataType);
+    public ValueInput(String name, int priority, String inputDataType, String value) throws Exception {
+        super(name, priority, RuleInputType.VALUE, inputDataType, value);
         this.value = RuleInputValueFactory.getInstance().buildRuleInputVaue(name, value == null ? "" : value);
     }
 
@@ -24,13 +23,6 @@ public class ValueInput extends RuleInput implements Serializable {
         return this.value.compareTo(value) == 0;
     }
 
-    /**
-     * The given input conflicts with this if the values are same.
-     *
-     * @param input input to be checked for conflict
-     * @return true is this rule input conflicts with the one passed in, true otherwise
-     * @throws Exception on failure of conflict evaluation
-     */
     @Override
     public boolean isConflicting(RuleInput input) throws Exception {
         if (!input.getRuleInputDataType().equals(this.getRuleInputDataType())) {
@@ -38,6 +30,33 @@ public class ValueInput extends RuleInput implements Serializable {
                     + input.getName() + "' are not the same type.");
         }
 
-        return this.getRawValue().equals(input.getRawValue());
+        ValueInput castedInput = (ValueInput) input;
+        return this.value.equals(castedInput.getValue());
+    }
+
+    @Override
+    public boolean isBetterFit(RuleInput input) throws Exception {
+        // If this is 'Any', it cant be the better fit (unless the other is also
+        // 'Any', in which it doesnt matter what we return from here)
+        return !this.isAny();
+    }
+
+    @Override
+    public boolean isAny() {
+        return this.value.isEmpty();
+    }
+
+    @Override
+    public boolean equals(RuleInput otherInput) throws Exception {
+        if (this.isAny() && otherInput.isAny()) {
+            return true;
+        }
+
+        ValueInput castedInput = (ValueInput) otherInput;
+        return this.value.equals(castedInput.getValue());
+    }
+
+    public IInputValue getValue() {
+        return this.value;
     }
 }

@@ -8,6 +8,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 class InputDateValue implements IInputValue<Date>, Serializable {
+    private static final long serialVersionUID = 5666450390675442878L;
 
     private final Date value;
     private static final DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMMdd");
@@ -34,5 +35,10 @@ class InputDateValue implements IInputValue<Date>, Serializable {
     @Override
     public String getDataType() {
         return Date.class.getName();
+    }
+
+    @Override
+    public int compareTo(IInputValue<Date> obj) {
+        return this.value.compareTo(obj.getValue());
     }
 }

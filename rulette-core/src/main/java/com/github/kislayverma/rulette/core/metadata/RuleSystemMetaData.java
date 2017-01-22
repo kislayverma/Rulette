@@ -35,9 +35,9 @@ public class RuleSystemMetaData {
      */
     public void applyCustomConfiguration(RuleInputConfigurator configuration) throws Exception {
         RuleInputValueFactory.getInstance().registerRuleInputBuilder(
-            this.uniqueIdColumnName, BUILDER_REGISTRY.getDefaultBuilder(DefaultDataType.NUMBER.name()));
+            this.uniqueIdColumnName, BUILDER_REGISTRY.getDefaultBuilder(DefaultDataType.STRING.name()));
         RuleInputValueFactory.getInstance().registerRuleInputBuilder(
-            this.uniqueOutputColumnName, BUILDER_REGISTRY.getDefaultBuilder(DefaultDataType.NUMBER.name()));
+            this.uniqueOutputColumnName, BUILDER_REGISTRY.getDefaultBuilder(DefaultDataType.STRING.name()));
 
         if (configuration == null) {
             for (RuleInputMetaData rimd : inputColumnList) {
