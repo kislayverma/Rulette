@@ -15,19 +15,19 @@
         <dependency>
             <groupId>com.github.kislayverma.rulette</groupId>
             <artifactId>rulette-engine</artifactId>
-            <version>1.2.8-SNAPSHOT</version>
+            <version>${rulette.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.github.kislayverma.rulette</groupId>
             <artifactId>rulette-mysql-provider</artifactId>
-            <version>1.2.8-SNAPSHOT</version>
+            <version>${rulette.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.github.kislayverma.rulette</groupId>
             <artifactId>rulette-postgres-provider</artifactId>
-            <version>1.2.7-SNAPSHOT</version>
+            <version>${rulette.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

@@ -15,7 +15,7 @@
         <dependency>
             <groupId>com.github.kislayverma.rulette</groupId>
             <artifactId>rulette-core</artifactId>
-            <version>1.2.8-SNAPSHOT</version>
+            <version>${rulette.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
