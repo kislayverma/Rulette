@@ -229,13 +229,15 @@ public class PostgresDataProvider implements IDataProvider {
     }
 
     private static String removeSchemaName(String tableName){
-        if(tableName!=null && !tableName.trim().equals("")){
+        if (tableName!=null && !tableName.trim().equals("")) {
             String[] splits = tableName.split("\\.");
-            if(splits.length==1)
+            if (splits.length==1) {
                 return tableName;
-            else
+            } else {
                 return splits[splits.length - 1];
+            }
         }
+
         return null;
     }
 
@@ -257,11 +259,8 @@ public class PostgresDataProvider implements IDataProvider {
                     ? RuleInputType.VALUE : RuleInputType.RANGE;
             String dataType = resultSet.getString("data_type").toUpperCase();
 
-            inputs.add(new RuleInputMetaData(resultSet.getInt("id"),
-                    resultSet.getString("name"),
-                    resultSet.getInt("priority"),
-                    ruleType,
-                    dataType));
+            inputs.add(new RuleInputMetaData(
+                resultSet.getString("name"), resultSet.getInt("priority"), ruleType, dataType));
         }
 
         return inputs;
