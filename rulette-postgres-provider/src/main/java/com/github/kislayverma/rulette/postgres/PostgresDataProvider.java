@@ -22,12 +22,9 @@ import com.github.kislayverma.rulette.core.metadata.RuleSystemMetaData;
 import com.github.kislayverma.rulette.core.rule.Rule;
 import com.github.kislayverma.rulette.core.ruleinput.type.RuleInputType;
 import com.github.kislayverma.rulette.postgres.dao.DataSource;
+
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -209,18 +206,37 @@ public class PostgresDataProvider implements IDataProvider {
         ResultSet resultSet =
             statement.executeQuery("SELECT * FROM rule_system WHERE name LIKE '" + ruleSystemName + "'");
 
-        if (!resultSet.first()) {
+        if (!resultSet.next()) {
             throw new Exception("No meta data found for rule system name : " + ruleSystemName);
+        }
+
+        // HACK <database>.<tablename> doesn't work in postgres
+        // the default database is specified in the connection
+        // better use schema
+        String tableName = removeSchemaName(resultSet.getString("table_name"));
+        if(tableName == null){
+            throw new Exception("rule system table cannot be null");
         }
 
         RuleSystemMetaData metaData = new RuleSystemMetaData(
             resultSet.getString("name"),
-            resultSet.getString("table_name"),
+            tableName,
             resultSet.getString("unique_id_column_name"),
             resultSet.getString("output_column_name"),
             getInputs(ruleSystemName));
 
         return metaData;
+    }
+
+    private static String removeSchemaName(String tableName){
+        if(tableName!=null && !tableName.trim().equals("")){
+            String[] splits = tableName.split("\\.");
+            if(splits.length==1)
+                return tableName;
+            else
+                return splits[splits.length - 1];
+        }
+        return null;
     }
 
     private List<RuleInputMetaData> getInputs(String ruleSystemName) throws SQLException, Exception {

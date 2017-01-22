@@ -1,14 +1,15 @@
 package com.github.kislayverma.rulette.postgres.dao;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -47,7 +48,7 @@ public class DataSource {
             LOGGER.info("Testing DB connection...");
             testConnection = cpds.getConnection();
             testStatement = testConnection.createStatement();
-            testStatement.executeQuery("select 1+1 from DUAL");
+            testStatement.executeQuery("select 1");
 
             LOGGER.info("DB connection tested successfully.");
         } catch (SQLException e) {
