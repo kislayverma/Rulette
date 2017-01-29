@@ -11,22 +11,21 @@ public class RangeInput extends RuleInput implements Serializable {
     private final IInputValue lowerBound;
     private final IInputValue upperBound;
 
-    public RangeInput(String name, int priority, String inputDataType, String value) throws Exception {
-        super(name, priority, RuleInputType.RANGE, inputDataType, value);
+    public RangeInput(String name, int priority, String inputDataType, String lowerBound, String upperBound) throws Exception {
+        super(name, priority, RuleInputType.RANGE, inputDataType, lowerBound, upperBound);
 
-        String[] rangeArr = value.split("-");
-
-        if (value.isEmpty()) {
+        if (lowerBound == null && upperBound == null) {
             // The'any' case
             this.lowerBound = RuleInputValueFactory.getInstance().buildRuleInputVaue(name, "");
             this.upperBound = RuleInputValueFactory.getInstance().buildRuleInputVaue(name, "");
-        } else if (rangeArr.length < 2) {
+        } else if ((lowerBound == null && upperBound != null) || (lowerBound != null && upperBound == null)) {
+            // Only one bound is specified. 
+            // TODO - Add support for ranges open on one side
             throw new Exception("Improper value for field " + this.metaData.getName()
-                    + ". Range fields must be given in the format 'a-b' (with "
-                    + "a and b as inclusive lower and upper bound respectively.)");
+                    + ". Both upper and lower bounds must be specified");
         } else {
-            this.lowerBound = RuleInputValueFactory.getInstance().buildRuleInputVaue(name, rangeArr[0] == null ? "" : rangeArr[0]);
-            this.upperBound = RuleInputValueFactory.getInstance().buildRuleInputVaue(name, rangeArr[1] == null ? "" : rangeArr[1]);
+            this.lowerBound = RuleInputValueFactory.getInstance().buildRuleInputVaue(name, lowerBound == null ? "" : lowerBound);
+            this.upperBound = RuleInputValueFactory.getInstance().buildRuleInputVaue(name, upperBound == null ? "" : upperBound);
         }
     }
 

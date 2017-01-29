@@ -4,7 +4,6 @@ import com.github.kislayverma.rulette.core.metadata.RuleSystemMetaData;
 import com.github.kislayverma.rulette.core.ruleinput.RuleInput;
 import com.github.kislayverma.rulette.core.metadata.RuleInputMetaData;
 import com.github.kislayverma.rulette.core.ruleinput.type.RangeInput;
-import com.github.kislayverma.rulette.core.ruleinput.type.RuleInputType;
 import com.github.kislayverma.rulette.core.ruleinput.type.ValueInput;
 import com.github.kislayverma.rulette.core.ruleinput.value.DefaultDataType;
 import java.io.Serializable;
@@ -41,19 +40,29 @@ public class Rule implements Serializable {
         this.fieldMap = new ConcurrentHashMap<>();
 
         // Construct all rule inputs
-        for (RuleInputMetaData col : ruleSystemMetaData.getInputColumnList()) {
-            String inputVal = inputMap.get(col.getName());
+        for (RuleInputMetaData input : ruleSystemMetaData.getInputColumnList()) {
+            String inputVal = inputMap.get(input.getName());
             inputVal = (inputVal == null) ? "" : inputVal;
             RuleInput ruleInput;
-            if (RuleInputType.RANGE == col.getRuleInputType()) {
-                ruleInput = new RangeInput(col.getName(), col.getPriority(), col.getDataType(), inputVal);
-            } else if (RuleInputType.VALUE == col.getRuleInputType()) {
-                ruleInput = new ValueInput(col.getName(), col.getPriority(), col.getDataType(), inputVal);
-            } else {
-                throw new Exception("Unsupported rule input type " + col.getRuleInputType());
+            if (null == input.getRuleInputType()) {
+                throw new Exception("Unsupported rule input type " + input.getRuleInputType());
+            } else switch (input.getRuleInputType()) {
+                case RANGE:
+                    ruleInput = new RangeInput(
+                        input.getName(),
+                        input.getPriority(), 
+                        input.getDataType(),
+                        inputMap.get(input.getRangeLowerBoundFieldName()),
+                        inputMap.get(input.getRangeUpperBoundFieldName()));
+                    break;
+                case VALUE:
+                    ruleInput = new ValueInput(input.getName(), input.getPriority(), input.getDataType(), inputVal);
+                    break;
+                default:
+                    throw new Exception("Unsupported rule input type " + input.getRuleInputType());
             }
 
-            this.fieldMap.put(col.getName(), ruleInput);
+            this.fieldMap.put(input.getName(), ruleInput);
         }
 
         // Construct rule input object representing unique id
@@ -152,7 +161,7 @@ public class Rule implements Serializable {
      * prevent someone from accidentally modifying column values which propagate
      * throughout the system, this method creates a copy of the current rule,
      * overwrites the specified column with the given value, and returns a new
-     * rule. This keeps rule objects unmodifiable to a reasonable extent.
+     * rule. This keeps rule objects immutable to a reasonable extent.
      *
      * @param colName column name whose value is to be set
      * @param value the value to be set

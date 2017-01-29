@@ -245,7 +245,9 @@ public class MysqlDataProvider implements IDataProvider {
                 resultSet.getString("name"),
                 resultSet.getInt("priority"),
                 ruleType,
-                dataType));
+                dataType,
+                resultSet.getString("range_lower_bound_field_name"),
+                resultSet.getString("range_upper_bound_field_name")));
         }
 
         return inputs;

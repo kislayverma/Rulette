@@ -10,9 +10,13 @@ public abstract class RuleInput implements Serializable {
     protected RuleInputMetaData metaData;
     protected String rawInput;
 
-    protected RuleInput(String name, int priority, RuleInputType ruleInputType, String inputDataType, String value) throws Exception {
-        this.metaData = new RuleInputMetaData(name, priority, ruleInputType, inputDataType);
-        this.rawInput = value;
+    protected RuleInput(String name, int priority, RuleInputType ruleInputType, 
+        String inputDataType, String rangeLowerBound, String rangeUpperBound) throws Exception {
+
+        this.metaData = new RuleInputMetaData(
+            name, priority, ruleInputType, inputDataType, rangeLowerBound, rangeUpperBound);
+        this.rawInput = (rangeLowerBound == null ? "" : rangeLowerBound) + "-" +
+            (rangeUpperBound == null ? "" : rangeUpperBound);
     }
 
     /**

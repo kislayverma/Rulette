@@ -11,7 +11,7 @@ public class ValueInput extends RuleInput implements Serializable {
     private final IInputValue value;
 
     public ValueInput(String name, int priority, String inputDataType, String value) throws Exception {
-        super(name, priority, RuleInputType.VALUE, inputDataType, value);
+        super(name, priority, RuleInputType.VALUE, inputDataType, value, null);
         this.value = RuleInputValueFactory.getInstance().buildRuleInputVaue(name, value == null ? "" : value);
     }
 

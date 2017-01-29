@@ -7,7 +7,10 @@ import java.util.List;
 import java.util.Random;
 
 public class RuleInputMetaDataMother {
-    private static final Random randGen = new Random();
+    private static final Random RANDOM_NUM_GENERATOR = new Random();
+    private static final String DUMMY_RULE_INPUT_NAME = "input-name-";
+    private static final String DUMMY_LOWER_BOUND_FIELD_NAME = "lower-bound-field-name-";
+    private static final String DUMMY_UPPER_BOUND_FIELD_NAME = "upper-bound-field-name-";
 
     public static List<RuleInputMetaData> getDefaultRangeMetaData(int n) throws Exception {
         if (n <= 0) {
@@ -16,8 +19,9 @@ public class RuleInputMetaDataMother {
 
         List<RuleInputMetaData> dummyObjs = new ArrayList<>();
         for (int i = 0; i < n; i++) {
-            int id = randGen.nextInt();
-            dummyObjs.add(new RuleInputMetaData("rule-input-" + id, id, RuleInputType.RANGE, String.class.getName()));
+            int id = RANDOM_NUM_GENERATOR.nextInt();
+            dummyObjs.add(new RuleInputMetaData(DUMMY_RULE_INPUT_NAME + id, id, RuleInputType.RANGE,
+                String.class.getName(), DUMMY_LOWER_BOUND_FIELD_NAME + i, DUMMY_UPPER_BOUND_FIELD_NAME + i));
         }
 
         return dummyObjs;
@@ -30,8 +34,9 @@ public class RuleInputMetaDataMother {
 
         List<RuleInputMetaData> dummyObjs = new ArrayList<>();
         for (int i = 0; i < n; i++) {
-            int id = randGen.nextInt();
-            dummyObjs.add(new RuleInputMetaData("rule-input-" + id, id, RuleInputType.VALUE, String.class.getName()));
+            int id = RANDOM_NUM_GENERATOR.nextInt();
+            dummyObjs.add(new RuleInputMetaData(DUMMY_RULE_INPUT_NAME + id, id, RuleInputType.VALUE, 
+                String.class.getName(), "test" + i, null));
         }
 
         return dummyObjs;

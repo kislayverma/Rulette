@@ -18,6 +18,8 @@ CREATE TABLE `rule_input` (
   `priority` int(11) NOT NULL,
   `rule_type` varchar(45) NOT NULL,
   `data_type` varchar(45) NOT NULL,
+  `range_lower_bound_field_name` varchar(256) NOT NULL,
+  `range_upper_bound_field_name` varchar(256) NOT NULL,
   PRIMARY KEY (`id`)
 );
 
@@ -48,21 +50,21 @@ VALUES
   ('vat_rule_system', 'tax.vat_rule_system', 'rule_output_id', 'id');
 
 INSERT INTO rule_input 
-  (`name`, `rule_system_id`, `priority`, `rule_type`, `data_type`)
+  (`name`, `rule_system_id`, `priority`, `rule_type`, `data_type`, `range_lower_bound_field_name`, `range_upper_bound_field_name`)
 VALUES 
-  ('source_state', 1, 1, 'VALUE', 'STRING');
+  ('source_state', 1, 1, 'VALUE', 'STRING', NULL, NULL);
 INSERT INTO rule_input 
-  (`name`, `rule_system_id`, `priority`, `rule_type`, `data_type`)
+  (`name`, `rule_system_id`, `priority`, `rule_type`, `data_type`, `range_lower_bound_field_name`, `range_upper_bound_field_name`)
 VALUES 
-  ('item_type', 1, 2, 'VALUE', 'NUMBER');
+  ('item_type', 1, 2, 'VALUE', 'NUMBER', NULL, NULL);
 INSERT INTO rule_input 
-  (`name`, `rule_system_id`, `priority`, `rule_type`, `data_type`)
+  (`name`, `rule_system_id`, `priority`, `rule_type`, `data_type`, `range_lower_bound_field_name`, `range_upper_bound_field_name`)
 VALUES 
-  ('material', 1, 3, 'VALUE', 'STRING');
+  ('material', 1, 3, 'VALUE', 'STRING', NULL, NULL);
 INSERT INTO rule_input 
-  (`name`, `rule_system_id`, `priority`, `rule_type`, `data_type`)
+  (`name`, `rule_system_id`, `priority`, `rule_type`, `data_type`, `range_lower_bound_field_name`, `range_upper_bound_field_name`)
 VALUES 
-  ('mrp_threshold', 1, 4, 'RANGE', 'NUMBER');
+  ('mrp_threshold', 1, 4, 'RANGE', 'NUMBER', 'min_mrp', 'max_mrp');
 
 INSERT INTO govt_vat_value (`tax_type`, `tax_rate`) VALUES ('VAT', 0.0);
 INSERT INTO govt_vat_value (`tax_type`, `tax_rate`) VALUES ('VAT', 1.0);
