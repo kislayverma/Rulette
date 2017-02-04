@@ -75,7 +75,7 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
         if (eligibleRules != null && !eligibleRules.isEmpty()) {
             List<Rule> filteredRules = filterAllApplicableRules(eligibleRules, inputMap);
             if (!filteredRules.isEmpty()) {
-                return filteredRules.get(0);
+                return filteredRules.get(filteredRules.size() - 1);
             }
         }
 
@@ -87,10 +87,9 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
         List<Rule> eligibleRules = getAllApplicableRules(inputMap);
 
         if (eligibleRules != null && eligibleRules.size() > 1) {
-//            return eligibleRules.get(1);
             List<Rule> filteredRules = filterAllApplicableRules(eligibleRules, inputMap);
             if (!filteredRules.isEmpty()) {
-                return filteredRules.get(1);
+                return filteredRules.get(filteredRules.size() - 2);
             }
         }
 
@@ -262,7 +261,12 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
                      *  rule has non-'Any' as the value will rank higher.
                      */
                     if (!input1.isConflicting(input2)) {
-                        return input1.isBetterFit(input2) ? 1 : -1;
+                        if (input1.isBetterFit(input2) != 0) {
+                            LOGGER.info("Between rules " + rule1.getId() + " and " + rule2.getId() +
+                                ", better fit is rule id: " + (input1.isBetterFit(input2) == 1 ? rule1.getId() : rule2.getId()) +
+                                " on input " + colName);
+                            return input1.isBetterFit(input2);
+                        }
                     }
                 } catch (Exception ex) {
                     LOGGER.error("Error sorting rules", ex);

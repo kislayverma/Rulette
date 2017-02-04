@@ -10,9 +10,17 @@ public abstract class RuleInput implements Serializable {
     protected RuleInputMetaData metaData;
     protected String rawInput;
 
-    protected RuleInput(String name, int priority, RuleInputType ruleInputType, String inputDataType, String value) throws Exception {
-        this.metaData = new RuleInputMetaData(name, priority, ruleInputType, inputDataType);
-        this.rawInput = value;
+    protected RuleInput(String name, int priority, RuleInputType ruleInputType, 
+        String inputDataType, String rangeLowerBound, String rangeUpperBound) throws Exception {
+
+        this.metaData = new RuleInputMetaData(
+            name, priority, ruleInputType, inputDataType, rangeLowerBound, rangeUpperBound);
+        if (ruleInputType == RuleInputType.VALUE) {
+            this.rawInput = (rangeLowerBound == null ? "" : rangeLowerBound);
+        } else {
+            this.rawInput = (rangeLowerBound == null ? "" : rangeLowerBound) + "-" +
+                (rangeUpperBound == null ? "" : rangeUpperBound);
+        }
     }
 
     /**
@@ -41,10 +49,12 @@ public abstract class RuleInput implements Serializable {
      * for the same value. It assumes that both inputs match the value and that they are non-conflicting.
      * 
      * @param input The rule input to be matched against
-     * @return true if this input is a better fit, false otherwise
+     * @return 0 if both input are identical in fit
+     *         1 if this input is a better fit
+     *         -1 if this input is not the better fit
      * @throws Exception on any error in evaluation
      */
-    public abstract boolean isBetterFit(RuleInput input) throws Exception;
+    public abstract int isBetterFit(RuleInput input) throws Exception;
 
     public final String getRawValue() {
         return this.rawInput;

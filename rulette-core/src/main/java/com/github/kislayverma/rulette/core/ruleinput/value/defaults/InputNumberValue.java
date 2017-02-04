@@ -19,7 +19,7 @@ class InputNumberValue implements IInputValue<Double>, Serializable {
 
     @Override
     public int compareTo(String obj) {
-        if ((obj == null || "".equals(obj)) && (this.value == null || "".equals(this.value))) {
+        if ((obj == null || "".equals(obj)) && (this.value == null)) {
             return 0;
         } else if (obj == null || "".equals(obj)) {
             return 1;
@@ -41,7 +41,23 @@ class InputNumberValue implements IInputValue<Double>, Serializable {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        IInputValue<Double> that = (IInputValue<Double>) obj;
+        if (this.isEmpty() && that.isEmpty()) {
+            return true;
+        } else if (!this.isEmpty()) {
+            return this.value.equals(that.getValue());
+        } else {
+            return that.getValue().equals(this.value);
+        }
+    }
+
+    @Override
     public int compareTo(IInputValue<Double> obj) {
-        return this.value.compareTo(obj.getValue());
+        if (this.isEmpty() && obj.isEmpty()) {
+            return 0;
+        } else {
+            return this.value.compareTo(obj.getValue());
+        }
     }
 }

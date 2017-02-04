@@ -11,7 +11,7 @@ public class ValueInput extends RuleInput implements Serializable {
     private final IInputValue value;
 
     public ValueInput(String name, int priority, String inputDataType, String value) throws Exception {
-        super(name, priority, RuleInputType.VALUE, inputDataType, value);
+        super(name, priority, RuleInputType.VALUE, inputDataType, value, null);
         this.value = RuleInputValueFactory.getInstance().buildRuleInputVaue(name, value == null ? "" : value);
     }
 
@@ -35,10 +35,18 @@ public class ValueInput extends RuleInput implements Serializable {
     }
 
     @Override
-    public boolean isBetterFit(RuleInput input) throws Exception {
-        // If this is 'Any', it cant be the better fit (unless the other is also
+    public int isBetterFit(RuleInput input) throws Exception {
+        // If both are are 'Any' or the same, then no judgement, it cant be the better fit (unless the other is also
         // 'Any', in which it doesnt matter what we return from here)
-        return !this.isAny();
+        if (this.equals(input)) {
+            return 0;
+        } else if (this.isAny()) {
+            // If this is 'Any', then the other must be a better fit
+            return -1;
+        } else {
+            // If the other 'Any', then this must be a better fit
+            return 1;
+        }
     }
 
     @Override

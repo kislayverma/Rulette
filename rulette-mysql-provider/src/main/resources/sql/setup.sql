@@ -15,5 +15,7 @@ CREATE TABLE `rule_input` (
   `priority` int(11) NOT NULL,
   `rule_type` varchar(45) NOT NULL,
   `data_type` varchar(45) NOT NULL,
+  `range_lower_bound_field_name` varchar(256) NOT NULL,
+  `range_upper_bound_field_name` varchar(256) NOT NULL,
   PRIMARY KEY (`id`)
 );

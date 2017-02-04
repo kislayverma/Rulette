@@ -39,6 +39,22 @@ class InputDateValue implements IInputValue<Date>, Serializable {
 
     @Override
     public int compareTo(IInputValue<Date> obj) {
-        return this.value.compareTo(obj.getValue());
+        if (this.isEmpty() && obj.isEmpty()) {
+            return 0;
+        } else {
+            return this.value.compareTo(obj.getValue());
+        }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        IInputValue<Date> that = (IInputValue<Date>) obj;
+        if (this.isEmpty() && that.isEmpty()) {
+            return true;
+        } else if (!this.isEmpty()) {
+            return this.value.equals(that.getValue());
+        } else {
+            return that.getValue().equals(this.value);
+        }
     }
 }
