@@ -69,13 +69,16 @@ public class RangeInput extends RuleInput implements Serializable {
     }
 
     @Override
-    public boolean isBetterFit(RuleInput input) throws Exception {
+    public int isBetterFit(RuleInput input) throws Exception {
+        // If both are 'Any', then they are the same.
         // If the other input is 'Any', this input can only be equal or better, never worse.
-        // And vice-versa
-        if (input.isAny()) {
-            return true;
+        // And vice-versa.
+        if (this.equals(input)) {
+            return 0;
         } else if (this.isAny()) {
-            return false;
+            return -1;
+        } else if (input.isAny()) {
+            return 1;
         }
 
         RangeInput castedInput = (RangeInput) input;
@@ -84,33 +87,33 @@ public class RangeInput extends RuleInput implements Serializable {
         if (this.lowerBound.isEmpty()) {
             // If this input's upper bound is lesser than the other's it is a better fit
             if (this.upperBound.compareTo(castedInput.getUpperBound()) < 0) {
-                return true;
+                return 1;
             }
         } else if (this.upperBound.isEmpty()) {
             // If this range ends at +INFINITY, this input will be better fit if its lower bound is
             // greater than the other ones
             if (this.lowerBound.compareTo(castedInput.getLowerBound()) > 0) {
-                return true;
+                return 1;
             }
         } else if (castedInput.getLowerBound().isEmpty()) {
             // If other input start at -INFINITY, this input will be better if it ends lower than the other
             if (this.upperBound.compareTo(castedInput.getUpperBound()) < 0) {
-                return true;
+                return 1;
             }
         } else if (castedInput.getUpperBound().isEmpty()) {
             // If other input ends at +INFINITY, this input will be better if it starts higher than the other
             if (this.lowerBound.compareTo(castedInput.getLowerBound()) > 0) {
-                return true;
+                return 1;
             }
         } else {
             // If INFINITY is not involved, then simply compare bounds
             if (this.lowerBound.compareTo(castedInput.getLowerBound()) > 0 &&
                     this.upperBound.compareTo(castedInput.getUpperBound()) < 0) {
-                return true;
+                return 1;
             }
         }
 
-        return false;
+        return -1;
     }
 
     @Override

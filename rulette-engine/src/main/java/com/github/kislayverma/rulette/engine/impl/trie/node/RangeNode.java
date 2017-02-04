@@ -66,6 +66,9 @@ public class RangeNode extends Node implements Serializable {
     @Override
     public Node getMatchingRule(String value) {
         for (Map.Entry<RuleInput, Node> entry : this.fieldMap.entrySet()) {
+//            if (entry.getKey().evaluate(value)) {
+//                return entry.getValue();
+//            }
             if (value.equals(entry.getKey().getRawValue())) {
                 return entry.getValue();
             }

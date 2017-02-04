@@ -179,7 +179,12 @@ public class MysqlDataProvider implements IDataProvider {
                 Map<String, String> inputMap = new HashMap<>();
 
                 for (RuleInputMetaData col : metadata.getInputColumnList()) {
-                    inputMap.put(col.getName(), resultSet.getString(col.getName()));
+                    if (col.getRuleInputType() == RuleInputType.RANGE) {
+                        inputMap.put(col.getRangeLowerBoundFieldName(), resultSet.getString(col.getRangeLowerBoundFieldName()));
+                        inputMap.put(col.getRangeUpperBoundFieldName(), resultSet.getString(col.getRangeUpperBoundFieldName()));
+                    } else {
+                        inputMap.put(col.getName(), resultSet.getString(col.getName()));
+                    }
                 }
                 inputMap.put(metadata.getUniqueIdColumnName(),
                     resultSet.getString(metadata.getUniqueIdColumnName()));
