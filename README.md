@@ -27,6 +27,5 @@ If you do not have a Java application to use Rulette but would still like to par
 * Deep dive into the [innards of Rulette](https://github.com/kislayverma/Rulette/wiki/Architecture) here.
 * Browse the [javadoc](https://github.com/kislayverma/Rulette/wiki/Javadoc)
 
-## Upcoming features
-* PostgreSQL and SQLite support
-* Completely revamped rulette-rest server
+## Shoutout
+Do ping me or this repo (or add a wiki page) if you use Rulette in a project. It will help build a corpus of examples. And a little external validation never hurt anyone :)
