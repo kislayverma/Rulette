@@ -262,9 +262,6 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
                      */
                     if (!input1.isConflicting(input2)) {
                         if (input1.isBetterFit(input2) != 0) {
-                            LOGGER.info("Between rules " + rule1.getId() + " and " + rule2.getId() +
-                                ", better fit is rule id: " + (input1.isBetterFit(input2) == 1 ? rule1.getId() : rule2.getId()) +
-                                " on input " + colName);
                             return input1.isBetterFit(input2);
                         }
                     }

@@ -14,18 +14,12 @@ public class RangeInput extends RuleInput implements Serializable {
     public RangeInput(String name, int priority, String inputDataType, String lowerBound, String upperBound) throws Exception {
         super(name, priority, RuleInputType.RANGE, inputDataType, lowerBound, upperBound);
 
-        if (lowerBound == null && upperBound == null) {
-            // The'any' case
-            this.lowerBound = RuleInputValueFactory.getInstance().buildRuleInputVaue(name, "");
-            this.upperBound = RuleInputValueFactory.getInstance().buildRuleInputVaue(name, "");
-        } else if ((lowerBound == null && upperBound != null) || (lowerBound != null && upperBound == null)) {
-            // Only one bound is specified. 
-            // TODO - Add support for ranges open on one side
-            throw new Exception("Improper value for field " + this.metaData.getName()
-                    + ". Both upper and lower bounds must be specified");
-        } else {
-            this.lowerBound = RuleInputValueFactory.getInstance().buildRuleInputVaue(name, lowerBound == null ? "" : lowerBound);
-            this.upperBound = RuleInputValueFactory.getInstance().buildRuleInputVaue(name, upperBound == null ? "" : upperBound);
+        this.lowerBound = RuleInputValueFactory.getInstance().buildRuleInputVaue(name, lowerBound == null ? "" : lowerBound);
+        this.upperBound = RuleInputValueFactory.getInstance().buildRuleInputVaue(name, upperBound == null ? "" : upperBound);
+        // If upper bound is open, the compareTo evaluates will be > 0, but it is actually 
+        // legit (being an open range to infinity
+        if (!this.upperBound.isEmpty() && this.lowerBound.compareTo(upperBound) > 0) {
+            throw new Exception("Lower bound greater than upper bound for field : " + this.metaData.getName());
         }
     }
 
@@ -38,7 +32,14 @@ public class RangeInput extends RuleInput implements Serializable {
             // If 'Any' is asked but this input isn't 'Any'), this does not match
             return false;
         } else {
-            return (lowerBound.compareTo(value) <= 0 && upperBound.compareTo(value) >= 0);
+            if ((lowerBound.compareTo(value) <= 0 && upperBound.isEmpty()) ||
+                (lowerBound.isEmpty() && upperBound.compareTo(value) >= 0) ||
+                (lowerBound.compareTo(value) <= 0 && upperBound.compareTo(value) >= 0)) {
+                return true;
+            } else {
+                return false;
+            }
+//            return (lowerBound.compareTo(value) <= 0 && upperBound.compareTo(value) >= 0);
         }
     }
 
