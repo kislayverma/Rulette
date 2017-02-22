@@ -31,6 +31,7 @@
         <tag>HEAD</tag>
     </scm>
     <properties>
+        <rulette.version>1.2.8-SNAPSHOT</rulette.version>
         <powermock.version>1.6.2</powermock.version>
     </properties>
 
@@ -38,6 +39,7 @@
         <module>rulette-core</module>
         <module>rulette-engine</module>
         <module>rulette-mysql-provider</module>
+        <module>rulette-postgres-provider</module>
         <module>rulette-examples</module>
     </modules>
 
