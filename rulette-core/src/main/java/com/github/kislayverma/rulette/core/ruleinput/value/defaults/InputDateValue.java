@@ -11,10 +11,10 @@ class InputDateValue implements IInputValue<Date>, Serializable {
     private static final long serialVersionUID = 5666450390675442878L;
 
     private final Date value;
-    private static final DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMMdd");
+    private static final DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
 
     public InputDateValue (String value) throws Exception {
-        this.value = value == null || value.isEmpty() ? null : formatter.parseDateTime(value).toDate();
+        this.value = (value == null || value.isEmpty()) ? null : formatter.parseDateTime(value.substring(0, 19)).toDate();
     }
 
     @Override
@@ -29,7 +29,7 @@ class InputDateValue implements IInputValue<Date>, Serializable {
 
     @Override
     public int compareTo(String obj) throws ParseException {
-        return this.value.compareTo(formatter.parseDateTime(obj).toDate());
+        return this.value.compareTo(formatter.parseDateTime(obj.substring(0, 19)).toDate());
     }
 
     @Override
