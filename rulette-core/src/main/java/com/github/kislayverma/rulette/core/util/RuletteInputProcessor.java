@@ -31,8 +31,7 @@ public class RuletteInputProcessor {
                 fieldValueString = "";
             }else {
                 if(fieldValue instanceof Date){
-                    Date date = (Date)fieldValue;
-                    fieldValueString = RuletteInputProcessor.format.format(date);
+                    fieldValueString = RuletteInputProcessor.format.format((Date)fieldValue);
                 }else {
                     fieldValueString = fieldValue.toString();
                 }
