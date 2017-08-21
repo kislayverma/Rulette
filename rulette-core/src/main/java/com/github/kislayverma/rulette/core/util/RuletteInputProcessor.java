@@ -1,9 +1,12 @@
 package com.github.kislayverma.rulette.core.util;
 
 import com.github.kislayverma.rulette.core.annotations.RuletteInput;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.lang.reflect.Field;
-import java.text.SimpleDateFormat;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,7 +16,7 @@ import java.util.Map;
  */
 public class RuletteInputProcessor {
 
-    private static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
 
     public static Map<String, String> generateInputMap(Object request) throws Exception{
         Map<String, String> inputMap = new HashMap<>();
@@ -31,7 +34,7 @@ public class RuletteInputProcessor {
                 fieldValueString = "";
             }else {
                 if(fieldValue instanceof Date){
-                    fieldValueString = RuletteInputProcessor.format.format((Date)fieldValue);
+                    fieldValueString = new DateTime(fieldValue).toString(formatter);
                 }else {
                     fieldValueString = fieldValue.toString();
                 }
