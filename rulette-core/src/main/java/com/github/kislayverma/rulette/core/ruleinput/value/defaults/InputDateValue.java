@@ -14,7 +14,7 @@ class InputDateValue implements IInputValue<Date>, Serializable {
     private static final DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
 
     public InputDateValue (String value) throws Exception {
-        this.value = (value == null || value.isEmpty()) ? null : formatter.parseDateTime(value.substring(0, 19)).toDate();
+        this.value = (value == null || value.isEmpty()) ? null : formatter.parseDateTime(value.substring(0, 19)).toDate(); //Taking till seconds value of the date string.
     }
 
     @Override
