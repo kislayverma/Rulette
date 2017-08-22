@@ -54,13 +54,19 @@ public class MysqlDataProvider implements IDataProvider {
     public List<Rule> getAllRules(String ruleSystemName) throws SQLException, Exception {
         List<Rule> rules = new ArrayList<>();
 
-        Statement statement = getConnection().createStatement();
+        Connection connection = getConnection();
+        Statement statement = connection.createStatement();
         ResultSet resultSet =
             statement.executeQuery("SELECT * " + " FROM " + getRuleSystemMetaData(ruleSystemName).getTableName());
 
         if (resultSet != null) {
             rules = convertToRules(resultSet, getRuleSystemMetaData(ruleSystemName));
         }
+
+
+        resultSet.close();
+        statement.close();
+        connection.close();
 
         return rules;
     }
@@ -102,6 +108,12 @@ public class MysqlDataProvider implements IDataProvider {
             ResultSet resultSet = preparedStatement.executeQuery();
 
             List<Rule> ruleList = convertToRules(resultSet, metaData);
+
+
+            resultSet.close();
+            preparedStatement.close();
+            connection.close();
+
             if (ruleList != null && !ruleList.isEmpty()) {
                 return ruleList.get(0);
             }
@@ -116,7 +128,9 @@ public class MysqlDataProvider implements IDataProvider {
 
         String sql = "DELETE FROM " + metaData.getTableName()
                 + " WHERE " + metaData.getUniqueIdColumnName() + "= ?";
-        PreparedStatement preparedStatement = getConnection().prepareStatement(sql);
+
+        Connection conn = getConnection();
+        PreparedStatement preparedStatement = conn.prepareStatement(sql);
         preparedStatement.setString(1, rule.getColumnData(metaData.getUniqueIdColumnName()).getRawValue());
 
         return preparedStatement.executeUpdate() > 0;
@@ -163,6 +177,13 @@ public class MysqlDataProvider implements IDataProvider {
             ResultSet resultSet = preparedStatement.executeQuery();
 
             List<Rule> ruleList = convertToRules(resultSet, metaData);
+
+
+            resultSet.close();
+            preparedStatement.close();
+            connection.close();
+
+
             if (ruleList != null && !ruleList.isEmpty()) {
                 return ruleList.get(0);
             }
@@ -191,6 +212,9 @@ public class MysqlDataProvider implements IDataProvider {
                 inputMap.put(metadata.getUniqueOutputColumnName(),
                     resultSet.getString(metadata.getUniqueOutputColumnName()));
 
+
+
+
                 rules.add(new Rule(metadata, inputMap));
             }
         }
@@ -210,7 +234,8 @@ public class MysqlDataProvider implements IDataProvider {
     }
 
     public RuleSystemMetaData loadRuleSystemMetaData(String ruleSystemName) throws Exception {
-        Statement statement = getConnection().createStatement();
+        Connection connection = getConnection();
+        Statement statement = connection.createStatement();
         ResultSet resultSet =
             statement.executeQuery("SELECT * FROM rule_system WHERE name LIKE '" + ruleSystemName + "'");
 
@@ -225,13 +250,20 @@ public class MysqlDataProvider implements IDataProvider {
             resultSet.getString("output_column_name"),
             getInputs(ruleSystemName));
 
+        resultSet.close();
+        statement.close();
+        connection.close();
+
+
         return metaData;
     }
 
     private List<RuleInputMetaData> getInputs(String ruleSystemName) throws SQLException, Exception {
         List<RuleInputMetaData> inputs = new ArrayList<>();
 
-        Statement statement = getConnection().createStatement();
+        Connection connection = getConnection();
+
+        Statement statement = connection.createStatement();
         ResultSet resultSet =
                 statement.executeQuery("SELECT b.* "
                 + "FROM rule_system AS a "
@@ -254,6 +286,10 @@ public class MysqlDataProvider implements IDataProvider {
                 resultSet.getString("range_lower_bound_field_name"),
                 resultSet.getString("range_upper_bound_field_name")));
         }
+
+        resultSet.close();
+        statement.close();
+        connection.close();
 
         return inputs;
     }
