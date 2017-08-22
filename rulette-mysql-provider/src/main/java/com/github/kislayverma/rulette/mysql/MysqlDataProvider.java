@@ -129,8 +129,8 @@ public class MysqlDataProvider implements IDataProvider {
         String sql = "DELETE FROM " + metaData.getTableName()
                 + " WHERE " + metaData.getUniqueIdColumnName() + "= ?";
 
-        Connection conn = getConnection();
-        PreparedStatement preparedStatement = conn.prepareStatement(sql);
+        Connection connection = getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
         preparedStatement.setString(1, rule.getColumnData(metaData.getUniqueIdColumnName()).getRawValue());
 
         return preparedStatement.executeUpdate() > 0;
