@@ -10,8 +10,8 @@ import org.joda.time.format.DateTimeFormatter;
 class InputDateValue implements IInputValue<Date>, Serializable {
     private static final long serialVersionUID = 5666450390675442878L;
 
-    private final Date value;
-    private static final DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMMdd");
+    protected Date value;
+    protected static final DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
 
     public InputDateValue (String value) throws Exception {
         this.value = value == null || value.isEmpty() ? null : formatter.parseDateTime(value).toDate();
