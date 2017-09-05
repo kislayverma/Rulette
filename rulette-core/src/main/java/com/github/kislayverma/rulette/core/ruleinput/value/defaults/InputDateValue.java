@@ -17,6 +17,9 @@ class InputDateValue implements IInputValue<Date>, Serializable {
         this.value = value == null || value.isEmpty() ? null : formatter.parseDateTime(value).toDate();
     }
 
+    InputDateValue() {
+    }
+
     @Override
     public boolean isEmpty() {
         return value == null;
