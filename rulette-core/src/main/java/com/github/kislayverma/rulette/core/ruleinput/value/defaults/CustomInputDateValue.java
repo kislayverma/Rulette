@@ -7,7 +7,6 @@ import java.text.ParseException;
  */
 public class CustomInputDateValue extends InputDateValue {
     public CustomInputDateValue(String value) throws Exception {
-        super(value);
         this.value = (value == null || value.isEmpty()) ? null : formatter.parseDateTime(value.substring(0, 19)).toDate(); //Taking till seconds value of the date string.
     }
 
