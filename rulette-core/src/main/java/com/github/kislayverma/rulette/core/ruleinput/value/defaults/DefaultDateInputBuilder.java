@@ -8,6 +8,6 @@ public class DefaultDateInputBuilder implements IInputValueBuilder<Date>{
 
     @Override
     public IInputValue<Date> build(String value) throws Exception {
-        return new CustomInputDateValue(value);
+        return new InputDateValue(value);
     }
 }

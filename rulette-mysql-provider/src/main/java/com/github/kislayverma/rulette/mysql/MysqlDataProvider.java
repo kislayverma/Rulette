@@ -21,8 +21,8 @@ import com.github.kislayverma.rulette.core.metadata.RuleInputMetaData;
 import com.github.kislayverma.rulette.core.metadata.RuleSystemMetaData;
 import com.github.kislayverma.rulette.core.rule.Rule;
 import com.github.kislayverma.rulette.core.ruleinput.type.RuleInputType;
+import com.github.kislayverma.rulette.core.ruleinput.value.DefaultDataType;
 import com.github.kislayverma.rulette.mysql.dao.DataSource;
-
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -37,7 +37,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A MySql based implementation of the Rulette {@link IDataProvider} interface.
- *
  * @author kislay.verma
  */
 public class MysqlDataProvider implements IDataProvider {
@@ -206,8 +205,15 @@ public class MysqlDataProvider implements IDataProvider {
 
                 for (RuleInputMetaData col : metadata.getInputColumnList()) {
                     if (col.getRuleInputType() == RuleInputType.RANGE) {
-                        inputMap.put(col.getRangeLowerBoundFieldName(), resultSet.getString(col.getRangeLowerBoundFieldName()));
-                        inputMap.put(col.getRangeUpperBoundFieldName(), resultSet.getString(col.getRangeUpperBoundFieldName()));
+                        String lowerBoundFieldName = resultSet.getString(col.getRangeLowerBoundFieldName());
+                        String upperBoundFieldName = resultSet.getString(col.getRangeUpperBoundFieldName());
+                        if(col.getDataType().equals(DefaultDataType.DATE.name())){
+                            inputMap.put(col.getRangeLowerBoundFieldName(), lowerBoundFieldName != null ? lowerBoundFieldName.substring(0, 19) : lowerBoundFieldName);
+                            inputMap.put(col.getRangeUpperBoundFieldName(), upperBoundFieldName != null ? upperBoundFieldName.substring(0, 19) : upperBoundFieldName);
+                        }else {
+                            inputMap.put(col.getRangeLowerBoundFieldName(), lowerBoundFieldName);
+                            inputMap.put(col.getRangeUpperBoundFieldName(), upperBoundFieldName);
+                        }
                     } else {
                         inputMap.put(col.getName(), resultSet.getString(col.getName()));
                     }
