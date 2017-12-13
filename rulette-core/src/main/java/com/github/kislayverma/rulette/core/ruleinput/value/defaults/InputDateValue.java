@@ -19,7 +19,7 @@ class InputDateValue implements IInputValue<Date>, Serializable {
 
     @Override
     public boolean isEmpty() {
-        return value == null;
+        return this.value == null;
     }
 
     @Override
@@ -39,11 +39,7 @@ class InputDateValue implements IInputValue<Date>, Serializable {
 
     @Override
     public int compareTo(IInputValue<Date> obj) {
-        if (this.isEmpty() && obj.isEmpty()) {
-            return 0;
-        } else {
-            return this.value.compareTo(obj.getValue());
-        }
+        return this.value.compareTo(obj.getValue());
     }
 
     @Override

@@ -18,7 +18,7 @@ public class RangeInput extends RuleInput implements Serializable {
         this.upperBound = RuleInputValueFactory.getInstance().buildRuleInputVaue(name, upperBound == null ? "" : upperBound);
         // If upper bound is open, the compareTo evaluates will be > 0, but it is actually 
         // legit (being an open range to infinity
-        if (!this.upperBound.isEmpty() && this.lowerBound.compareTo(upperBound) > 0) {
+        if (!this.lowerBound.isEmpty() && !this.upperBound.isEmpty() && this.lowerBound.compareTo(upperBound) > 0) {
             throw new Exception("Lower bound greater than upper bound for field : " + this.metaData.getName());
         }
     }
@@ -133,8 +133,50 @@ public class RangeInput extends RuleInput implements Serializable {
         } else {
             RangeInput castedInput = (RangeInput) otherInput;
 
-            return this.lowerBound.compareTo(castedInput.getLowerBound()) == 0 &&
-                   this.upperBound.compareTo(castedInput.getUpperBound()) == 0;
+            if(this.lowerBound.getValue() == null && this.upperBound.getValue() != null
+                    && castedInput.getLowerBound().getValue() != null && castedInput.upperBound.getValue() == null){
+                return false;
+            }
+
+            if(this.lowerBound.getValue() != null && this.upperBound.getValue() == null
+                    && castedInput.getLowerBound().getValue() == null && castedInput.upperBound.getValue() != null){
+                return false;
+            }
+
+            if(this.lowerBound.getValue() == null && this.upperBound.getValue() != null
+                    && castedInput.getLowerBound().getValue() == null && castedInput.upperBound.getValue() != null){
+                return this.upperBound.compareTo(castedInput.getUpperBound()) == 0;
+            }
+
+            if(this.lowerBound.getValue() != null && this.upperBound.getValue() == null
+                    && castedInput.getLowerBound().getValue() != null && castedInput.upperBound.getValue() == null){
+                return this.lowerBound.compareTo(castedInput.getLowerBound()) == 0;
+            }
+
+            System.out.println("this.lowerBound" + this.lowerBound.getValue());
+            System.out.println("castedInput.getLowerBound()" + castedInput.getLowerBound().getValue());
+            System.out.println("this.upperBound" + this.upperBound.getValue());
+            System.out.println("castedInput.getUpperBound()" + castedInput.getUpperBound().getValue());
+
+            if(this.lowerBound.getValue() == null && this.upperBound.getValue() != null
+                    && castedInput.getLowerBound().getValue() == null && castedInput.getUpperBound().getValue() != null){
+                System.out.println("comparing just upper bounds");
+                return this.getUpperBound().compareTo(castedInput.getUpperBound()) == 0;
+            }
+            if(this.lowerBound.getValue() != null && this.upperBound.getValue() == null
+                    && castedInput.getLowerBound().getValue() != null && castedInput.getUpperBound().getValue() == null){
+
+                System.out.println("comparing just lower bounds");
+                return this.lowerBound.compareTo(castedInput.getLowerBound()) == 0;
+            }
+
+            if(this.lowerBound.getValue() != null && this.upperBound.getValue() != null
+                    && castedInput.getLowerBound().getValue() != null && castedInput.getUpperBound().getValue() != null){
+                return this.lowerBound.compareTo(castedInput.getLowerBound()) == 0 &&
+                        this.upperBound.compareTo(castedInput.getUpperBound()) == 0;
+            }
+            return false;
+
         }
     }
 
