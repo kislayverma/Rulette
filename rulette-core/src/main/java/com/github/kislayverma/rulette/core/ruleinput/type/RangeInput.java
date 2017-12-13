@@ -133,6 +133,9 @@ public class RangeInput extends RuleInput implements Serializable {
         } else {
             RangeInput castedInput = (RangeInput) otherInput;
 
+            // Note : While comparing dates for rules, we're taking care of checking null values for lower and
+            // upper bounds before actually comparing them using the 'compareTo' method, so as to safeguard from null values.
+
             if(this.lowerBound.getValue() == null && this.upperBound.getValue() != null
                     && castedInput.getLowerBound().getValue() != null && castedInput.upperBound.getValue() == null){
                 return false;
