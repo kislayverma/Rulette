@@ -153,20 +153,13 @@ public class RangeInput extends RuleInput implements Serializable {
                 return this.lowerBound.compareTo(castedInput.getLowerBound()) == 0;
             }
 
-            System.out.println("this.lowerBound" + this.lowerBound.getValue());
-            System.out.println("castedInput.getLowerBound()" + castedInput.getLowerBound().getValue());
-            System.out.println("this.upperBound" + this.upperBound.getValue());
-            System.out.println("castedInput.getUpperBound()" + castedInput.getUpperBound().getValue());
-
             if(this.lowerBound.getValue() == null && this.upperBound.getValue() != null
                     && castedInput.getLowerBound().getValue() == null && castedInput.getUpperBound().getValue() != null){
-                System.out.println("comparing just upper bounds");
                 return this.getUpperBound().compareTo(castedInput.getUpperBound()) == 0;
             }
+
             if(this.lowerBound.getValue() != null && this.upperBound.getValue() == null
                     && castedInput.getLowerBound().getValue() != null && castedInput.getUpperBound().getValue() == null){
-
-                System.out.println("comparing just lower bounds");
                 return this.lowerBound.compareTo(castedInput.getLowerBound()) == 0;
             }
 
@@ -175,8 +168,8 @@ public class RangeInput extends RuleInput implements Serializable {
                 return this.lowerBound.compareTo(castedInput.getLowerBound()) == 0 &&
                         this.upperBound.compareTo(castedInput.getUpperBound()) == 0;
             }
-            return false;
 
+            return false;
         }
     }
 
