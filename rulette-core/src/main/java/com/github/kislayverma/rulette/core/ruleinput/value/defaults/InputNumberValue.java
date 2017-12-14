@@ -54,7 +54,7 @@ class InputNumberValue implements IInputValue<Double>, Serializable {
 
     @Override
     public int compareTo(IInputValue obj) {
-        if ((obj == null || "".equals(obj)) && (this.value == null || "".equals(this.value))) {
+        if ((obj == null) && (this.value == null)) {
             return 0;
         } else if (obj == null || obj.isEmpty()) {
             return 1;
