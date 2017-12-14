@@ -54,20 +54,23 @@ public class MysqlDataProvider implements IDataProvider {
     @Override
     public List<Rule> getAllRules(String ruleSystemName) throws Exception {
         List<Rule> rules = new ArrayList<>();
+        Connection connection = null;
+        Statement statement = null;
+        ResultSet resultSet = null;
 
         try {
-            Connection connection = getConnection();
-            Statement statement = connection.createStatement();
-            ResultSet resultSet =
+            connection = getConnection();
+            statement = connection.createStatement();
+            resultSet =
                     statement.executeQuery("SELECT * " + " FROM " + getRuleSystemMetaData(ruleSystemName).getTableName());
 
             if (resultSet != null) {
                 rules = convertToRules(resultSet, getRuleSystemMetaData(ruleSystemName));
             }
-
-            close(resultSet, statement, connection);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }finally {
+            close(resultSet, statement, connection);
         }
         return rules;
     }
@@ -94,11 +97,15 @@ public class MysqlDataProvider implements IDataProvider {
                 .append(" VALUES (").append(valueListBuilder.toString().substring(0, valueListBuilder.length() - 1)).append(") ");
 
         List<Rule> ruleList = new ArrayList<>();
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+
         try {
-            Connection connection = getConnection();
-            PreparedStatement preparedStatement =
+            connection = getConnection();
+            preparedStatement =
                     connection.prepareStatement("SELECT * " + " FROM " + metaData.getTableName());
-            ResultSet resultSet = null;
+            resultSet = null;
 
             if (preparedStatement.executeUpdate(sqlBuilder.toString(), Statement.RETURN_GENERATED_KEYS) > 0) {
                 // Get the rule object for returning using LAST_INSERT_ID() MySql function.
@@ -113,9 +120,11 @@ public class MysqlDataProvider implements IDataProvider {
                 ruleList = convertToRules(resultSet, metaData);
 
             }
-            close(resultSet, preparedStatement, connection);
+
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }finally {
+            close(resultSet, preparedStatement, connection);
         }
         if (ruleList != null && !ruleList.isEmpty()) {
             return ruleList.get(0);
@@ -168,11 +177,15 @@ public class MysqlDataProvider implements IDataProvider {
                 .append(oldRuleId);
 
         List<Rule> ruleList = new ArrayList<>();
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+
         try {
-            Connection connection = getConnection();
-            PreparedStatement preparedStatement =
+            connection = getConnection();
+            preparedStatement =
                     connection.prepareStatement(sqlBuilder.toString());
-            ResultSet resultSet = null;
+            resultSet = null;
             if (preparedStatement.executeUpdate() > 0) {
                 preparedStatement =
                         connection.prepareStatement("SELECT * FROM " + metaData.getTableName()
@@ -184,9 +197,10 @@ public class MysqlDataProvider implements IDataProvider {
 
 
             }
-            close(resultSet, preparedStatement, connection);
         } catch (Exception e) {
             throw new Exception(e);
+        }finally {
+            close(resultSet, preparedStatement, connection);
         }
 
         if (ruleList != null && !ruleList.isEmpty()) {
@@ -244,11 +258,15 @@ public class MysqlDataProvider implements IDataProvider {
 
     public RuleSystemMetaData loadRuleSystemMetaData(String ruleSystemName) throws Exception {
         RuleSystemMetaData metaData = null;
-        try {
-            Connection connection = getConnection();
 
-            Statement statement = connection.createStatement();
-            ResultSet resultSet =
+        Connection connection = null;
+        Statement statement = null;
+        ResultSet resultSet = null;
+
+        try {
+            connection = getConnection();
+            statement = connection.createStatement();
+            resultSet =
                     statement.executeQuery("SELECT * FROM rule_system WHERE name LIKE '" + ruleSystemName + "'");
 
             if (!resultSet.first()) {
@@ -261,10 +279,10 @@ public class MysqlDataProvider implements IDataProvider {
                     resultSet.getString("unique_id_column_name"),
                     resultSet.getString("output_column_name"),
                     getInputs(ruleSystemName));
-
-            close(resultSet, statement, connection);
         }catch (Exception e){
             throw new Exception(e);
+        }finally {
+            close(resultSet, statement, connection);
         }
 
         return metaData;
@@ -272,11 +290,14 @@ public class MysqlDataProvider implements IDataProvider {
 
     private List<RuleInputMetaData> getInputs(String ruleSystemName) throws SQLException, Exception {
         List<RuleInputMetaData> inputs = new ArrayList<>();
+        Connection connection = null;
+        Statement statement = null;
+        ResultSet resultSet = null;
 
         try {
-            Connection connection = getConnection();
-            Statement statement = connection.createStatement();
-            ResultSet resultSet =
+            connection = getConnection();
+            statement = connection.createStatement();
+            resultSet =
                     statement.executeQuery("SELECT b.* "
                             + "FROM rule_system AS a "
                             + "JOIN rule_input AS b "
@@ -298,10 +319,10 @@ public class MysqlDataProvider implements IDataProvider {
                         resultSet.getString("range_lower_bound_field_name"),
                         resultSet.getString("range_upper_bound_field_name")));
             }
-
-            close(resultSet, statement, connection);
         }catch (Exception e){
             throw new Exception(e);
+        }finally {
+            close(resultSet, statement, connection);
         }
 
         return inputs;
