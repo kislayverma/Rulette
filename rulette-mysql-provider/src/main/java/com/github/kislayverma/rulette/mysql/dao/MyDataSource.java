@@ -1,7 +1,5 @@
 package com.github.kislayverma.rulette.mysql.dao;
 
-import com.mchange.v2.c3p0.ComboPooledDataSource;
-import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -9,35 +7,32 @@ import java.sql.Statement;
 import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 
 /**
  *
  * @author kislay
  */
-public class DataSource {
+public class MyDataSource extends HikariDataSource{
 
     private Properties props;
-    private ComboPooledDataSource cpds;
-    private static DataSource datasource;
-    private static final Logger LOGGER = LoggerFactory.getLogger(DataSource.class);
+    private HikariConfig hikariConfig;
+    private static HikariDataSource datasource;
+    private static final Logger LOGGER = LoggerFactory.getLogger(MyDataSource.class);
 
-    private DataSource(String fileName) throws IOException, SQLException {
+    private MyDataSource(String fileName) throws IOException, SQLException {
         // load datasource properties
         props = Utils.readProperties(fileName);
-        cpds = new ComboPooledDataSource();
-        try {
-            cpds.setDriverClass(props.getProperty("driverClass"));
-        } catch (PropertyVetoException ex) {
-            throw new RuntimeException(ex);
-        }
-        cpds.setJdbcUrl(props.getProperty("jdbcUrl"));
-        cpds.setUser(props.getProperty("username"));
-        cpds.setPassword(props.getProperty("password"));
-        cpds.setInitialPoolSize(new Integer((String) props.getProperty("initialPoolSize")));
-        cpds.setAcquireIncrement(new Integer((String) props.getProperty("acquireIncrement")));
-        cpds.setMaxPoolSize(new Integer((String) props.getProperty("maxPoolSize")));
-        cpds.setMinPoolSize(new Integer((String) props.getProperty("minPoolSize")));
-        cpds.setMaxStatements(new Integer((String) props.getProperty("maxStatements")));
+        hikariConfig = new HikariConfig();
+
+        hikariConfig.setDriverClassName(props.getProperty("driverClass"));
+        hikariConfig.setJdbcUrl(props.getProperty("jdbcUrl"));
+        hikariConfig.setUsername(props.getProperty("username"));
+        hikariConfig.setPassword(props.getProperty("password"));
+        hikariConfig.setMaximumPoolSize(new Integer((String) props.getProperty("maxPoolSize")));
+
+        datasource = new HikariDataSource(hikariConfig);
 
         Connection testConnection = null;
         Statement testStatement = null;
@@ -45,10 +40,10 @@ public class DataSource {
         // test connectivity and initialize pool
         try {
             LOGGER.info("Testing DB connection...");
-            testConnection = cpds.getConnection();
+            testConnection = datasource.getConnection();
             testStatement = testConnection.createStatement();
             testStatement.executeQuery("select 1+1 from DUAL");
-            
+
             LOGGER.info("DB connection tested successfully.");
         } catch (SQLException e) {
             throw e;
@@ -64,7 +59,7 @@ public class DataSource {
         if (datasource == null) {
             loadDriverClass();
             LOGGER.debug("File name is " + fileName);
-            datasource = new DataSource(fileName);
+            new MyDataSource(fileName);
         }
     }
 
@@ -78,7 +73,7 @@ public class DataSource {
         }
     }
 
-    public static DataSource getInstance(String fileName) throws IOException, SQLException {
+    public static HikariDataSource getInstance(String fileName) throws IOException, SQLException {
         if (datasource == null) {
             init(fileName);
         }
@@ -87,6 +82,6 @@ public class DataSource {
     }
 
     public Connection getConnection() throws SQLException {
-        return this.cpds.getConnection();
+        return datasource.getConnection();
     }
 }
