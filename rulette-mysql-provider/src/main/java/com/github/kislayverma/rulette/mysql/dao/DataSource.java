@@ -14,17 +14,15 @@ import com.zaxxer.hikari.HikariDataSource;
  *
  * @author kislay
  */
-public class DataSource extends HikariDataSource{
+public class DataSource {
 
-    private Properties props;
-    private HikariConfig hikariConfig;
     private static HikariDataSource datasource;
     private static final Logger LOGGER = LoggerFactory.getLogger(DataSource.class);
 
     private DataSource(String fileName) throws IOException, SQLException {
         // load datasource properties
-        props = Utils.readProperties(fileName);
-        hikariConfig = new HikariConfig();
+        Properties props = Utils.readProperties(fileName);
+        HikariConfig hikariConfig = new HikariConfig();
 
         hikariConfig.setDriverClassName(props.getProperty("driverClass"));
         hikariConfig.setJdbcUrl(props.getProperty("jdbcUrl"));
@@ -79,9 +77,5 @@ public class DataSource extends HikariDataSource{
         }
 
         return datasource;
-    }
-
-    public Connection getConnection() throws SQLException {
-        return datasource.getConnection();
     }
 }
