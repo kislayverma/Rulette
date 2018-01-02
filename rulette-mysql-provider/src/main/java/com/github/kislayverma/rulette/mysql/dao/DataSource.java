@@ -29,6 +29,7 @@ public class DataSource {
         hikariConfig.setUsername(props.getProperty("username"));
         hikariConfig.setPassword(props.getProperty("password"));
         hikariConfig.setMaximumPoolSize(new Integer((String) props.getProperty("maxPoolSize")));
+        hikariConfig.setConnectionTimeout(new Long((String) props.getProperty("connectionTimeout")));
 
         datasource = new HikariDataSource(hikariConfig);
 
