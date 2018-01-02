@@ -73,7 +73,7 @@ public class DataSource {
     }
 
     public Connection getConnection() throws SQLException {
-        return hikariDatasource.getConnection();
+        return this.hikariDatasource.getConnection();
     }
 
     private HikariConfig getHikariConfig(String fileName) throws IOException {
