@@ -22,7 +22,7 @@ import com.github.kislayverma.rulette.core.metadata.RuleSystemMetaData;
 import com.github.kislayverma.rulette.core.rule.Rule;
 import com.github.kislayverma.rulette.core.ruleinput.type.RuleInputType;
 import com.github.kislayverma.rulette.core.ruleinput.value.DefaultDataType;
-import com.github.kislayverma.rulette.mysql.dao.MyDataSource;
+import com.github.kislayverma.rulette.mysql.dao.DataSource;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -44,11 +44,11 @@ public class MysqlDataProvider implements IDataProvider {
 
     public MysqlDataProvider(String datasourceUrl) throws IOException, SQLException {
         metaDataMap = new ConcurrentHashMap<>();
-        MyDataSource.init(datasourceUrl);
+        DataSource.init(datasourceUrl);
     }
 
     private Connection getConnection() throws SQLException, IOException {
-        return MyDataSource.getInstance(null).getConnection();
+        return DataSource.getInstance(null).getConnection();
     }
 
     @Override
