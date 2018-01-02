@@ -16,22 +16,14 @@ import com.zaxxer.hikari.HikariDataSource;
  */
 public class DataSource {
 
-    private static HikariDataSource datasource;
+    private static DataSource datasource;
+    private HikariDataSource hikariDatasource;
     private static final Logger LOGGER = LoggerFactory.getLogger(DataSource.class);
 
     private DataSource(String fileName) throws IOException, SQLException {
         // load datasource properties
-        Properties props = Utils.readProperties(fileName);
-        HikariConfig hikariConfig = new HikariConfig();
-
-        hikariConfig.setDriverClassName(props.getProperty("driverClass"));
-        hikariConfig.setJdbcUrl(props.getProperty("jdbcUrl"));
-        hikariConfig.setUsername(props.getProperty("username"));
-        hikariConfig.setPassword(props.getProperty("password"));
-        hikariConfig.setMaximumPoolSize(new Integer((String) props.getProperty("maxPoolSize")));
-        hikariConfig.setConnectionTimeout(new Long((String) props.getProperty("connectionTimeout")));
-
-        datasource = new HikariDataSource(hikariConfig);
+        HikariConfig hikariConfig = getHikariConfig(fileName);
+        hikariDatasource = new HikariDataSource(hikariConfig);
 
         Connection testConnection = null;
         Statement testStatement = null;
@@ -39,7 +31,7 @@ public class DataSource {
         // test connectivity and initialize pool
         try {
             LOGGER.info("Testing DB connection...");
-            testConnection = datasource.getConnection();
+            testConnection = hikariDatasource.getConnection();
             testStatement = testConnection.createStatement();
             testStatement.executeQuery("select 1+1 from DUAL");
 
@@ -58,7 +50,7 @@ public class DataSource {
         if (datasource == null) {
             loadDriverClass();
             LOGGER.debug("File name is " + fileName);
-            new DataSource(fileName);
+            datasource = new DataSource(fileName);
         }
     }
 
@@ -72,11 +64,29 @@ public class DataSource {
         }
     }
 
-    public static HikariDataSource getInstance(String fileName) throws IOException, SQLException {
+    public static DataSource getInstance(String fileName) throws IOException, SQLException {
         if (datasource == null) {
             init(fileName);
         }
 
         return datasource;
+    }
+
+    public Connection getConnection() throws SQLException {
+        return hikariDatasource.getConnection();
+    }
+
+    private HikariConfig getHikariConfig(String fileName) throws IOException {
+
+        Properties props = Utils.readProperties(fileName);
+        HikariConfig hikariConfig = new HikariConfig();
+        hikariConfig.setDriverClassName(props.getProperty("driverClass"));
+        hikariConfig.setJdbcUrl(props.getProperty("jdbcUrl"));
+        hikariConfig.setUsername(props.getProperty("username"));
+        hikariConfig.setPassword(props.getProperty("password"));
+        hikariConfig.setMaximumPoolSize(new Integer((String) props.getProperty("maxPoolSize")));
+        hikariConfig.setConnectionTimeout(new Long((String) props.getProperty("connectionTimeout")));
+
+        return hikariConfig;
     }
 }
