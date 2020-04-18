@@ -29,10 +29,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -45,6 +42,11 @@ public class MysqlDataProvider implements IDataProvider {
     public MysqlDataProvider(String datasourceUrl) throws IOException, SQLException {
         metaDataMap = new ConcurrentHashMap<>();
         DataSource.init(datasourceUrl);
+    }
+
+    public MysqlDataProvider(Properties props) throws IOException, SQLException {
+        metaDataMap = new ConcurrentHashMap<>();
+        DataSource.init(props);
     }
 
     private Connection getConnection() throws SQLException, IOException {
