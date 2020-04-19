@@ -5,6 +5,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
+
+import com.github.kislayverma.rulette.mysql.util.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.zaxxer.hikari.HikariConfig;
@@ -20,9 +22,43 @@ public class DataSource {
     private HikariDataSource hikariDatasource;
     private static final Logger LOGGER = LoggerFactory.getLogger(DataSource.class);
 
+    public static void init(String fileName) throws IOException, SQLException {
+        if (datasource == null) {
+            loadDriverClass();
+            LOGGER.debug("File name is " + fileName);
+            datasource = new DataSource(fileName);
+        }
+    }
+
+    public static void init(Properties props) throws IOException, SQLException {
+        if (datasource == null) {
+            loadDriverClass();
+            LOGGER.debug("Input properties " + props.toString());
+            datasource = new DataSource(props);
+        }
+    }
+
+    public static DataSource getInstance(String fileName) throws IOException, SQLException {
+        if (datasource == null) {
+            init(fileName);
+        }
+
+        return datasource;
+    }
+
+    public Connection getConnection() throws SQLException {
+        return this.hikariDatasource.getConnection();
+    }
+
     private DataSource(String fileName) throws IOException, SQLException {
-        // load datasource properties
-        HikariConfig hikariConfig = getHikariConfig(fileName);
+        this(Utils.getHikariConfig(fileName));
+    }
+
+    private DataSource(Properties props) throws IOException, SQLException {
+        this(Utils.getHikariConfig(props));
+    }
+
+    private DataSource(HikariConfig hikariConfig) throws SQLException {
         hikariDatasource = new HikariDataSource(hikariConfig);
 
         Connection testConnection = null;
@@ -46,14 +82,6 @@ public class DataSource {
         }
     }
 
-    public static void init(String fileName) throws IOException, SQLException {
-        if (datasource == null) {
-            loadDriverClass();
-            LOGGER.debug("File name is " + fileName);
-            datasource = new DataSource(fileName);
-        }
-    }
-
     // This will load the MySQL driver
     // Source of the copy-paste : http://www.vogella.com/articles/MySQLJava/article.html
     private static void loadDriverClass() {
@@ -62,31 +90,5 @@ public class DataSource {
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public static DataSource getInstance(String fileName) throws IOException, SQLException {
-        if (datasource == null) {
-            init(fileName);
-        }
-
-        return datasource;
-    }
-
-    public Connection getConnection() throws SQLException {
-        return this.hikariDatasource.getConnection();
-    }
-
-    private HikariConfig getHikariConfig(String fileName) throws IOException {
-
-        Properties props = Utils.readProperties(fileName);
-        HikariConfig hikariConfig = new HikariConfig();
-        hikariConfig.setDriverClassName(props.getProperty("driverClass"));
-        hikariConfig.setJdbcUrl(props.getProperty("jdbcUrl"));
-        hikariConfig.setUsername(props.getProperty("username"));
-        hikariConfig.setPassword(props.getProperty("password"));
-        hikariConfig.setMaximumPoolSize(new Integer((String) props.getProperty("maxPoolSize")));
-        hikariConfig.setConnectionTimeout(new Long((String) props.getProperty("connectionTimeout")));
-
-        return hikariConfig;
     }
 }
