@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.github.kislayverma</groupId>
         <artifactId>rulette</artifactId>
-        <version>1.3.1-SNAPSHOT</version>
+        <version>1.3.1</version>
     </parent>
 
     <groupId>com.github.kislayverma.rulette</groupId>
@@ -15,13 +15,13 @@
         <dependency>
             <groupId>com.github.kislayverma.rulette</groupId>
             <artifactId>rulette-engine</artifactId>
-            <version>1.3.1-SNAPSHOT</version>
+            <version>1.3.1</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.github.kislayverma.rulette</groupId>
             <artifactId>rulette-mysql-provider</artifactId>
-            <version>1.3.1-SNAPSHOT</version>
+            <version>1.3.1</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -51,8 +51,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -86,7 +86,7 @@
                     <linkXref>true</linkXref>
                     <sourceEncoding>utf-8</sourceEncoding>
                     <minimumTokens>100</minimumTokens>
-                    <targetJdk>1.7</targetJdk>
+                    <targetJdk>1.8</targetJdk>
                 </configuration>
             </plugin>
             <plugin>
@@ -186,7 +186,7 @@
                     <linkXref>true</linkXref>
                     <sourceEncoding>utf-8</sourceEncoding>
                     <minimumTokens>100</minimumTokens>
-                    <targetJdk>1.7</targetJdk>
+                    <targetJdk>1.8</targetJdk>
                 </configuration>
             </plugin>
         </plugins>
