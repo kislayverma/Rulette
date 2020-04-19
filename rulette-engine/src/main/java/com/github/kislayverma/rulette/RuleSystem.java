@@ -369,6 +369,20 @@ public class RuleSystem implements Serializable {
         return columnNames;
     }
 
+    /**
+     * this method returns the metadata corresponding to this rule system. A copy of the actual data is returned to
+     * preserve immutability of the original data.
+     * @return {@link RuleSystemMetaData} for this rule system
+     */
+    public RuleSystemMetaData getMetaData() throws Exception {
+        return new RuleSystemMetaData(
+            this.metaData.getRuleSystemName(),
+            this.metaData.getTableName(),
+            this.metaData.getUniqueIdColumnName(),
+            this.metaData.getUniqueOutputColumnName(),
+            this.metaData.getInputColumnList());
+    }
+
     /*
      * 1. Get rule system inputs from rule_system.rule_input table.
      * 2. Get rules from the table specified for this rule system in the
