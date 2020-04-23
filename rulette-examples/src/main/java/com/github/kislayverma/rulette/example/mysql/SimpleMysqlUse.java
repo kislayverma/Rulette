@@ -10,6 +10,8 @@ import java.util.Map;
 
 import com.github.kislayverma.rulette.mysql.MysqlDataProvider;
 import com.github.kislayverma.rulette.mysql.util.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * NOT FOR ACTUAL USE!!!
@@ -22,6 +24,7 @@ public class SimpleMysqlUse implements Serializable {
     private static final long serialVersionUID = 6001113209922696345L;
     private static final String PROPERTIES_FILE_PATH = "/Users/kislayv/rulette-datasource.properties";
     private static final String RULE_SYSTEM_NAME = "vat_rule_system";
+    private static final Logger LOGGER = LoggerFactory.getLogger(SimpleMysqlUse.class);
 
     public static void main(String[] args) throws Exception {
         SimpleMysqlUse example = new SimpleMysqlUse();
@@ -46,38 +49,69 @@ public class SimpleMysqlUse implements Serializable {
     }
 
     private void runSamples(RuleSystem rs) throws Exception {
+        // Print all column names
+        rs.getMetaData().getInputColumnList().forEach(r ->LOGGER.info(r.getName()));
+
         // Get rule by id
         Rule rule = rs.getRule("192");
-        System.out.println("Rule : " + rule.toString());
+        LOGGER.info("Rule : " + rule.toString());
 
         // Access values of all fields in a rule
         printRuleValues(rs, rule);
 
         // Get applicable rule for a map of rule inputs
-        System.out.println(rs.getRule(getEvaluationInput()));
+        LOGGER.info(rs.getRule(getEvaluationInput()).toString());
 
         // Get all applicable rules for a map of rule inputs
-        System.out.println(rs.getAllApplicableRules(getEvaluationInput()));
+        LOGGER.info(rs.getAllApplicableRules(getEvaluationInput()).toString());
+
+        // Add a dummy rule
+        LOGGER.info("==========Adding a dummy rule==========");
+        Map<String, String> inputMap = new HashMap<>();
+        rs.getMetaData().getInputColumnList().forEach(col -> {
+            if (col.getName().equals("source_state")) {
+                inputMap.put(col.getName(), "dummy");
+            } else if (col.getName().equals("mrp_threshold")) {
+                inputMap.put(col.getRangeLowerBoundFieldName(), "0");
+                inputMap.put(col.getRangeUpperBoundFieldName(), "100");
+            } else {
+                inputMap.put(col.getName(), "");
+            }
+        });
+        inputMap.put(rs.getMetaData().getUniqueOutputColumnName(), "4");
+        Rule allEmptyRule = rs.addRule(inputMap);
+        LOGGER.info("Added dummy rule : " + allEmptyRule);
+
+        // Delete dummy rule
+        LOGGER.info("==========Deleting the dummy rule==========");
+        rs.deleteRule(allEmptyRule.getId());
 
         // Add rule (adding an existing rule fails with a conflict)
-        rule = rs.addRule(rule);
+        LOGGER.info("==========Adding a conflicting rule==========");
+        try {
+            rule = rs.addRule(rule);
+        } catch (Exception e) {
+            LOGGER.error("Conflict in adding rule : " + e);
+        }
 
         // See which rules are conflicting
+        LOGGER.info("==========List conflicting rules==========");
         rs.getConflictingRules(rule).forEach(r -> {
-            System.out.println(r);
+            LOGGER.info(r.toString());
         });
 
         // Update a rule
+        LOGGER.info("==========Update a rule==========");
         updateRule(rs, "192");
     }
 
     // How to access all field values of given rule
     private void printRuleValues(RuleSystem rs, Rule rule) throws Exception {
-        System.out.println("Unique Input Column Value : " + rule.getColumnData(rs.getMetaData().getUniqueIdColumnName()));
+        LOGGER.info("Unique Input Column Value : " + rule.getColumnData(rs.getMetaData().getUniqueIdColumnName()));
         rs.getMetaData().getInputColumnList().forEach(col -> {
-            System.out.println(col.getName() + " : " + rule.getColumnData(col.getName()));
+            LOGGER.info(col.getName() + " : " + rule.getColumnData(col.getName()));
         });
-        System.out.println("Output Column Value : " + rule.getColumnData(rs.getMetaData().getUniqueOutputColumnName()));
+        LOGGER.info("Output Column Value : " + rule.getColumnData(rs.getMetaData().getUniqueOutputColumnName()));
     }
 
     private void updateRule(RuleSystem rs, String ruleId) throws Exception {
@@ -88,15 +122,15 @@ public class SimpleMysqlUse implements Serializable {
             .setColumnData("item_type", "30");
 
         newRule = rs.updateRule(oldRule, newRule);
-        printRuleValues(rs, newRule); // Returned rule has new values
+        LOGGER.info("Updated returned rule : " + newRule); // Returned rule has new values
         Rule updatedRule = rs.getRule(ruleId); // Stored rule has new values
-        printRuleValues(rs, updatedRule);
+        LOGGER.info("Updated rule in DB: " + updatedRule);
     }
 
     private  Map<String, String> getEvaluationInput() {
         Map<String, String> inputMap = new HashMap<>();
-        inputMap.put("item_type", "10");
-        inputMap.put("source_state", "DEL");
+        inputMap.put("item_type", "3");
+        inputMap.put("source_state", "WES");
         inputMap.put("mrp_threshold", "10000.00");
 
         return inputMap;
