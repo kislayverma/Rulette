@@ -23,6 +23,7 @@ import com.github.kislayverma.rulette.core.rule.Rule;
 import com.github.kislayverma.rulette.core.ruleinput.type.RuleInputType;
 import com.github.kislayverma.rulette.core.ruleinput.value.DefaultDataType;
 import com.github.kislayverma.rulette.mysql.dao.DataSource;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -86,9 +87,22 @@ public class MysqlDataProvider implements IDataProvider {
         StringBuilder valueListBuilder = new StringBuilder();
 
         for (RuleInputMetaData col : metaData.getInputColumnList()) {
-            nameListBuilder.append(col.getName()).append(",");
-            String val = rule.getColumnData(col.getName()).getRawValue();
-            valueListBuilder.append(val.isEmpty() ? null : "'" + val + "'").append(",");
+            if (RuleInputType.VALUE == col.getRuleInputType()) {
+                nameListBuilder.append(col.getName()).append(",");
+                String val = rule.getColumnData(col.getName()).getRawValue();
+                valueListBuilder.append(val.isEmpty() ? null : "'" + val + "'").append(",");
+            } else {
+                String[] values = rule.getColumnData(col.getName()).getRawValue().split("-");
+                // If the input is essentially empty, don't add it to the query
+                if (values.length > 1 && (!values[0].isEmpty() || !values[1].isEmpty())) {
+                    nameListBuilder
+                        .append(col.getRangeLowerBoundFieldName()).append(",")
+                        .append(col.getRangeUpperBoundFieldName()).append(",");
+                    valueListBuilder
+                        .append(values[0].trim().isEmpty() ? null : "'" + values[0] + "'").append(",")
+                        .append(values[1].trim().isEmpty() ? null : "'" + values[1] + "'").append(",");
+                }
+            }
         }
         nameListBuilder.append(metaData.getUniqueOutputColumnName()).append(",");
         valueListBuilder.append(rule.getColumnData(metaData.getUniqueOutputColumnName()).getRawValue()).append(",");
@@ -125,7 +139,7 @@ public class MysqlDataProvider implements IDataProvider {
 
         } catch (Exception e) {
             throw new RuntimeException(e);
-        }finally {
+        } finally {
             close(resultSet, preparedStatement, connection);
         }
         if (ruleList != null && !ruleList.isEmpty()) {
@@ -156,12 +170,27 @@ public class MysqlDataProvider implements IDataProvider {
         StringBuilder updateListBuilder = new StringBuilder();
 
         for (RuleInputMetaData col : metaData.getInputColumnList()) {
-            String val = rule.getColumnData(col.getName()).getRawValue();
-
-            updateListBuilder.append(col.getName())
+            if (RuleInputType.VALUE == col.getRuleInputType()) {
+                String val = rule.getColumnData(col.getName()).getRawValue();
+                updateListBuilder.append(col.getName())
                     .append("=")
-                    .append("".equals(val) ? null : "'" + val + "'")
+                    .append(val.trim().isEmpty() ? null : "'" + val + "'")
                     .append(",");
+            } else {
+                String[] values = rule.getColumnData(col.getName()).getRawValue().split("-");
+                // If the input is essentially empty, don't add it to the query
+                if (values.length > 1 && (!values[0].isEmpty() || !values[1].isEmpty())) {
+                    updateListBuilder
+                        .append(col.getRangeLowerBoundFieldName())
+                        .append("=")
+                        .append(values[0].trim().isEmpty() ? null : "'" + values[0] + "'")
+                        .append(",")
+                        .append(col.getRangeUpperBoundFieldName())
+                        .append("=")
+                        .append(values[1].trim().isEmpty() ? null : "'" + values[1] + "'")
+                        .append(",");
+                }
+            }
         }
         updateListBuilder.append(metaData.getUniqueOutputColumnName())
                 .append("=")
