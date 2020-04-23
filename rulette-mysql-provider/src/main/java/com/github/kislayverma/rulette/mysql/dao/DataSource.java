@@ -86,7 +86,7 @@ public class DataSource {
     // Source of the copy-paste : http://www.vogella.com/articles/MySQLJava/article.html
     private static void loadDriverClass() {
         try {
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
+            Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }

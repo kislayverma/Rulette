@@ -201,7 +201,7 @@ public class MysqlDataProvider implements IDataProvider {
             }
         } catch (Exception e) {
             throw new Exception(e);
-        }finally {
+        } finally {
             close(resultSet, preparedStatement, connection);
         }
 
