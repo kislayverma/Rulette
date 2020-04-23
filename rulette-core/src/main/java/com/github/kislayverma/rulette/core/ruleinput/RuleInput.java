@@ -18,8 +18,12 @@ public abstract class RuleInput implements Serializable {
         if (ruleInputType == RuleInputType.VALUE) {
             this.rawInput = (rangeLowerBound == null ? "" : rangeLowerBound);
         } else {
-            this.rawInput = (rangeLowerBound == null ? "" : rangeLowerBound) + "-" +
-                (rangeUpperBound == null ? "" : rangeUpperBound);
+            if (rangeLowerBound == null && rangeUpperBound == null) {
+                this.rawInput = "";
+            } else {
+                this.rawInput = (rangeLowerBound == null ? "" : rangeLowerBound) + "-" +
+                    (rangeUpperBound == null ? "" : rangeUpperBound);
+            }
         }
     }
 
