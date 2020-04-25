@@ -15,25 +15,30 @@ import org.slf4j.LoggerFactory;
 
 /**
  * NOT FOR ACTUAL USE!!!
- * This class shows how to initialize Rulette from a MySql store and its use.
+ * This class shows how to initialize Rulette from a MySql store and its use. It takes the path of a file containing
+ * MySQL data source properties (a sample file is in the resources folder of this module)
  *
  * @author Kislay Verma
  *
  */
 public class SimpleMysqlUse implements Serializable {
     private static final long serialVersionUID = 6001113209922696345L;
-    private static final String PROPERTIES_FILE_PATH = "/Users/kislayv/rulette-datasource.properties";
-    private static final String RULE_SYSTEM_NAME = "vat_rule_system";
+    private static final String RULE_SYSTEM_NAME = "tax_rule_system";
     private static final Logger LOGGER = LoggerFactory.getLogger(SimpleMysqlUse.class);
 
     public static void main(String[] args) throws Exception {
         SimpleMysqlUse example = new SimpleMysqlUse();
-        example.run();
+        if (args.length > 0) {
+            example.run(args[0]);
+        } else {
+            // Edit this and put your property file path here
+            example.run("/Users/kislayv/rulette-datasource.properties");
+        }
     }
 
-    public void run() throws Exception {
+    public void run(String configFilePath) throws Exception {
         // Create a rule system with a properties file
-        File f = new File(PROPERTIES_FILE_PATH);
+        File f = new File(configFilePath);
         IDataProvider dataProvider1 = new MysqlDataProvider(f.getPath());
         RuleSystem rs1 = new RuleSystem(RULE_SYSTEM_NAME, dataProvider1);
 
@@ -41,7 +46,7 @@ public class SimpleMysqlUse implements Serializable {
         runSamples(rs1);
 
         // Create a rule system with properties
-        IDataProvider dataProvider2 = new MysqlDataProvider(Utils.readProperties(PROPERTIES_FILE_PATH));
+        IDataProvider dataProvider2 = new MysqlDataProvider(Utils.readProperties(configFilePath));
         RuleSystem rs2 = new RuleSystem(RULE_SYSTEM_NAME, dataProvider2);
 
         // Run all sample usage
