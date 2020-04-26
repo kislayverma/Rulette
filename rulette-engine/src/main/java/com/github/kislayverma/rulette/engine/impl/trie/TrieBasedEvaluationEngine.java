@@ -130,6 +130,13 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
             }
         }
 
+        // A rule has already been added for the currently traversed rule path.
+        // This implies that the user rule input set has conflicting rules.
+        if (currNode.getRule() != null) {
+            throw new RuntimeException("The following existing rules conflict with "
+                    + "the given input : " + currNode.getRule());
+        }
+
         currNode.setRule(rule);
         this.allRules.put(rule.getId(), rule);
     }
