@@ -119,9 +119,11 @@ public class SimpleMysqlUse implements Serializable {
             LOGGER.info(r.toString());
         });
 
-        // Update a rule
-        LOGGER.info("==========Update a rule==========");
-        updateRule(rs, "192");
+        LOGGER.info("==========Update a value type input in a rule==========");
+        updateValueInput(rs, "192");
+
+        LOGGER.info("==========Update a range type input in a rule==========");
+        updateRangeInput(rs, "192");
     }
 
     // How to access all field values of given rule
@@ -133,12 +135,23 @@ public class SimpleMysqlUse implements Serializable {
         LOGGER.info("Output Column Value : " + rule.getColumnData(rs.getMetaData().getUniqueOutputColumnName()));
     }
 
-    private void updateRule(RuleSystem rs, String ruleId) throws RuleConflictException {
+    private void updateValueInput(RuleSystem rs, String ruleId) throws RuleConflictException {
         Rule oldRule = rs.getRule(ruleId);
-        Rule newRule = rs.getRule(ruleId);
-        newRule = newRule
-            .setColumnData("source_state", "PB")
-            .setColumnData("item_type", "30");
+        String newValue = (oldRule.getColumnData("source_state").getRawValue().equals("PB")) ? "WES" : "PB";
+        Rule newRule = oldRule.setColumnData("source_state", newValue);
+
+        newRule = rs.updateRule(oldRule, newRule);
+        LOGGER.info("Updated returned rule : " + newRule); // Returned rule has new values
+        Rule updatedRule = rs.getRule(ruleId); // Stored rule has new values
+        LOGGER.info("Updated rule in DB: " + updatedRule);
+    }
+
+    private void updateRangeInput(RuleSystem rs, String ruleId) throws RuleConflictException {
+        Rule oldRule = rs.getRule(ruleId);
+        Map<String, String> newValueMap = new HashMap<>();
+        newValueMap.put("min_mrp", "0");
+        newValueMap.put("max_mrp", "500");
+        Rule newRule = oldRule.setColumnData("mrp_threshold", newValueMap);
 
         newRule = rs.updateRule(oldRule, newRule);
         LOGGER.info("Updated returned rule : " + newRule); // Returned rule has new values
