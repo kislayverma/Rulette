@@ -2,6 +2,7 @@ package com.github.kislayverma.rulette.example.mysql;
 
 import com.github.kislayverma.rulette.RuleSystem;
 import com.github.kislayverma.rulette.core.exception.RuleConflictException;
+import com.github.kislayverma.rulette.core.metadata.RuleInputMetaData;
 import com.github.kislayverma.rulette.core.rule.Rule;
 import com.github.kislayverma.rulette.core.data.IDataProvider;
 import java.io.File;
@@ -59,6 +60,16 @@ public class SimpleMysqlUse implements Serializable {
     private void runSamples(RuleSystem rs) throws RuleConflictException {
         // Print all column names
         rs.getMetaData().getInputColumnList().forEach(r ->LOGGER.info(r.getName()));
+
+        // Get any rule input
+        RuleInputMetaData ruleInput = rs.getMetaData().getInputColumnList().get(0);
+        // Adding and deleting rule input
+        LOGGER.info("==========Deleting rule input : " + ruleInput.getName() +  "==========");
+        rs.deleteRuleInput(ruleInput.getName());
+        rs.reload();
+        LOGGER.info("==========Adding back the same rule input : " + ruleInput.getName() +  "==========");
+        rs.addRuleInput(ruleInput);
+        rs.reload();
 
         // Get rule by id
         Rule rule = rs.getRule("192");
