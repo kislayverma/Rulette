@@ -41,10 +41,6 @@ CREATE TABLE govt_tax_value (
   PRIMARY KEY (`id`)
 );
 
-GRANT ALL PRIVILEGES ON tax.* TO 'root'@'%';
-
-FLUSH PRIVILEGES;
-
 INSERT INTO rule_system 
   (`name`, `table_name`, `output_column_name`, `unique_id_column_name`)
 VALUES 

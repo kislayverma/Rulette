@@ -14,6 +14,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.github.kislayverma.rulette.core.ruleinput.type.RuleInputType;
 import com.github.kislayverma.rulette.core.util.RuletteInputProcessor;
 import com.github.kislayverma.rulette.engine.impl.trie.TrieBasedEvaluationEngine;
 import org.slf4j.Logger;
@@ -32,6 +33,7 @@ public class RuleSystem implements Serializable {
     private RuleSystemMetaData metaData;
     private IDataProvider dataProvider;
     private IEvaluationEngine evaluationEngine;
+    private final  RuleInputConfigurator inputConfig;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RuleSystem.class);
 
@@ -62,6 +64,7 @@ public class RuleSystem implements Serializable {
         throws RuleConflictException {
         long startTime = new Date().getTime();
         this.dataProvider = dataProvider;
+        this.inputConfig = inputConfig;
 
         initRuleSystem(ruleSystemName, dataProvider, inputConfig);
         long endTime = new Date().getTime();
@@ -359,13 +362,90 @@ public class RuleSystem implements Serializable {
             this.metaData.getInputColumnList());
     }
 
+    /**
+     * This method adds a new rule input to this rule system. The current rule system metadata and rules are not
+     * impacted and the reload() API must be called explicitly by the user to bring the new rule input into effect.
+     *
+     * @param ruleInput  The rule input definition to be added
+     */
+    public void addRuleInput(RuleInputMetaData ruleInput) {
+        if (ruleInput.getName() == null || ruleInput.getName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Undefined name for new rule input");
+        }
+        if (ruleInput.getName().equals(this.metaData.getUniqueIdColumnName()) ||
+            ruleInput.getName().equals(this.metaData.getUniqueOutputColumnName())) {
+            throw new IllegalArgumentException("A rule input with the same name already exists");
+        }
+        for (RuleInputMetaData inputColumn : this.metaData.getInputColumnList()) {
+            if (ruleInput.getName().equals(inputColumn.getName())) {
+                throw new IllegalArgumentException("A rule input with the same name already exists");
+            }
+        }
+        if (ruleInput.getRuleInputType() == null) {
+            throw new IllegalArgumentException("Undefined rule input type for new rule input");
+        }
+        if (ruleInput.getRuleInputType() == RuleInputType.RANGE &&
+            (ruleInput.getRangeLowerBoundFieldName() == null
+                || ruleInput.getRangeLowerBoundFieldName().trim().isEmpty()
+                || ruleInput.getRangeUpperBoundFieldName() == null
+                || ruleInput.getRangeUpperBoundFieldName().trim().isEmpty())) {
+            throw new IllegalArgumentException("New range input does not have upper and lower column names defined");
+        }
+        if (ruleInput.getDataType() == null || ruleInput.getDataType().trim().isEmpty()) {
+            throw new IllegalArgumentException("Undefined data type for new rule input");
+        }
+        for (RuleInputMetaData inputColumn : this.metaData.getInputColumnList()) {
+            if (ruleInput.getPriority() == inputColumn.getPriority()) {
+                throw new IllegalArgumentException("New rule input has the same priority as " + ruleInput.getName());
+            }
+        }
+
+        this.dataProvider.addRuleInput(this.metaData.getRuleSystemName(), ruleInput);
+    }
+
+    /**
+     * This method deletes the rule input of the given name from this rule system. The loaded rule system metadata and
+     * rules are not impacted and the reload() API must be called explicitly by the user to bring the new rule input
+     * into effect.
+     *
+     * @param ruleInputName The rule input definition to be deleted
+     */
+    public void deleteRuleInput(String ruleInputName) {
+        if (ruleInputName == null || ruleInputName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Undefined rule input name for deletion");
+        }
+        if (ruleInputName.equals(this.metaData.getUniqueIdColumnName()) ||
+            ruleInputName.equals(this.metaData.getUniqueOutputColumnName())) {
+            throw new IllegalArgumentException("Input and output columns cannot be deleted");
+        }
+        boolean columnFound = false;
+        for (RuleInputMetaData inputColumn : this.metaData.getInputColumnList()) {
+            if (ruleInputName.equals(inputColumn.getName())) {
+                columnFound = true;
+            }
+        }
+        if (!columnFound) {
+            throw new IllegalArgumentException("No input named " + ruleInputName + " found to delete");
+        }
+
+        this.dataProvider.deleteRuleInput(this.metaData.getRuleSystemName(), ruleInputName);
+    }
+
+    /**
+     * This method reloads the whole rule system by pulling fresh configuration and data from the data provider
+     * @throws RuleConflictException
+     */
+    public synchronized void reload() throws RuleConflictException {
+        initRuleSystem(this.metaData.getRuleSystemName(), this.dataProvider, this.inputConfig);
+    }
+
     /*
      * 1. Get rule system inputs from rule_system.rule_input table.
      * 2. Get rules from the table specified for this rule system in the
      *    rule_system..rule_system table
      */
     private void initRuleSystem(String ruleSystemName, IDataProvider dataProvider, RuleInputConfigurator inputConfig)
-    throws DataAccessException, RuleConflictException {
+        throws DataAccessException, RuleConflictException {
         this.metaData = dataProvider.getRuleSystemMetaData(ruleSystemName);
         this.metaData.applyCustomConfiguration(inputConfig);
 
