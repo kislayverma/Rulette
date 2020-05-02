@@ -65,4 +65,8 @@ class InputNumberValue implements IInputValue<Double>, Serializable {
         }
     }
 
+    @Override
+    public String toString() {
+        return this.value  == null ? "" : this.value.toString();
+    }
 }
