@@ -8,7 +8,7 @@ class InputNumberValue implements IInputValue<Double>, Serializable {
 
     private final Double value;
 
-    public InputNumberValue (String value) throws Exception {
+    public InputNumberValue (String value) {
         this.value = value == null || value.isEmpty() ? null : Double.parseDouble(value);
     }
 

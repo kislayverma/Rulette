@@ -3,6 +3,9 @@ package com.github.kislayverma.rulette.core.metadata;
 import com.github.kislayverma.rulette.core.ruleinput.type.RuleInputType;
 import java.io.Serializable;
 
+/**
+ * This class represents the rule input entity model
+ */
 public class RuleInputMetaData implements Serializable {
     private static final long serialVersionUID = 7018331311799000825L;
     private final String name;
@@ -13,8 +16,7 @@ public class RuleInputMetaData implements Serializable {
     private final String rangeUpperBoundFieldName;
 
     public RuleInputMetaData(String name, int priority, RuleInputType ruleType, String dataType,
-            String rangeLowerBoundFieldName, String rangeUpperBoundFieldName)
-            throws Exception {
+            String rangeLowerBoundFieldName, String rangeUpperBoundFieldName) {
         this.name = name;
         this.priority = priority;
         this.ruleInputType = ruleType;

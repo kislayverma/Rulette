@@ -17,21 +17,22 @@ package com.github.kislayverma.rulette.core.data;
 
 import com.github.kislayverma.rulette.core.metadata.RuleSystemMetaData;
 import com.github.kislayverma.rulette.core.rule.Rule;
-import java.sql.SQLException;
 import java.util.List;
 
 /**
+ * This is the interface between Rulette engine and the rule storage layer. The engine uses this API to access and
+ * modify rules in the storage medium.
  *
  * @author kislay.verma
  */
 public interface IDataProvider {
-    RuleSystemMetaData getRuleSystemMetaData(String ruleSystemName) throws Exception;
+    RuleSystemMetaData getRuleSystemMetaData(String ruleSystemName);
 
-    List<Rule> getAllRules(String ruleSystemName) throws SQLException, Exception;
+    List<Rule> getAllRules(String ruleSystemName);
 
-    Rule saveRule(String ruleSystemName, Rule rule) throws SQLException, Exception;
+    Rule saveRule(String ruleSystemName, Rule rule);
 
-    boolean deleteRule(String ruleSystemName, Rule rule) throws SQLException, Exception;
+    boolean deleteRule(String ruleSystemName, Rule rule);
 
-    Rule updateRule(String ruleSystemName, Rule rule) throws SQLException, Exception;
+    Rule updateRule(String ruleSystemName, Rule rule);
 }

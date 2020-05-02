@@ -1,10 +1,13 @@
 package com.github.kislayverma.rulette.example.mysql;
 
 import com.github.kislayverma.rulette.RuleSystem;
+import com.github.kislayverma.rulette.core.exception.RuleConflictException;
 import com.github.kislayverma.rulette.core.rule.Rule;
 import com.github.kislayverma.rulette.core.data.IDataProvider;
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,7 +29,7 @@ public class SimpleMysqlUse implements Serializable {
     private static final String RULE_SYSTEM_NAME = "tax_rule_system";
     private static final Logger LOGGER = LoggerFactory.getLogger(SimpleMysqlUse.class);
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws RuleConflictException, SQLException, IOException {
         SimpleMysqlUse example = new SimpleMysqlUse();
         if (args.length > 0) {
             example.run(args[0]);
@@ -36,7 +39,7 @@ public class SimpleMysqlUse implements Serializable {
         }
     }
 
-    public void run(String configFilePath) throws Exception {
+    public void run(String configFilePath) throws IOException, SQLException, RuleConflictException {
         // Create a rule system with a properties file
         File f = new File(configFilePath);
         IDataProvider dataProvider1 = new MysqlDataProvider(f.getPath());
@@ -53,7 +56,7 @@ public class SimpleMysqlUse implements Serializable {
         runSamples(rs2);
     }
 
-    private void runSamples(RuleSystem rs) throws Exception {
+    private void runSamples(RuleSystem rs) throws RuleConflictException {
         // Print all column names
         rs.getMetaData().getInputColumnList().forEach(r ->LOGGER.info(r.getName()));
 
@@ -111,7 +114,7 @@ public class SimpleMysqlUse implements Serializable {
     }
 
     // How to access all field values of given rule
-    private void printRuleValues(RuleSystem rs, Rule rule) throws Exception {
+    private void printRuleValues(RuleSystem rs, Rule rule) {
         LOGGER.info("Unique Input Column Value : " + rule.getColumnData(rs.getMetaData().getUniqueIdColumnName()));
         rs.getMetaData().getInputColumnList().forEach(col -> {
             LOGGER.info(col.getName() + " : " + rule.getColumnData(col.getName()));
@@ -119,7 +122,7 @@ public class SimpleMysqlUse implements Serializable {
         LOGGER.info("Output Column Value : " + rule.getColumnData(rs.getMetaData().getUniqueOutputColumnName()));
     }
 
-    private void updateRule(RuleSystem rs, String ruleId) throws Exception {
+    private void updateRule(RuleSystem rs, String ruleId) throws RuleConflictException {
         Rule oldRule = rs.getRule(ruleId);
         Rule newRule = rs.getRule(ruleId);
         newRule = newRule

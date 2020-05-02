@@ -11,7 +11,7 @@ public class RangeInput extends RuleInput implements Serializable {
     private final IInputValue lowerBound;
     private final IInputValue upperBound;
 
-    public RangeInput(String name, int priority, String inputDataType, String lowerBound, String upperBound) throws Exception {
+    public RangeInput(String name, int priority, String inputDataType, String lowerBound, String upperBound) {
         super(name, priority, RuleInputType.RANGE, inputDataType, lowerBound, upperBound);
 
         this.lowerBound = RuleInputValueFactory.getInstance().buildRuleInputVaue(name, lowerBound == null ? "" : lowerBound);
@@ -19,12 +19,13 @@ public class RangeInput extends RuleInput implements Serializable {
         // If upper bound is open, the compareTo evaluates will be > 0, but it is actually 
         // legit (being an open range to infinity
         if (!this.lowerBound.isEmpty() && !this.upperBound.isEmpty() && this.lowerBound.compareTo(upperBound) > 0) {
-            throw new Exception("Lower bound greater than upper bound for field : " + this.metaData.getName());
+            throw new IllegalArgumentException(
+                "Lower bound greater than upper bound for field : " + this.metaData.getName());
         }
     }
 
     @Override
-    public boolean evaluate(String value) throws Exception {
+    public boolean evaluate(String value) {
         if (this.isAny()) {
             // Everything matches 'Any'
             return true;
@@ -39,14 +40,13 @@ public class RangeInput extends RuleInput implements Serializable {
             } else {
                 return false;
             }
-//            return (lowerBound.compareTo(value) <= 0 && upperBound.compareTo(value) >= 0);
         }
     }
 
     @Override
-    public boolean isConflicting(RuleInput input) throws Exception {
+    public boolean isConflicting(RuleInput input) {
         if (!input.getRuleInputDataType().equals(this.getRuleInputDataType())) {
-            throw new Exception("Compared rule inputs '" + this.getName() + "' and '"
+            throw new IllegalArgumentException("Compared rule inputs '" + this.getName() + "' and '"
                     + input.getName() + "' are not the same type.");
         }
 
@@ -70,7 +70,7 @@ public class RangeInput extends RuleInput implements Serializable {
     }
 
     @Override
-    public int isBetterFit(RuleInput input) throws Exception {
+    public int isBetterFit(RuleInput input) {
         // If both are 'Any', then they are the same.
         // If the other input is 'Any', this input can only be equal or better, never worse.
         // And vice-versa.

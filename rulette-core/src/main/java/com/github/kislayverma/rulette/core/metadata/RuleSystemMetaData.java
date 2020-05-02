@@ -7,6 +7,9 @@ import com.github.kislayverma.rulette.core.ruleinput.value.DefaultDataType;
 import com.github.kislayverma.rulette.core.ruleinput.value.defaults.DefaultBuilderRegistry;
 import java.util.List;
 
+/**
+ * This class represents the rule systems entity model.
+ */
 public class RuleSystemMetaData {
     private final DefaultBuilderRegistry BUILDER_REGISTRY = new DefaultBuilderRegistry();
 
@@ -17,7 +20,11 @@ public class RuleSystemMetaData {
     private final String uniqueOutputColumnName;
 
     public RuleSystemMetaData(
-            String ruleSystemName, String tableName, String uniqueIdColName, String uniqueOutputColName, List<RuleInputMetaData> inputs) throws Exception {
+            String ruleSystemName,
+            String tableName,
+            String uniqueIdColName,
+            String uniqueOutputColName,
+            List<RuleInputMetaData> inputs) {
         this.ruleSystemName = ruleSystemName;
         this.tableName = tableName;
         this.uniqueIdColumnName = uniqueIdColName;
@@ -31,9 +38,8 @@ public class RuleSystemMetaData {
      * Input and output columns always get default configuration.
      * 
      * @param configuration Custom configuration for rule inputs
-     * @throws Exception on failure to register rule input configuration
      */
-    public void applyCustomConfiguration(RuleInputConfigurator configuration) throws Exception {
+    public void applyCustomConfiguration(RuleInputConfigurator configuration) {
         RuleInputValueFactory.getInstance().registerRuleInputBuilder(
             this.uniqueIdColumnName, BUILDER_REGISTRY.getDefaultBuilder(DefaultDataType.STRING.name()));
         RuleInputValueFactory.getInstance().registerRuleInputBuilder(
