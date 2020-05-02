@@ -213,7 +213,7 @@ public class RuleSystem implements Serializable {
             }
 
             if (otherOverlappingRules) {
-                throw new RuntimeException("The following existing rules conflict with "
+                throw new RuleConflictException("The following existing rules conflict with "
                         + "the given input : " + overlappingRules);
             }
         }
