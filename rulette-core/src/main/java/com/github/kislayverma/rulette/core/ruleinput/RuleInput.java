@@ -11,7 +11,7 @@ public abstract class RuleInput implements Serializable {
     protected String rawInput;
 
     protected RuleInput(String name, int priority, RuleInputType ruleInputType, 
-        String inputDataType, String rangeLowerBound, String rangeUpperBound) throws Exception {
+        String inputDataType, String rangeLowerBound, String rangeUpperBound) {
 
         this.metaData = new RuleInputMetaData(
             name, priority, ruleInputType, inputDataType, rangeLowerBound, rangeUpperBound);
@@ -33,9 +33,8 @@ public abstract class RuleInput implements Serializable {
      * 'Any' or the value should fall within the defined range of the input.
      * @param value The value to compare against this input
      * @return true if the value matches the input definition, false otherwise
-     * @throws Exception on any error in evaluation
      */
-    public abstract boolean evaluate(String value) throws Exception;
+    public abstract boolean evaluate(String value);
 
     /**
      * This method determines if this rule input conflicts with the given input. For value inputs,
@@ -44,9 +43,8 @@ public abstract class RuleInput implements Serializable {
      * contained within the other.
      * @param input The rule input to compare with
      * @return true if inputs are conflicting
-     * @throws Exception on any error in evaluation
      */
-    public abstract boolean isConflicting(RuleInput input) throws Exception;
+    public abstract boolean isConflicting(RuleInput input);
 
     /**
      * This method is used to determine if this rule input is a better than the given rule input
@@ -56,9 +54,8 @@ public abstract class RuleInput implements Serializable {
      * @return 0 if both input are identical in fit
      *         1 if this input is a better fit
      *         -1 if this input is not the better fit
-     * @throws Exception on any error in evaluation
      */
-    public abstract int isBetterFit(RuleInput input) throws Exception;
+    public abstract int isBetterFit(RuleInput input);
 
     public final String getRawValue() {
         return this.rawInput;
@@ -92,9 +89,8 @@ public abstract class RuleInput implements Serializable {
      * 
      * @param otherInput The rule input to compare against
      * @return true if this and the given inputs are exactly same, false otherwise
-     * @throws Exception on error in evaluation
      */
-    public abstract boolean equals(RuleInput otherInput) throws Exception;
+    public abstract boolean equals(RuleInput otherInput);
 
     @Override
     public String toString() {

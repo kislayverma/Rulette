@@ -2,6 +2,8 @@ package com.github.kislayverma.rulette;
 
 import com.github.kislayverma.rulette.core.data.IDataProvider;
 import com.github.kislayverma.rulette.core.engine.IEvaluationEngine;
+import com.github.kislayverma.rulette.core.exception.DataAccessException;
+import com.github.kislayverma.rulette.core.exception.RuleConflictException;
 import com.github.kislayverma.rulette.core.metadata.RuleSystemMetaData;
 import com.github.kislayverma.rulette.core.rule.Rule;
 import com.github.kislayverma.rulette.core.ruleinput.RuleInputConfigurator;
@@ -21,14 +23,6 @@ import org.slf4j.LoggerFactory;
  * This class models a rule-system comprising of rules and provides appropriate
  * APIs to interact with it.
  * 
- * <b>Sample usage</b>
- * <pre>
- * <code>
- * RuleSystem rs = new RuleSystem("rule system name");
- * Rule r = rs.getRule(25L);
- * </code>
- * </pre>
- *
  * @author Kislay Verma
  *
  */
@@ -47,10 +41,10 @@ public class RuleSystem implements Serializable {
      * and no custom data types will be supported.
      * 
      * @param ruleSystemName Name of the rule system to be instantiated
-     * @param dataProvider
-     * @throws Exception on rule system initialization failure
+     * @param dataProvider An {@link IDataProvider} to load rules from
+
      */
-    public RuleSystem(String ruleSystemName, IDataProvider dataProvider) throws Exception {
+    public RuleSystem(String ruleSystemName, IDataProvider dataProvider) throws RuleConflictException {
         this(ruleSystemName, dataProvider, null);
     }
 
@@ -61,28 +55,17 @@ public class RuleSystem implements Serializable {
      * type will be supported only if appropriate configuration is provided.
      * 
      * @param ruleSystemName Name of the rule system to be instantiated
-     * @param dataProvider
+     * @param dataProvider An {@link IDataProvider} to load rules from
      * @param inputConfig Configuration to support custom data types and behaviour for rule inputs
-     * @throws Exception if rule system could not be initialized
      */
-    public RuleSystem(String ruleSystemName, IDataProvider dataProvider, RuleInputConfigurator inputConfig) throws Exception {
+    public RuleSystem(String ruleSystemName, IDataProvider dataProvider, RuleInputConfigurator inputConfig)
+        throws RuleConflictException {
         long startTime = new Date().getTime();
         this.dataProvider = dataProvider;
 
         initRuleSystem(ruleSystemName, dataProvider, inputConfig);
         long endTime = new Date().getTime();
         LOGGER.info("Time taken to initialize rule system : " + (endTime - startTime) + " ms.");
-    }
-
-    public Rule createRuleObject(Map<String, String> inputMap) throws Exception {
-        if (inputMap == null) {
-            throw new Exception("No input for creating rule object");
-        }
-        if (!inputMap.containsKey(metaData.getUniqueOutputColumnName())) {
-            throw new Exception("Value for rule output not provided");
-        }
-
-        return new Rule(metaData, inputMap);
     }
 
     /**
@@ -97,9 +80,8 @@ public class RuleSystem implements Serializable {
      * This method returns a list of all the rules in the rule system.
      * @param inputMap map of rule input values for which applicable rules are to be returned
      * @return List of all rules applicable to the given input
-     * @throws java.lang.Exception if rule evaluation fails
      */
-    public List<Rule> getAllApplicableRules(Map<String, String> inputMap) throws Exception {
+    public List<Rule> getAllApplicableRules(Map<String, String> inputMap) {
         return evaluationEngine.getAllApplicableRules(inputMap);
     }
 
@@ -111,9 +93,9 @@ public class RuleSystem implements Serializable {
      * values
      * @return null if input is null, null if no rule is applicable for the
      * given input combination the applicable rule otherwise.
-     * @throws java.lang.Exception on rule evaluation error
+     * @throws java.lang.IllegalAccessException if rule inputs cannot be accessed on the object
      */
-    public Rule getRule(Object request) throws Exception {
+    public Rule getRule(Object request) throws IllegalAccessException {
         Map<String, String> inputMap = RuletteInputProcessor.generateInputMap(request);
         return evaluationEngine.getRule(inputMap);
     }
@@ -126,9 +108,8 @@ public class RuleSystem implements Serializable {
      * values
      * @return null if input is null, null if no rule is applicable for the
      * given input combination the applicable rule otherwise.
-     * @throws java.lang.Exception on rule evaluation error
      */
-    public Rule getRule(Map<String, String> inputMap) throws Exception {
+    public Rule getRule(Map<String, String> inputMap) {
         return evaluationEngine.getRule(inputMap);
     }
 
@@ -152,9 +133,9 @@ public class RuleSystem implements Serializable {
      * @return the added rule if there are no overlapping rules null if there
      * are overlapping rules null if the input constitutes an invalid rule as
      * per the validation policy in use.
-     * @throws Exception on failure
+     * @throws RuleConflictException if the rule to be added is a conflicting rule
      */
-    public Rule addRule(Map<String, String> inputMap) throws Exception {
+    public Rule addRule(Map<String, String> inputMap) throws RuleConflictException {
         if (inputMap == null) {
             return null;
         }
@@ -170,9 +151,9 @@ public class RuleSystem implements Serializable {
      * @return the added rule if there are no overlapping rules null if there
      * are overlapping rules null if the input constitutes an invalid rule as
      * per the validation policy in use.
-     * @throws Exception on failure
+     * @throws RuleConflictException if the rule to be added is a conflicting rule
      */
-    public Rule addRule(Rule newRule) throws Exception {
+    public Rule addRule(Rule newRule) throws RuleConflictException {
         if (newRule == null) {
             return null;
         }
@@ -191,7 +172,7 @@ public class RuleSystem implements Serializable {
 
             return newRule;
         } else {
-            throw new RuntimeException("The following existing rules conflict with "
+            throw new RuleConflictException("The following existing rules conflict with "
                     + "the given input : " + overlappingRules);
         }
     }
@@ -206,10 +187,9 @@ public class RuleSystem implements Serializable {
      * rule will be updated.
      * @return the updated rule if update creates no conflict. null if the input
      * constitutes an invalid rule as per the validation policy in use.
-     * @throws Exception if there are overlapping rules if the old rules does
-     * not actually exist.
+     * @throws RuleConflictException if the updated rule is a conflicting rule
      */
-    public Rule updateRule(Rule oldRule, Rule newRule) throws Exception {
+    public Rule updateRule(Rule oldRule, Rule newRule) throws RuleConflictException {
         if (oldRule == null || newRule == null) {
             return null;
         }
@@ -217,7 +197,7 @@ public class RuleSystem implements Serializable {
         String oldRuleId = oldRule.getId();
         Rule checkForOldRule = this.getRule(oldRuleId);
         if (checkForOldRule == null) {
-            throw new Exception("No existing rule with id " + oldRuleId);
+            throw new IllegalArgumentException("No existing rule with id " + oldRuleId);
         }
 
         List<Rule> overlappingRules = getConflictingRules(newRule);
@@ -251,9 +231,8 @@ public class RuleSystem implements Serializable {
      * @return true if the rule with given rule id was successfully deleted
      * false if the given rule does not exist false if the given rule could not
      * be deleted (for whatever reason).
-     * @throws Exception on error in deleting rule
      */
-    public boolean deleteRule(String ruleId) throws Exception {
+    public boolean deleteRule(String ruleId) {
         if (ruleId != null) {
             Rule rule = getRule(ruleId);
             return deleteRule(rule);
@@ -269,9 +248,8 @@ public class RuleSystem implements Serializable {
      * @return true if the given rule was successfully deleted false if the
      * given rule does not exist false if the given rule could not be deleted
      * (for whatever reason).
-     * @throws Exception on failure
      */
-    public boolean deleteRule(Rule rule) throws Exception {
+    public boolean deleteRule(Rule rule) {
         if (rule == null) {
             return false;
         }
@@ -290,9 +268,8 @@ public class RuleSystem implements Serializable {
      *
      * @param rule {@link Rule} object
      * @return List of conflicting rules if any, empty list otherwise.
-     * @throws Exception on rule evaluation failure
      */
-    public List<Rule> getConflictingRules(Rule rule) throws Exception {
+    public List<Rule> getConflictingRules(Rule rule) {
         if (rule == null) {
             return null;
         }
@@ -317,9 +294,8 @@ public class RuleSystem implements Serializable {
      * applicable rule is deleted. null if no rule is applicable after the
      * currently applicable rule is deleted. null id no rule is currently
      * applicable.
-     * @throws java.lang.Exception on rule evaluation failure
      */
-    public Rule getNextApplicableRule(Map<String, String> inputMap) throws Exception {
+    public Rule getNextApplicableRule(Map<String, String> inputMap) {
         return evaluationEngine.getNextApplicableRule(inputMap);
     }
 
@@ -374,7 +350,7 @@ public class RuleSystem implements Serializable {
      * preserve immutability of the original data.
      * @return {@link RuleSystemMetaData} for this rule system
      */
-    public RuleSystemMetaData getMetaData() throws Exception {
+    public RuleSystemMetaData getMetaData() {
         return new RuleSystemMetaData(
             this.metaData.getRuleSystemName(),
             this.metaData.getTableName(),
@@ -388,7 +364,8 @@ public class RuleSystem implements Serializable {
      * 2. Get rules from the table specified for this rule system in the
      *    rule_system..rule_system table
      */
-    private void initRuleSystem(String ruleSystemName, IDataProvider dataProvider, RuleInputConfigurator inputConfig) throws Exception {
+    private void initRuleSystem(String ruleSystemName, IDataProvider dataProvider, RuleInputConfigurator inputConfig)
+    throws DataAccessException, RuleConflictException {
         this.metaData = dataProvider.getRuleSystemMetaData(ruleSystemName);
         this.metaData.applyCustomConfiguration(inputConfig);
 

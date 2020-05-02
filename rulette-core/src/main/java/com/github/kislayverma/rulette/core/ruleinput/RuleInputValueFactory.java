@@ -26,11 +26,11 @@ public class RuleInputValueFactory {
         return INSTANCE;
     }
 
-    public IInputValue buildRuleInputVaue(String ruleInputName, String rawValue) throws Exception {
+    public IInputValue buildRuleInputVaue(String ruleInputName, String rawValue) {
 
         IInputValueBuilder builder = builderMap.get(ruleInputName);
         if (builder == null) {
-            throw new RuntimeException("No input value builder registered for input " + ruleInputName);
+            throw new IllegalArgumentException("No input value builder registered for input " + ruleInputName);
         } else {
             return builder.build(rawValue);
         }

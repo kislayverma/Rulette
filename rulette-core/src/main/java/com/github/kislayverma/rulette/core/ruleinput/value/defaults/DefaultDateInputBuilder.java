@@ -7,7 +7,7 @@ import java.util.Date;
 public class DefaultDateInputBuilder implements IInputValueBuilder<Date>{
 
     @Override
-    public IInputValue<Date> build(String value) throws Exception {
+    public IInputValue<Date> build(String value) {
         return new InputDateValue(value);
     }
 }

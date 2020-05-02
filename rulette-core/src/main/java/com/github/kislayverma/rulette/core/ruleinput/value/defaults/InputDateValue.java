@@ -13,7 +13,7 @@ class InputDateValue implements IInputValue<Date>, Serializable {
     private final Date value;
     private static final DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
 
-    public InputDateValue (String value) throws Exception {
+    public InputDateValue (String value) {
         this.value = value == null || value.isEmpty() ? null : formatter.parseDateTime(value).toDate();
     }
 
@@ -28,7 +28,7 @@ class InputDateValue implements IInputValue<Date>, Serializable {
     }
 
     @Override
-    public int compareTo(String obj) throws ParseException {
+    public int compareTo(String obj) {
         return this.value.compareTo(formatter.parseDateTime(obj).toDate());
     }
 

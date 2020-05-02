@@ -1,5 +1,6 @@
 package com.github.kislayverma.rulette.core.engine;
 
+import com.github.kislayverma.rulette.core.exception.RuleConflictException;
 import com.github.kislayverma.rulette.core.rule.Rule;
 import java.util.List;
 import java.util.Map;
@@ -33,10 +34,8 @@ public interface IEvaluationEngine {
      * values
      * @return null if input is null, null if no rule is applicable for the
      * given input combination the applicable rule otherwise.
-     * 
-     * @throws java.lang.Exception on rule evaluation error
      */
-    Rule getRule(Map<String, String> inputMap) throws Exception;
+    Rule getRule(Map<String, String> inputMap);
 
     /**
      * This method returns all rules applicable for the given combination of rule
@@ -46,10 +45,8 @@ public interface IEvaluationEngine {
      * values
      * @return null if input is null, null if no rule is applicable for the
      * given input combination the applicable rule otherwise.
-     * 
-     * @throws java.lang.Exception on rule evaluation error
      */
-    List<Rule> getAllApplicableRules(Map<String, String> inputMap) throws Exception;
+    List<Rule> getAllApplicableRules(Map<String, String> inputMap);
 
     /**
      * This method returns the next rule that will be applicable to the inputs
@@ -61,12 +58,10 @@ public interface IEvaluationEngine {
      * applicable rule is deleted. null if no rule is applicable after the
      * currently applicable rule is deleted. null id no rule is currently
      * applicable.
-     * 
-     * @throws java.lang.Exception on rule evaluation error
      */
-    Rule getNextApplicableRule(Map<String, String> inputMap) throws Exception;
+    Rule getNextApplicableRule(Map<String, String> inputMap);
 
-    void addRule(Rule rule) throws Exception;
+    void addRule(Rule rule) throws RuleConflictException;
 
-    void deleteRule(Rule rule) throws Exception;
+    void deleteRule(Rule rule);
 }

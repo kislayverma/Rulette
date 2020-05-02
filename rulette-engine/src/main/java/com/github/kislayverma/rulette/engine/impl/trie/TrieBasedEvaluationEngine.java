@@ -1,6 +1,7 @@
 package com.github.kislayverma.rulette.engine.impl.trie;
 
 import com.github.kislayverma.rulette.core.engine.IEvaluationEngine;
+import com.github.kislayverma.rulette.core.exception.RuleConflictException;
 import com.github.kislayverma.rulette.core.metadata.RuleSystemMetaData;
 import com.github.kislayverma.rulette.core.rule.Rule;
 import com.github.kislayverma.rulette.core.metadata.RuleInputMetaData;
@@ -36,11 +37,11 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
     private final Node root;
     private static final Logger LOGGER = LoggerFactory.getLogger(TrieBasedEvaluationEngine.class);
 
-    public TrieBasedEvaluationEngine(RuleSystemMetaData metaData) throws Exception {
+    public TrieBasedEvaluationEngine(RuleSystemMetaData metaData) throws RuleConflictException {
         this(metaData, null);
     }
 
-    public TrieBasedEvaluationEngine(RuleSystemMetaData metaData, List<Rule> rules) throws Exception {
+    public TrieBasedEvaluationEngine(RuleSystemMetaData metaData, List<Rule> rules) throws RuleConflictException {
         this.metaData = metaData;
         if (this.metaData.getInputColumnList().get(0).getRuleInputType().equals(RuleInputType.VALUE)) {
             this.root = new ValueNode(this.metaData.getInputColumnList().get(0).getName());
@@ -70,7 +71,7 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
     }
 
     @Override
-    public Rule getRule(Map<String, String> inputMap) throws Exception {
+    public Rule getRule(Map<String, String> inputMap) {
         List<Rule> eligibleRules = getAllApplicableRules(inputMap);
         if (eligibleRules != null && !eligibleRules.isEmpty()) {
             List<Rule> filteredRules = filterAllApplicableRules(eligibleRules, inputMap);
@@ -83,7 +84,7 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
     }
 
     @Override
-    public Rule getNextApplicableRule(Map<String, String> inputMap) throws Exception {
+    public Rule getNextApplicableRule(Map<String, String> inputMap) {
         List<Rule> eligibleRules = getAllApplicableRules(inputMap);
 
         if (eligibleRules != null && eligibleRules.size() > 1) {
@@ -97,7 +98,7 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
     }
 
     @Override
-    public void addRule(Rule rule) throws Exception {
+    public void addRule(Rule rule) throws RuleConflictException {
         Node currNode = this.root;
         for (int i = 0; i < metaData.getInputColumnList().size(); i++) {
             RuleInputMetaData currInput = metaData.getInputColumnList().get(i);
@@ -134,7 +135,7 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
     }
 
     @Override
-    public void deleteRule(Rule rule) throws Exception {
+    public void deleteRule(Rule rule) {
         // Delete the rule from the map
         this.allRules.remove(rule.getId());
 
@@ -154,7 +155,7 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
 
         if (!currNode.getRule().getColumnData(metaData.getUniqueIdColumnName()).equals(
                 rule.getColumnData(metaData.getUniqueIdColumnName()))) {
-            throw new Exception("The rule to be deleted and the rule found are not the same."
+            throw new IllegalStateException("The rule to be deleted and the rule found are not the same."
                     + "Something went horribly wrong");
         }
 
@@ -176,7 +177,7 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
         }
     }
     @Override
-    public List<Rule> getAllApplicableRules(Map<String, String> inputMap) throws Exception {
+    public List<Rule> getAllApplicableRules(Map<String, String> inputMap) {
         if (inputMap != null) {
             Queue<Node> nodeQueue = new LinkedList<>();
             nodeQueue.add(root);
@@ -213,7 +214,7 @@ public class TrieBasedEvaluationEngine implements IEvaluationEngine {
         return null;
     }
 
-    private List<Rule> filterAllApplicableRules(List<Rule> applicableRules, Map<String, String> inputMap) throws Exception {
+    private List<Rule> filterAllApplicableRules(List<Rule> applicableRules, Map<String, String> inputMap) {
         List<Rule> remainingRules = new ArrayList<>();
         for (Rule applicableRule : applicableRules) {
             if (applicableRule.evaluate(inputMap)) {
