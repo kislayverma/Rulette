@@ -15,9 +15,9 @@ public abstract class Node {
 
 	public abstract void removeChildNode(RuleInput ruleInput);
 
-	public abstract List<Node> getNodes(String value, boolean getAnyValue) throws Exception;
+	public abstract List<Node> getNodes(String value, boolean getAnyValue);
 
-	public abstract List<Node> getNodesForAddingRule(RuleInput ruleInput) throws Exception;
+	public abstract List<Node> getNodesForAddingRule(RuleInput ruleInput);
 
     public abstract int getCount();
 

@@ -8,7 +8,7 @@ class InputStringValue implements IInputValue<String>, Serializable {
 
     private final String value;
 
-    public InputStringValue (String value) throws Exception {
+    public InputStringValue (String value) {
         this.value = value;
     }
 

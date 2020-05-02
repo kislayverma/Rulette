@@ -10,13 +10,13 @@ public class ValueInput extends RuleInput implements Serializable {
 
     private final IInputValue value;
 
-    public ValueInput(String name, int priority, String inputDataType, String value) throws Exception {
+    public ValueInput(String name, int priority, String inputDataType, String value) {
         super(name, priority, RuleInputType.VALUE, inputDataType, value, null);
         this.value = RuleInputValueFactory.getInstance().buildRuleInputVaue(name, value == null ? "" : value);
     }
 
     @Override
-    public boolean evaluate(String value) throws Exception {
+    public boolean evaluate(String value) {
         if (this.value.isEmpty()) {
             return true;
         }
@@ -24,9 +24,9 @@ public class ValueInput extends RuleInput implements Serializable {
     }
 
     @Override
-    public boolean isConflicting(RuleInput input) throws Exception {
+    public boolean isConflicting(RuleInput input) {
         if (!input.getRuleInputDataType().equals(this.getRuleInputDataType())) {
-            throw new Exception("Compared rule inputs '" + this.getName() + "' and '"
+            throw new IllegalArgumentException("Compared rule inputs '" + this.getName() + "' and '"
                     + input.getName() + "' are not the same type.");
         }
 
@@ -35,7 +35,7 @@ public class ValueInput extends RuleInput implements Serializable {
     }
 
     @Override
-    public int isBetterFit(RuleInput input) throws Exception {
+    public int isBetterFit(RuleInput input) {
         // If both are are 'Any' or the same, then no judgement, it cant be the better fit (unless the other is also
         // 'Any', in which it doesnt matter what we return from here)
         if (this.equals(input)) {
@@ -55,7 +55,7 @@ public class ValueInput extends RuleInput implements Serializable {
     }
 
     @Override
-    public boolean equals(RuleInput otherInput) throws Exception {
+    public boolean equals(RuleInput otherInput) {
         if (this.isAny() && otherInput.isAny()) {
             return true;
         }

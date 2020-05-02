@@ -15,23 +15,34 @@
  */
 package com.github.kislayverma.rulette.core.data;
 
+import com.github.kislayverma.rulette.core.metadata.RuleInputMetaData;
 import com.github.kislayverma.rulette.core.metadata.RuleSystemMetaData;
 import com.github.kislayverma.rulette.core.rule.Rule;
-import java.sql.SQLException;
+
 import java.util.List;
 
 /**
+ * This is the interface between Rulette engine and the rule storage layer. The engine uses this API to access and
+ * modify rules and other metadata in the storage medium.
  *
  * @author kislay.verma
  */
 public interface IDataProvider {
-    RuleSystemMetaData getRuleSystemMetaData(String ruleSystemName) throws Exception;
+    default void addRuleInput(String ruleSystemName, RuleInputMetaData ruleInput) {
+        throw new UnsupportedOperationException("Adding rule input not supported by this data provider implementation");
+    }
 
-    List<Rule> getAllRules(String ruleSystemName) throws SQLException, Exception;
+    default void deleteRuleInput(String ruleSystemName, String ruleInputName) {
+        throw new UnsupportedOperationException("Deleting rule input not supported by this data provider implementation");
+    }
 
-    Rule saveRule(String ruleSystemName, Rule rule) throws SQLException, Exception;
+    RuleSystemMetaData getRuleSystemMetaData(String ruleSystemName);
 
-    boolean deleteRule(String ruleSystemName, Rule rule) throws SQLException, Exception;
+    List<Rule> getAllRules(String ruleSystemName);
 
-    Rule updateRule(String ruleSystemName, Rule rule) throws SQLException, Exception;
+    Rule saveRule(String ruleSystemName, Rule rule);
+
+    boolean deleteRule(String ruleSystemName, Rule rule);
+
+    Rule updateRule(String ruleSystemName, Rule rule);
 }

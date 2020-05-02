@@ -18,7 +18,7 @@ public class RuletteInputProcessor {
 
     private static final DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
 
-    public static Map<String, String> generateInputMap(Object request) throws Exception{
+    public static Map<String, String> generateInputMap(Object request) throws IllegalAccessException {
         Map<String, String> inputMap = new HashMap<>();
         Field[] fieldsInObject = request.getClass().getDeclaredFields();
         for(Field field : fieldsInObject){

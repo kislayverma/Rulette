@@ -23,19 +23,17 @@ public class Rule implements Serializable {
 
     private final RuleSystemMetaData ruleSystemMetaData;
     private final Map<String, RuleInput> fieldMap;
-    private final int DUMMY_PRIORITY_FOR_INPUT_AND_OUTPUT_ID_COL = -1;
+    private static final int DUMMY_PRIORITY_FOR_INPUT_AND_OUTPUT_ID_COL = -1;
 
     /**
      * This constructor takes the list of columns in the rule system and a map
      * of value to populate the fields of this rule. Any fields missing in the
      * input are set to blank (meaning 'Any').
      *
-     * @param ruleSystemMetaData
+     * @param ruleSystemMetaData Meta data of the rule system to which this rule belongs
      * @param inputMap input values for constructing the rule
-     *
-     * @throws Exception on rule construction error
      */
-    public Rule(RuleSystemMetaData ruleSystemMetaData, Map<String, String> inputMap) throws Exception {
+    public Rule(RuleSystemMetaData ruleSystemMetaData, Map<String, String> inputMap) {
         this.ruleSystemMetaData = ruleSystemMetaData;
         this.fieldMap = new ConcurrentHashMap<>();
 
@@ -44,9 +42,7 @@ public class Rule implements Serializable {
             String inputVal = inputMap.get(input.getName());
             inputVal = (inputVal == null) ? "" : inputVal;
             RuleInput ruleInput;
-            if (null == input.getRuleInputType()) {
-                throw new Exception("Unsupported rule input type " + input.getRuleInputType());
-            } else switch (input.getRuleInputType()) {
+            switch (input.getRuleInputType()) {
                 case RANGE:
                     ruleInput = new RangeInput(
                         input.getName(),
@@ -59,7 +55,7 @@ public class Rule implements Serializable {
                     ruleInput = new ValueInput(input.getName(), input.getPriority(), input.getDataType(), inputVal);
                     break;
                 default:
-                    throw new Exception("Unsupported rule input type " + input.getRuleInputType());
+                    throw new IllegalArgumentException("Unsupported rule input type " + input.getRuleInputType());
             }
 
             this.fieldMap.put(input.getName(), ruleInput);
@@ -103,9 +99,8 @@ public class Rule implements Serializable {
      *
      * @param inputMap rule input values for evaluation
      * @return true if input values match this rule
-     * @throws java.lang.Exception on rule evaluation error
      */
-    public boolean evaluate(Map<String, String> inputMap) throws Exception {
+    public boolean evaluate(Map<String, String> inputMap) {
         // For each input column in order, get the value from the rule and compare against input.
         for (RuleInputMetaData col : this.ruleSystemMetaData.getInputColumnList()) {
             String colName = col.getName();
@@ -131,9 +126,8 @@ public class Rule implements Serializable {
      * Returns true if the give rule conflicts with this rule.
      * @param rule input rule to be checked for conflict
      * @return true if input rule conflicts with this rule, false otherwise
-     * @throws Exception on evaluation error
      */
-    public boolean isConflicting(Rule rule) throws Exception {
+    public boolean isConflicting(Rule rule) {
         for (RuleInputMetaData col : this.ruleSystemMetaData.getInputColumnList()) {
             String colName = col.getName();
 
@@ -166,9 +160,8 @@ public class Rule implements Serializable {
      * @param colName column name whose value is to be set
      * @param value the value to be set
      * @return New rule object with the new value set
-     * @throws Exception if new rule construction fails
      */
-    public Rule setColumnData(String colName, String value) throws Exception {
+    public Rule setColumnData(String colName, String value) {
         Map<String, String> inputMap = new HashMap<>();
         for (Map.Entry<String, RuleInput> ruleInput : this.fieldMap.entrySet()) {
             String column = ruleInput.getKey();

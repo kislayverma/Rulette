@@ -6,7 +6,7 @@ import com.github.kislayverma.rulette.core.ruleinput.value.IInputValueBuilder;
 public class DefaultNumberInputBuilder implements IInputValueBuilder<Double>{
 
     @Override
-    public IInputValue<Double> build(String value) throws Exception {
+    public IInputValue<Double> build(String value) {
         return new InputNumberValue(value);
     }
 }

@@ -27,7 +27,7 @@ public class RangeNode extends Node implements Serializable {
     }
 
     @Override
-    public List<Node> getNodes(String value, boolean getAnyValue) throws Exception {
+    public List<Node> getNodes(String value, boolean getAnyValue)  {
         List<Node> nodeList = new ArrayList<>();
         if (value == null || value.equals("")) {
             nodeList.addAll(this.fieldMap.values());
@@ -47,7 +47,7 @@ public class RangeNode extends Node implements Serializable {
     }
 
     @Override
-    public List<Node> getNodesForAddingRule(RuleInput ruleInput) throws Exception {
+    public List<Node> getNodesForAddingRule(RuleInput ruleInput) {
         List<Node> nodeList = new ArrayList<>();
         for (Map.Entry<RuleInput, Node> entry : this.fieldMap.entrySet()) {
             if (entry.getKey().equals(ruleInput)) {
@@ -66,9 +66,6 @@ public class RangeNode extends Node implements Serializable {
     @Override
     public Node getMatchingRule(String value) {
         for (Map.Entry<RuleInput, Node> entry : this.fieldMap.entrySet()) {
-//            if (entry.getKey().evaluate(value)) {
-//                return entry.getValue();
-//            }
             if (value.equals(entry.getKey().getRawValue())) {
                 return entry.getValue();
             }

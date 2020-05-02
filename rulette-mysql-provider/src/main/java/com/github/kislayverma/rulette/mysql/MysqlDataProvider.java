@@ -17,12 +17,16 @@
 package com.github.kislayverma.rulette.mysql;
 
 import com.github.kislayverma.rulette.core.data.IDataProvider;
+import com.github.kislayverma.rulette.core.exception.DataAccessException;
 import com.github.kislayverma.rulette.core.metadata.RuleInputMetaData;
 import com.github.kislayverma.rulette.core.metadata.RuleSystemMetaData;
 import com.github.kislayverma.rulette.core.rule.Rule;
 import com.github.kislayverma.rulette.core.ruleinput.type.RuleInputType;
 import com.github.kislayverma.rulette.core.ruleinput.value.DefaultDataType;
 import com.github.kislayverma.rulette.mysql.dao.DataSource;
+import com.github.kislayverma.rulette.mysql.model.RuleSystemMetadataMysqlModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -38,7 +42,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author kislay.verma
  */
 public class MysqlDataProvider implements IDataProvider {
-    private final Map<String, RuleSystemMetaData> metaDataMap;
+    private  static final Logger LOGGER = LoggerFactory.getLogger(MysqlDataProvider.class);
+
+    private final Map<String, RuleSystemMetadataMysqlModel> metaDataMap;
 
     public MysqlDataProvider(String datasourceUrl) throws IOException, SQLException {
         metaDataMap = new ConcurrentHashMap<>();
@@ -55,7 +61,7 @@ public class MysqlDataProvider implements IDataProvider {
     }
 
     @Override
-    public List<Rule> getAllRules(String ruleSystemName) throws Exception {
+    public List<Rule> getAllRules(String ruleSystemName) {
         List<Rule> rules = new ArrayList<>();
         Connection connection = null;
         Statement statement = null;
@@ -72,14 +78,15 @@ public class MysqlDataProvider implements IDataProvider {
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
-        }finally {
+        } finally {
             close(resultSet, statement, connection);
         }
+
         return rules;
     }
 
     @Override
-    public Rule saveRule(String ruleSystemName, Rule rule) throws Exception {
+    public Rule saveRule(String ruleSystemName, Rule rule) {
         RuleSystemMetaData metaData = getRuleSystemMetaData(ruleSystemName);
 
         StringBuilder sqlBuilder = new StringBuilder();
@@ -137,8 +144,8 @@ public class MysqlDataProvider implements IDataProvider {
 
             }
 
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (SQLException | IOException e) {
+            throw new DataAccessException("Error in saving new rule", e);
         } finally {
             close(resultSet, preparedStatement, connection);
         }
@@ -149,21 +156,30 @@ public class MysqlDataProvider implements IDataProvider {
     }
 
     @Override
-    public boolean deleteRule(String ruleSystemName, Rule rule) throws Exception {
-        RuleSystemMetaData metaData = getRuleSystemMetaData(ruleSystemName);
+    public boolean deleteRule(String ruleSystemName, Rule rule) {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
 
-        String sql = "DELETE FROM " + metaData.getTableName()
+        try {
+            RuleSystemMetaData metaData = getRuleSystemMetaData(ruleSystemName);
+
+            String sql = "DELETE FROM " + metaData.getTableName()
                 + " WHERE " + metaData.getUniqueIdColumnName() + "= ?";
 
-        Connection connection = getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement(sql);
-        preparedStatement.setString(1, rule.getColumnData(metaData.getUniqueIdColumnName()).getRawValue());
+            connection = getConnection();
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, rule.getColumnData(metaData.getUniqueIdColumnName()).getRawValue());
 
-        return preparedStatement.executeUpdate() > 0;
+            return preparedStatement.executeUpdate() > 0;
+        } catch (IOException | SQLException e) {
+            throw new DataAccessException("Error in deleting updated rule", e);
+        } finally {
+            close(null, preparedStatement, connection);
+        }
     }
 
     @Override
-    public Rule updateRule(String ruleSystemName, Rule rule) throws SQLException, Exception {
+    public Rule updateRule(String ruleSystemName, Rule rule) {
         RuleSystemMetaData metaData = getRuleSystemMetaData(ruleSystemName);
 
         StringBuilder sqlBuilder = new StringBuilder();
@@ -225,11 +241,9 @@ public class MysqlDataProvider implements IDataProvider {
                 resultSet = preparedStatement.executeQuery();
 
                 ruleList = convertToRules(resultSet, metaData);
-
-
             }
-        } catch (Exception e) {
-            throw new Exception(e);
+        } catch (IOException | SQLException e) {
+            throw new DataAccessException("Error in storing updated rule", e);
         } finally {
             close(resultSet, preparedStatement, connection);
         }
@@ -241,7 +255,7 @@ public class MysqlDataProvider implements IDataProvider {
         return null;
     }
 
-    private List<Rule> convertToRules(ResultSet resultSet, RuleSystemMetaData metadata) throws Exception {
+    private List<Rule> convertToRules(ResultSet resultSet, RuleSystemMetaData metadata) throws SQLException {
         List<Rule> rules = new ArrayList<>();
 
         if (resultSet != null) {
@@ -277,19 +291,103 @@ public class MysqlDataProvider implements IDataProvider {
     }
 
     @Override
-    public RuleSystemMetaData getRuleSystemMetaData(String ruleSystemName) throws Exception {
-        RuleSystemMetaData rsMetaData = metaDataMap.get(ruleSystemName);
-        if (rsMetaData == null) {
-            rsMetaData = loadRuleSystemMetaData(ruleSystemName);
-            metaDataMap.put(ruleSystemName, rsMetaData);
-        }
+    public void addRuleInput(String ruleSystemName, RuleInputMetaData ruleInput) {
+        RuleSystemMetadataMysqlModel metaData = getRuleSystemMetaData(ruleSystemName);
 
-        return rsMetaData;
+        StringBuilder sqlBuilder = new StringBuilder();
+
+        StringBuilder nameListBuilder = new StringBuilder()
+            .append("`name`").append(",")
+            .append("`rule_system_id`").append(",")
+            .append("`priority`").append(",")
+            .append("`rule_type`").append(",")
+            .append("`data_type`").append(",")
+            .append("`range_lower_bound_field_name`").append(",")
+            .append("`range_upper_bound_field_name`");
+        StringBuilder valueListBuilder = new StringBuilder()
+            .append("'").append(ruleInput.getName()).append("',")
+            .append("'").append(metaData.getRuleSystemId()).append("',")
+            .append(ruleInput.getPriority()).append(",")
+            .append("'").append(ruleInput.getRuleInputType().name()).append("',")
+            .append("'").append(ruleInput.getDataType()).append("',");
+            if (ruleInput.getRangeLowerBoundFieldName() == null || ruleInput.getRangeLowerBoundFieldName().trim().isEmpty()) {
+                valueListBuilder.append("NULL,");
+            } else {
+                valueListBuilder.append("'").append(ruleInput.getRangeLowerBoundFieldName()).append("',");
+            }
+            if (ruleInput.getRangeUpperBoundFieldName() == null || ruleInput.getRangeUpperBoundFieldName().trim().isEmpty()) {
+                valueListBuilder.append("NULL");
+            } else {
+                valueListBuilder.append("'").append(ruleInput.getRangeUpperBoundFieldName()).append("'");
+            }
+
+        sqlBuilder.append("INSERT INTO rule_input ")
+            .append(" (").append(nameListBuilder.toString()).append(") ")
+            .append(" VALUES (").append(valueListBuilder.toString()).append(") ");
+        LOGGER.info("Rule input insert query : {}", sqlBuilder.toString());
+
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+
+        try {
+            connection = getConnection();
+            preparedStatement =
+                connection.prepareStatement("SELECT * " + " FROM " + metaData.getTableName());
+            resultSet = null;
+
+            // Add rule input
+            preparedStatement.executeUpdate(sqlBuilder.toString());
+            // Reload data in the metadata map
+            metaDataMap.put(ruleSystemName, loadRuleSystemMetaData(ruleSystemName));
+        } catch (IOException | SQLException e) {
+            throw new DataAccessException("Error saving new rule input", e);
+        } finally {
+            close(resultSet, preparedStatement, connection);
+        }
     }
 
-    public RuleSystemMetaData loadRuleSystemMetaData(String ruleSystemName) throws Exception {
-        RuleSystemMetaData metaData = null;
+    @Override
+    public void deleteRuleInput(String ruleSystemName, String ruleInputName) {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
 
+        try {
+            RuleSystemMetadataMysqlModel metaData = getRuleSystemMetaData(ruleSystemName);
+
+            String sql = "DELETE FROM rule_input "
+                + " WHERE rule_system_id = " + metaData.getRuleSystemId() + " AND name = ?";
+
+            connection = getConnection();
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, ruleInputName);
+
+            preparedStatement.executeUpdate();
+            // Reload data in the metadata map
+            metaDataMap.put(ruleSystemName, loadRuleSystemMetaData(ruleSystemName));
+        } catch (IOException | SQLException e) {
+            throw new DataAccessException("Error in deleting rule input", e);
+        } finally {
+            close(null, preparedStatement, connection);
+        }
+    }
+
+    @Override
+    public RuleSystemMetadataMysqlModel getRuleSystemMetaData(String ruleSystemName) {
+        try {
+            RuleSystemMetadataMysqlModel rsMetadataMysqlModel = metaDataMap.get(ruleSystemName);
+            if (rsMetadataMysqlModel == null) {
+                rsMetadataMysqlModel = loadRuleSystemMetaData(ruleSystemName);
+                metaDataMap.put(ruleSystemName, rsMetadataMysqlModel);
+            }
+
+            return rsMetadataMysqlModel;
+        } catch (IOException | SQLException e) {
+            throw new DataAccessException("Error loading rule meta data", e);
+        }
+    }
+
+    public RuleSystemMetadataMysqlModel loadRuleSystemMetaData(String ruleSystemName) throws IOException, SQLException {
         Connection connection = null;
         Statement statement = null;
         ResultSet resultSet = null;
@@ -301,25 +399,22 @@ public class MysqlDataProvider implements IDataProvider {
                     statement.executeQuery("SELECT * FROM rule_system WHERE name LIKE '" + ruleSystemName + "'");
 
             if (!resultSet.first()) {
-                throw new Exception("No meta data found for rule system name : " + ruleSystemName);
+                return null;
             }
 
-            metaData = new RuleSystemMetaData(
-                    resultSet.getString("name"),
-                    resultSet.getString("table_name"),
-                    resultSet.getString("unique_id_column_name"),
-                    resultSet.getString("output_column_name"),
-                    getInputs(ruleSystemName));
-        }catch (Exception e){
-            throw new Exception(e);
-        }finally {
+            return new RuleSystemMetadataMysqlModel(
+                resultSet.getString("name"),
+                resultSet.getString("table_name"),
+                resultSet.getString("unique_id_column_name"),
+                resultSet.getString("output_column_name"),
+                getInputs(ruleSystemName),
+                resultSet.getLong("id"));
+        } finally {
             close(resultSet, statement, connection);
         }
-
-        return metaData;
     }
 
-    private List<RuleInputMetaData> getInputs(String ruleSystemName) throws SQLException, Exception {
+    private List<RuleInputMetaData> getInputs(String ruleSystemName) throws SQLException, IOException {
         List<RuleInputMetaData> inputs = new ArrayList<>();
         Connection connection = null;
         Statement statement = null;
@@ -350,16 +445,14 @@ public class MysqlDataProvider implements IDataProvider {
                         resultSet.getString("range_lower_bound_field_name"),
                         resultSet.getString("range_upper_bound_field_name")));
             }
-        }catch (Exception e){
-            throw new Exception(e);
-        }finally {
+        } finally {
             close(resultSet, statement, connection);
         }
 
         return inputs;
     }
 
-    private void close(ResultSet resultSet, Statement statement, Connection connection) throws Exception {
+    private void close(ResultSet resultSet, Statement statement, Connection connection) {
         try {
             if (resultSet != null) {
                 resultSet.close();
@@ -371,7 +464,7 @@ public class MysqlDataProvider implements IDataProvider {
                 connection.close();
             }
         } catch (Exception e) {
-            throw new Exception(e);
+            throw new DataAccessException("Failed to close database connection", e);
         }
     }
 }
