@@ -13,7 +13,9 @@ public class RuleSystemMetaDataMother {
     public static RuleSystemMetaData getDefaultMetaData() throws Exception {
         List<RuleInputMetaData> ruleInputs = RuleInputMetaDataMother.getDefaultValueMetaData(5);
 
-        return new RuleSystemMetaData(
-            ruleSystemName, tableName, uniqueIdColumnName, uniqueOutputColumnName, ruleInputs);
+        RuleSystemMetaData ruleSystemMetaData = new RuleSystemMetaData(
+                ruleSystemName, tableName, uniqueIdColumnName, uniqueOutputColumnName, ruleInputs);
+        ruleSystemMetaData.applyCustomConfiguration(null);
+        return ruleSystemMetaData;
     }
 }

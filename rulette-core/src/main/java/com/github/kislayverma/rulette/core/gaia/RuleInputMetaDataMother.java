@@ -2,6 +2,8 @@ package com.github.kislayverma.rulette.core.gaia;
 
 import com.github.kislayverma.rulette.core.metadata.RuleInputMetaData;
 import com.github.kislayverma.rulette.core.ruleinput.type.RuleInputType;
+import com.github.kislayverma.rulette.core.ruleinput.value.DefaultDataType;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -35,8 +37,8 @@ public class RuleInputMetaDataMother {
         List<RuleInputMetaData> dummyObjs = new ArrayList<>();
         for (int i = 0; i < n; i++) {
             int id = RANDOM_NUM_GENERATOR.nextInt();
-            dummyObjs.add(new RuleInputMetaData(DUMMY_RULE_INPUT_NAME + id, id, RuleInputType.VALUE, 
-                String.class.getName(), "test" + i, null));
+            dummyObjs.add(new RuleInputMetaData(DUMMY_RULE_INPUT_NAME + id, id, RuleInputType.VALUE,
+                    DefaultDataType.STRING.name(), "test" + i, null));
         }
 
         return dummyObjs;
