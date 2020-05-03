@@ -4,11 +4,13 @@ import com.github.kislayverma.rulette.core.metadata.RuleSystemMetaData;
 import com.github.kislayverma.rulette.core.ruleinput.RuleInput;
 import com.github.kislayverma.rulette.core.metadata.RuleInputMetaData;
 import com.github.kislayverma.rulette.core.ruleinput.type.RangeInput;
+import com.github.kislayverma.rulette.core.ruleinput.type.RuleInputType;
 import com.github.kislayverma.rulette.core.ruleinput.type.ValueInput;
 import com.github.kislayverma.rulette.core.ruleinput.value.DefaultDataType;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -39,19 +41,21 @@ public class Rule implements Serializable {
 
         // Construct all rule inputs
         for (RuleInputMetaData input : ruleSystemMetaData.getInputColumnList()) {
-            String inputVal = inputMap.get(input.getName());
-            inputVal = (inputVal == null) ? "" : inputVal;
             RuleInput ruleInput;
             switch (input.getRuleInputType()) {
                 case RANGE:
+                    String lowerBoundInputValue = inputMap.get(input.getRangeLowerBoundFieldName());
+                    String upperBoundInputValue = inputMap.get(input.getRangeUpperBoundFieldName());
                     ruleInput = new RangeInput(
                         input.getName(),
-                        input.getPriority(), 
+                        input.getPriority(),
                         input.getDataType(),
-                        inputMap.get(input.getRangeLowerBoundFieldName()),
-                        inputMap.get(input.getRangeUpperBoundFieldName()));
+                        lowerBoundInputValue == null ? "" : lowerBoundInputValue,
+                        upperBoundInputValue == null ? "" : upperBoundInputValue);
                     break;
                 case VALUE:
+                    String inputVal = inputMap.get(input.getName());
+                    inputVal = (inputVal == null) ? "" : inputVal;
                     ruleInput = new ValueInput(input.getName(), input.getPriority(), input.getDataType(), inputVal);
                     break;
                 default:
@@ -162,15 +166,61 @@ public class Rule implements Serializable {
      * @return New rule object with the new value set
      */
     public Rule setColumnData(String colName, String value) {
-        Map<String, String> inputMap = new HashMap<>();
-        for (Map.Entry<String, RuleInput> ruleInput : this.fieldMap.entrySet()) {
-            String column = ruleInput.getKey();
-            if (column.equals(colName)) {
-                inputMap.put(column, value);
+        RuleInput inputToBeChanged = this.getColumnData(colName);
+        if (inputToBeChanged == null ) {
+            throw new IllegalArgumentException("no rule input with given name");
+        }
+
+        Map<String, String> newValueMap = new HashMap<>();
+        if (inputToBeChanged.getRuleInputType() == RuleInputType.VALUE) {
+            newValueMap.put(colName, value);
+        } else {
+            if (value == null || value.trim().isEmpty()) {
+                newValueMap.put(colName, value);
             } else {
-                inputMap.put(column, ruleInput.getValue().getRawValue());
+                RuleInputMetaData metadata =
+                    ruleSystemMetaData
+                        .getInputColumnList()
+                        .stream()
+                        .filter(col -> col.getName().equals(colName))
+                        .findFirst()
+                        .get();
+                String[] valueArr = value.split("-");
+                newValueMap.put(metadata.getRangeLowerBoundFieldName(), valueArr[0].trim());
+                newValueMap.put(metadata.getRangeUpperBoundFieldName(), valueArr[1].trim());
             }
         }
+
+        return setColumnData(colName, newValueMap);
+    }
+
+    public Rule setColumnData(String colName, Map<String, String> newValueMap) {
+        RuleInput inputToBeChanged = this.getColumnData(colName);
+        if (inputToBeChanged == null ) {
+            throw new IllegalArgumentException("no rule input with given name");
+        }
+
+        Map<String, String> inputMap = new HashMap<>();
+        // This separate treatment is needed because the constructor of Rule needs the upper and lower bound fields of
+        // range inputs as separate entries of the input map, while the fieldMap of this rule stores the value of range
+        // input against the composite rule input name
+        this.fieldMap.entrySet().stream().forEach(entry -> {
+            if (entry.getValue().getRuleInputType() == RuleInputType.VALUE) {
+                inputMap.put(entry.getKey(), entry.getValue().getRawValue());
+            } else {
+                RangeInput rangeInput = (RangeInput) entry.getValue();
+                RuleInputMetaData metadata =
+                    ruleSystemMetaData
+                        .getInputColumnList()
+                        .stream()
+                        .filter(col -> col.getName().equals(entry.getKey()))
+                        .findFirst()
+                        .get();
+                inputMap.put(metadata.getRangeLowerBoundFieldName(), rangeInput.getLowerBound().toString());
+                inputMap.put(metadata.getRangeUpperBoundFieldName(), rangeInput.getUpperBound().toString());
+            }
+        });
+        inputMap.putAll(newValueMap);
 
         return new Rule(this.ruleSystemMetaData, inputMap);
     }

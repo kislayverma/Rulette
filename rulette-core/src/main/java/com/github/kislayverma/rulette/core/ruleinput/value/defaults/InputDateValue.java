@@ -2,16 +2,18 @@ package com.github.kislayverma.rulette.core.ruleinput.value.defaults;
 
 import com.github.kislayverma.rulette.core.ruleinput.value.IInputValue;
 import java.io.Serializable;
-import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 class InputDateValue implements IInputValue<Date>, Serializable {
     private static final long serialVersionUID = 5666450390675442878L;
+    private static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
+    private static final DateTimeFormatter formatter = DateTimeFormat.forPattern(DATE_PATTERN);
+    private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat(DATE_PATTERN);
 
     private final Date value;
-    private static final DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
 
     public InputDateValue (String value) {
         this.value = value == null || value.isEmpty() ? null : formatter.parseDateTime(value).toDate();
@@ -56,5 +58,10 @@ class InputDateValue implements IInputValue<Date>, Serializable {
         } else {
             return that.getValue().equals(this.value);
         }
+    }
+
+    @Override
+    public String toString() {
+        return this.value  == null ? "" : SIMPLE_DATE_FORMAT.format(this.value);
     }
 }

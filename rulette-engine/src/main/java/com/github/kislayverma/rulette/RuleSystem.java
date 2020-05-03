@@ -217,8 +217,8 @@ public class RuleSystem implements Serializable {
                         + "the given input : " + overlappingRules);
             }
         }
-        newRule = newRule.setColumnData(metaData.getUniqueIdColumnName(), oldRuleId);
-        Rule resultantRule = dataProvider.updateRule(metaData.getRuleSystemName(), newRule);
+        Rule newRuleWithOldIdSet = newRule.setColumnData(metaData.getUniqueIdColumnName(), oldRuleId);
+        Rule resultantRule = dataProvider.updateRule(metaData.getRuleSystemName(), newRuleWithOldIdSet);
         if (resultantRule != null) {
             evaluationEngine.deleteRule(oldRule);
             evaluationEngine.addRule(resultantRule);
