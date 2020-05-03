@@ -17,6 +17,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
+/**
+ * Unit Test class for TrieBasedEvaluationEngine.
+ * @author arpit.jain
+ */
 public class TrieBasedEvaluationEngineTest {
 
     private static RuleSystemMetaData metaData;
@@ -52,11 +56,9 @@ public class TrieBasedEvaluationEngineTest {
                 List<Rule> sampleRules = RuleMother.getDefaultRules(2, metaData);
                 sut.addRule(sampleRules.get(0));
                 sut.addRule(sampleRules.get(1));
-                Throwable exception = assertThrows(RuleConflictException.class, () -> {
-                    sut.addRule(sampleRules.get(1));
-                });
+                Throwable exception = assertThrows(RuleConflictException.class, () -> sut.addRule(sampleRules.get(0)));
                 assertEquals(exception.getMessage(),
-                        "The following existing rules conflict with the given input : " + sampleRules.get(1));
+                        "The following existing rules conflict with the given input : " + sampleRules.get(0));
 
             } catch (Exception ex) {
                 fail("Exception while testing conflicting rules addition", ex);
