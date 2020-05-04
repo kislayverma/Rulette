@@ -44,7 +44,7 @@ public class TrieBasedEvaluationEngineTest {
             try {
                 // Refresh rule engine before each test
                 sut = new TrieBasedEvaluationEngine(metaData);
-            } catch (Exception ex) {
+            } catch (RuleConflictException ex) {
                 fail("Exception while instantiating TrieBasedEvaluationEngine", ex);
             }
         }
