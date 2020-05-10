@@ -3,6 +3,7 @@ package com.github.kislayverma.rulette.example.mysql;
 import com.github.kislayverma.rulette.RuleSystem;
 import com.github.kislayverma.rulette.core.exception.RuleConflictException;
 import com.github.kislayverma.rulette.core.metadata.RuleInputMetaData;
+import com.github.kislayverma.rulette.core.metadata.RuleSystemMetaData;
 import com.github.kislayverma.rulette.core.rule.Rule;
 import com.github.kislayverma.rulette.core.data.IDataProvider;
 import java.io.File;
@@ -43,26 +44,40 @@ public class SimpleMysqlUse implements Serializable {
     public void run(String configFilePath) throws IOException, SQLException, RuleConflictException {
         // Create a rule system with a properties file
         File f = new File(configFilePath);
-        IDataProvider dataProvider1 = new MysqlDataProvider(f.getPath());
-        RuleSystem rs1 = new RuleSystem(RULE_SYSTEM_NAME, dataProvider1);
+        IDataProvider dataProvider = new MysqlDataProvider(f.getPath());
+        RuleSystem rs1 = new RuleSystem(RULE_SYSTEM_NAME, dataProvider);
 
         // Run all sample usage
-        runSamples(rs1);
+//        runSamples(rs1);
 
-        // Create a rule system with properties
-        IDataProvider dataProvider2 = new MysqlDataProvider(Utils.readProperties(configFilePath));
-        RuleSystem rs2 = new RuleSystem(RULE_SYSTEM_NAME, dataProvider2);
+        // Create a new, identical rule system
+        String newRuleSystemName = RULE_SYSTEM_NAME + "-1";
+        RuleSystemMetaData newMetadata = new RuleSystemMetaData(
+            newRuleSystemName,
+            rs1.getMetaData().getTableName(),
+            rs1.getMetaData().getUniqueIdColumnName(),
+            rs1.getMetaData().getUniqueOutputColumnName(),
+            rs1.getMetaData().getInputColumnList());
+        RuleSystem.createNewRuleSystem(newMetadata, dataProvider);
+        RuleSystem rs2 = new RuleSystem(newRuleSystemName, dataProvider);
 
         // Run all sample usage
         runSamples(rs2);
+
+        // Delete the new rule system
+        RuleSystem.deleteRuleSystem(newRuleSystemName, dataProvider);
     }
 
     private void runSamples(RuleSystem rs) throws RuleConflictException {
         // Print all column names
         rs.getMetaData().getInputColumnList().forEach(r ->LOGGER.info(r.getName()));
 
-        // Get any rule input
-        RuleInputMetaData ruleInput = rs.getMetaData().getInputColumnList().get(0);
+        // Get mrp_threshold rule input
+        RuleInputMetaData ruleInput = rs.getMetaData().getInputColumnList()
+            .stream()
+            .filter(col->"mrp_threshold".equals(col.getName()))
+            .findFirst()
+            .get();
         // Adding and deleting rule input
         LOGGER.info("==========Deleting rule input : " + ruleInput.getName() +  "==========");
         rs.deleteRuleInput(ruleInput.getName());

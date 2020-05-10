@@ -33,9 +33,27 @@ public class RuleSystem implements Serializable {
     private RuleSystemMetaData metaData;
     private IDataProvider dataProvider;
     private IEvaluationEngine evaluationEngine;
-    private final  RuleInputConfigurator inputConfig;
+    private final RuleInputConfigurator inputConfig;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RuleSystem.class);
+
+    /**
+     * Utility method to create a new rule system via the given data provider
+     *
+     * @param metaData
+     * @param dataProvider
+     */
+    public static void createNewRuleSystem(RuleSystemMetaData metaData, IDataProvider dataProvider) {
+        dataProvider.createRuleSystem(metaData);
+    }
+
+    /**
+     * Utility method to delete a rule system backed by the given data provider
+     * @param ruleSystemName
+     */
+    public static void deleteRuleSystem(String ruleSystemName, IDataProvider dataProvider) {
+        dataProvider.deleteRuleSystem(ruleSystemName);
+    }
 
     /**
      * This constructor initializes a rule system of the given name by reading data from the

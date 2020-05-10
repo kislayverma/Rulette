@@ -1,11 +1,15 @@
 package com.github.kislayverma.rulette.mysql.util;
 
+import com.github.kislayverma.rulette.core.exception.DataAccessException;
 import com.zaxxer.hikari.HikariConfig;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.Properties;
 
 /**
@@ -64,5 +68,21 @@ public class Utils {
         hikariConfig.setConnectionTimeout(Long.parseLong(props.getProperty(PROPERTY_CONN_TIMEOUT)));
 
         return hikariConfig;
+    }
+
+    public static void closeSqlArtifacts(ResultSet resultSet, Statement statement, Connection connection) {
+        try {
+            if (resultSet != null) {
+                resultSet.close();
+            }
+            if (statement != null) {
+                statement.close();
+            }
+            if (connection != null) {
+                connection.close();
+            }
+        } catch (Exception e) {
+            throw new DataAccessException("Failed to close database connection", e);
+        }
     }
 }
