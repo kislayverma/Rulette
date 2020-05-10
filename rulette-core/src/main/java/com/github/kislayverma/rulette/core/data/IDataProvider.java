@@ -22,18 +22,26 @@ import com.github.kislayverma.rulette.core.rule.Rule;
 import java.util.List;
 
 /**
- * This is the interface between Rulette engine and the rule storage layer. The engine uses this API to access and
+ * This is the interface between Rulette engine and the rule storage layer. Rulette engine uses this API to access and
  * modify rules and other metadata in the storage medium.
  *
  * @author kislay.verma
  */
 public interface IDataProvider {
+    default void createRuleSystem(RuleSystemMetaData ruleSystemMetaData) {
+        throw new UnsupportedOperationException("Creating rule system not supported by this implementation");
+    }
+
+    default void deleteRuleSystem(String ruleSystemName) {
+        throw new UnsupportedOperationException("Deleting rule system not supported by this implementation");
+    }
+
     default void addRuleInput(String ruleSystemName, RuleInputMetaData ruleInput) {
-        throw new UnsupportedOperationException("Adding rule input not supported by this data provider implementation");
+        throw new UnsupportedOperationException("Adding rule input not supported by this implementation");
     }
 
     default void deleteRuleInput(String ruleSystemName, String ruleInputName) {
-        throw new UnsupportedOperationException("Deleting rule input not supported by this data provider implementation");
+        throw new UnsupportedOperationException("Deleting rule input not supported by this implementation");
     }
 
     RuleSystemMetaData getRuleSystemMetaData(String ruleSystemName);
