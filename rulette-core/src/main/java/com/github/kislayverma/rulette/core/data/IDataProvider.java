@@ -28,6 +28,9 @@ import java.util.List;
  * @author kislay.verma
  */
 public interface IDataProvider {
+    default List<RuleSystemMetaData> getAllRuleSystemMetaData() {
+        throw new UnsupportedOperationException("Not supported by this implementation");
+    }
     default void createRuleSystem(RuleSystemMetaData ruleSystemMetaData) {
         throw new UnsupportedOperationException("Creating rule system not supported by this implementation");
     }

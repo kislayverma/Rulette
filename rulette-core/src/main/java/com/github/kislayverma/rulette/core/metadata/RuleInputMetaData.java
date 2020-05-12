@@ -48,4 +48,16 @@ public class RuleInputMetaData implements Serializable {
     public String getRangeUpperBoundFieldName() {
         return rangeUpperBoundFieldName;
     }
+
+    @Override
+    public String toString() {
+        return "RuleInputMetaData{" +
+            "name='" + name + '\'' +
+            ", priority=" + priority +
+            ", ruleInputType=" + ruleInputType +
+            ", dataType='" + dataType + '\'' +
+            ", rangeLowerBoundFieldName='" + rangeLowerBoundFieldName + '\'' +
+            ", rangeUpperBoundFieldName='" + rangeUpperBoundFieldName + '\'' +
+            '}';
+    }
 }

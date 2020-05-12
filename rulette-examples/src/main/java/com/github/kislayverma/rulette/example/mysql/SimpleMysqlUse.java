@@ -45,10 +45,12 @@ public class SimpleMysqlUse implements Serializable {
         // Create a rule system with a properties file
         File f = new File(configFilePath);
         IDataProvider dataProvider = new MysqlDataProvider(f.getPath());
+        // Print all rule systems known to this provider
+        dataProvider.getAllRuleSystemMetaData().forEach(rsmd -> LOGGER.info(rsmd.toString()));
         RuleSystem rs1 = new RuleSystem(RULE_SYSTEM_NAME, dataProvider);
 
         // Run all sample usage
-//        runSamples(rs1);
+        runSamples(rs1);
 
         // Create a new, identical rule system
         String newRuleSystemName = RULE_SYSTEM_NAME + "-1";

@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -29,6 +31,48 @@ public class RuleSystemDao extends BaseDao {
         }
 
         return rsMetadataMysqlModel;
+    }
+
+    public List<RuleSystemMetadataMysqlModel> getAllRuleSystemMetaData(Connection conn) {
+        final List<RuleSystemMetadataMysqlModel> allRuleSystems = new ArrayList<>();
+        getAllRuleSystemNames(conn).stream().forEach(ruleSystem -> {
+            allRuleSystems.add(ruleSystem);
+        });
+
+        return allRuleSystems;
+    }
+
+    private List<RuleSystemMetadataMysqlModel> getAllRuleSystemNames(Connection conn) {
+        List<RuleSystemMetadataMysqlModel> ruleSystemNames = new ArrayList<>();
+
+        Connection connection = null;
+        Statement statement = null;
+        ResultSet resultSet = null;
+
+        try {
+            connection = conn == null ? getConnection() : conn;
+            statement = connection.createStatement();
+            resultSet = statement.executeQuery("SELECT * FROM rule_system");
+            if (resultSet != null) {
+                while (resultSet.next()) {
+                    String ruleSystemName = resultSet.getString("name");
+                    ruleSystemNames.add(
+                        new RuleSystemMetadataMysqlModel(
+                            ruleSystemName,
+                            resultSet.getString("table_name"),
+                            resultSet.getString("unique_id_column_name"),
+                            resultSet.getString("output_column_name"),
+                            ruleInputDao.getRuleInputs(ruleSystemName, connection),
+                            resultSet.getLong("id")));
+                }
+            }
+        } catch (IOException | SQLException e) {
+            throw new DataAccessException("Error loading all rule systems", e);
+        } finally {
+            Utils.closeSqlArtifacts(resultSet, statement, (conn == null) ? connection : null);
+        }
+
+        return ruleSystemNames;
     }
 
     public void createRuleSystem(RuleSystemMetaData ruleSystemMetaData, Connection conn) {
