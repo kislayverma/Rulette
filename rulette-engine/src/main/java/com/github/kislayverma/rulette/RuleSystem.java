@@ -458,23 +458,27 @@ public class RuleSystem implements Serializable {
     }
 
     /*
-     * 1. Get rule system inputs from rule_system.rule_input table.
-     * 2. Get rules from the table specified for this rule system in the
-     *    rule_system..rule_system table
+     * 1. Get rule system metadata from data provider
+     * 2. If inputs are not defined, stop. This is needed because in some scenarios we might want to build the rule system incrementally
+     * i.e. first create the rule system object and then add inputs to it gradually. Initializing a rule system without input
+     * should not break these cases.
+     * 3. If inputs are defined, get rules from the data provider and initialize the evaluation engine with them.
      */
     private void initRuleSystem(String ruleSystemName, IDataProvider dataProvider, RuleInputConfigurator inputConfig)
         throws DataAccessException, RuleConflictException {
         this.metaData = dataProvider.getRuleSystemMetaData(ruleSystemName);
         this.metaData.applyCustomConfiguration(inputConfig);
 
-        LOGGER.info("Loading rules from store...");
-        List<Rule> rules = dataProvider.getAllRules(ruleSystemName);
-        LOGGER.info(rules.size() + " rules loaded");
+        if (this.metaData.getInputColumnList() != null && !this.metaData.getInputColumnList().isEmpty()) {
+            LOGGER.info("Loading rules from store...");
+            List<Rule> rules = dataProvider.getAllRules(ruleSystemName);
+            LOGGER.info(rules.size() + " rules loaded");
 
-        this.evaluationEngine = new TrieBasedEvaluationEngine(metaData);
+            this.evaluationEngine = new TrieBasedEvaluationEngine(metaData);
 
-        for (Rule rule : rules) {
-            evaluationEngine.addRule(rule);
+            for (Rule rule : rules) {
+                evaluationEngine.addRule(rule);
+            }
         }
     }
 }
