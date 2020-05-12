@@ -101,7 +101,6 @@ public class MysqlDataProvider implements IDataProvider {
         } finally {
             handleTransactionCompletion(conn, executionSuccess);
         }
-
     }
 
     @Override
@@ -186,6 +185,14 @@ public class MysqlDataProvider implements IDataProvider {
         ruleInputDao.deleteRuleInput(ruleSystemName, ruleInputName, null);
         // Reload rule system metadata
         ruleSystemDao.reloadRuleSystemMetaData(ruleSystemName, null);
+    }
+
+    @Override
+    public List<RuleSystemMetaData> getAllRuleSystemMetaData() {
+        List<RuleSystemMetaData> allRuleSystems = new ArrayList<>();
+        ruleSystemDao.getAllRuleSystemMetaData((Connection) null).forEach(rsmd -> allRuleSystems.add(rsmd));
+
+        return allRuleSystems;
     }
 
     @Override

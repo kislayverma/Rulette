@@ -83,4 +83,15 @@ public class RuleSystemMetaData {
     public String getRuleSystemName() {
         return ruleSystemName;
     }
+
+    @Override
+    public String toString() {
+        return "RuleSystemMetaData{" +
+            "ruleSystemName='" + ruleSystemName + '\'' +
+            ", tableName='" + tableName + '\'' +
+            ", inputColumnList=" + inputColumnList +
+            ", uniqueIdColumnName='" + uniqueIdColumnName + '\'' +
+            ", uniqueOutputColumnName='" + uniqueOutputColumnName + '\'' +
+            '}';
+    }
 }

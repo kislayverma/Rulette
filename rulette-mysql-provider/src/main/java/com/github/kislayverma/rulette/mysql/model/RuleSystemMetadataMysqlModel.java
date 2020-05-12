@@ -29,4 +29,12 @@ public class RuleSystemMetadataMysqlModel extends RuleSystemMetaData {
     public Long getRuleSystemId() {
         return ruleSystemId;
     }
+
+    @Override
+    public String toString() {
+        return "RuleSystemMetadataMysqlModel{" +
+            super.toString() +
+            ", ruleSystemId=" + ruleSystemId +
+            '}';
+    }
 }
