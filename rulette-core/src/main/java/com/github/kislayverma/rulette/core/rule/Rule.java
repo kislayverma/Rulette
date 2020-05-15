@@ -175,8 +175,8 @@ public class Rule implements Serializable {
         if (inputToBeChanged.getRuleInputType() == RuleInputType.VALUE) {
             newValueMap.put(colName, value);
         } else {
-            if (value == null || value.trim().isEmpty()) {
-                newValueMap.put(colName, value);
+            if (value == null || value.trim().isEmpty() || "-".equals(value.trim())) {
+                newValueMap.put(colName, "");
             } else {
                 RuleInputMetaData metadata =
                     ruleSystemMetaData
@@ -186,8 +186,12 @@ public class Rule implements Serializable {
                         .findFirst()
                         .get();
                 String[] valueArr = value.split("-");
-                newValueMap.put(metadata.getRangeLowerBoundFieldName(), valueArr[0].trim());
-                newValueMap.put(metadata.getRangeUpperBoundFieldName(), valueArr[1].trim());
+                if (valueArr.length > 0) {
+                    newValueMap.put(metadata.getRangeLowerBoundFieldName(), valueArr[0].trim());
+                }
+                if (valueArr.length > 1) {
+                    newValueMap.put(metadata.getRangeUpperBoundFieldName(), valueArr[1].trim());
+                }
             }
         }
 
