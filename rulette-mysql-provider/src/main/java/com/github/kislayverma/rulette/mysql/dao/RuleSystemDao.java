@@ -146,17 +146,17 @@ public class RuleSystemDao extends BaseDao {
             resultSet =
                 statement.executeQuery("SELECT * FROM rule_system WHERE name LIKE '" + ruleSystemName + "'");
 
-            if (!resultSet.first()) {
+            if (resultSet.next()) {
+                return new RuleSystemMetadataMysqlModel(
+                    resultSet.getString("name"),
+                    resultSet.getString("table_name"),
+                    resultSet.getString("unique_id_column_name"),
+                    resultSet.getString("output_column_name"),
+                    ruleInputDao.getRuleInputs(ruleSystemName, connection),
+                    resultSet.getLong("id"));
+            } else {
                 return null;
             }
-
-            return new RuleSystemMetadataMysqlModel(
-                resultSet.getString("name"),
-                resultSet.getString("table_name"),
-                resultSet.getString("unique_id_column_name"),
-                resultSet.getString("output_column_name"),
-                ruleInputDao.getRuleInputs(ruleSystemName, connection),
-                resultSet.getLong("id"));
         } catch (IOException | SQLException e) {
             throw new DataAccessException("Error loading rule system meta data", e);
         } finally {
