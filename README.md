@@ -1,3 +1,6 @@
 [![Build Status](https://travis-ci.org/kislayverma/Rulette.svg?branch=master)](https://travis-ci.org/kislayverma/Rulette)
 
-Check out Rulette on its [homepage](https://kislayverma.com/rulette)
+ * Rulette [homepage](https://kislayverma.com/rulette)
+ * [Documentation](https://kislayverma.com/rulette-docs) 
+ * [Support Rulette](https://kislayverma.com/support-rulette) 
+ * The server version - [REST API and UI server](https://github.com/kislayverma/rulette-server)
