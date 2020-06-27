@@ -18,6 +18,10 @@ public class RuleInputDao extends BaseDao {
 
     private RuleSystemDao ruleSystemDao;
 
+    public RuleInputDao(DataSource dataSource) {
+        super(dataSource);
+    }
+
     public List<RuleInputMetaData> getRuleInputs(String ruleSystemName, Connection conn) throws SQLException, IOException {
         List<RuleInputMetaData> inputs = new ArrayList<>();
         Connection connection = null;

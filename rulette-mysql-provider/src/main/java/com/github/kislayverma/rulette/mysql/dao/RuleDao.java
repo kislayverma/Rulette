@@ -18,6 +18,10 @@ import java.util.Map;
 public class RuleDao extends BaseDao {
     private RuleSystemDao ruleSystemDao;
 
+    public RuleDao(DataSource dataSource) {
+        super(dataSource);
+    }
+
     public List<Rule> getAllRules(String ruleSystemName, Connection conn) {
         List<Rule> rules = new ArrayList<>();
         Connection connection = null;

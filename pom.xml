@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.kislayverma</groupId>
     <artifactId>rulette</artifactId>
-    <version>1.3.4</version>
+    <version>1.3.5-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Rulette</name>
     <description>A lightweight rule storage, definition and evaluation engine</description>
@@ -33,7 +33,7 @@
     <properties>
         <junit.version>5.4.0</junit.version>
         <powermock.version>1.6.2</powermock.version>
-        <rulette-version>1.3.4</rulette-version>
+        <rulette-version>1.3.5-SNAPSHOT</rulette-version>
     </properties>
 
     <modules>

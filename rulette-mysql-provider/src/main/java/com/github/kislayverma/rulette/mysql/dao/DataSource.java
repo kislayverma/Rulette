@@ -13,52 +13,24 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 /**
- *
- * @author kislay
+ * This class represents the underlying MySQL connection pool
  */
 public class DataSource {
-
-    private static DataSource datasource;
-    private HikariDataSource hikariDatasource;
     private static final Logger LOGGER = LoggerFactory.getLogger(DataSource.class);
 
-    public static void init(String fileName) throws IOException, SQLException {
-        if (datasource == null) {
-            loadDriverClass();
-            LOGGER.debug("File name is " + fileName);
-            datasource = new DataSource(fileName);
-        }
-    }
+    private HikariDataSource hikariDatasource;
 
-    public static void init(Properties props) throws IOException, SQLException {
-        if (datasource == null) {
-            loadDriverClass();
-            LOGGER.debug("Input properties " + props.toString());
-            datasource = new DataSource(props);
-        }
-    }
-
-    public static DataSource getInstance(String fileName) throws IOException, SQLException {
-        if (datasource == null) {
-            init(fileName);
-        }
-
-        return datasource;
-    }
-
-    public Connection getConnection() throws SQLException {
-        return this.hikariDatasource.getConnection();
-    }
-
-    private DataSource(String fileName) throws IOException, SQLException {
+    public DataSource(String fileName) throws IOException, SQLException {
         this(Utils.getHikariConfig(fileName));
     }
 
-    private DataSource(Properties props) throws IOException, SQLException {
+    public DataSource(Properties props) throws IOException, SQLException {
         this(Utils.getHikariConfig(props));
     }
 
-    private DataSource(HikariConfig hikariConfig) throws SQLException {
+    public DataSource(HikariConfig hikariConfig) throws SQLException {
+        loadDriverClass();
+
         hikariDatasource = new HikariDataSource(hikariConfig);
 
         Connection testConnection = null;
@@ -66,12 +38,12 @@ public class DataSource {
 
         // test connectivity and initialize pool
         try {
-            LOGGER.info("Testing DB connection...");
+            LOGGER.debug("Testing DB connection...");
             testConnection = hikariDatasource.getConnection();
             testStatement = testConnection.createStatement();
             testStatement.executeQuery("select 1+1 from DUAL");
 
-            LOGGER.info("DB connection tested successfully.");
+            LOGGER.debug("DB connection tested successfully.");
         } catch (SQLException e) {
             throw e;
         } finally {
@@ -80,6 +52,13 @@ public class DataSource {
             if (testConnection != null)
                 testConnection.close();
         }
+    }
+
+    /**
+     * Returns a MySQL connection from the connection pool
+     */
+    public Connection getConnection() throws SQLException {
+        return this.hikariDatasource.getConnection();
     }
 
     // This will load the MySQL driver

@@ -43,6 +43,7 @@ import java.util.*;
 public class MysqlDataProvider implements IDataProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(MysqlDataProvider.class);
 
+    private final DataSource dataSource;
     private final RuleSystemDao ruleSystemDao;
     private final RuleInputDao ruleInputDao;
     private final RuleDao ruleDao;
@@ -52,17 +53,17 @@ public class MysqlDataProvider implements IDataProvider {
     }
 
     public MysqlDataProvider(Properties props) throws IOException, SQLException {
-        DataSource.init(props);
-        this.ruleDao = new RuleDao();
-        this.ruleSystemDao = new RuleSystemDao();
-        this.ruleInputDao = new RuleInputDao();
+        this(new DataSource(props));
+    }
+
+    public MysqlDataProvider(DataSource dataSource) throws IOException, SQLException {
+        this.dataSource = dataSource;
+        this.ruleDao = new RuleDao(dataSource);
+        this.ruleSystemDao = new RuleSystemDao(dataSource);
+        this.ruleInputDao = new RuleInputDao(dataSource);
         ruleDao.setRuleSystemDao(ruleSystemDao);
         ruleSystemDao.setRuleInputDao(ruleInputDao);
         ruleInputDao.setRuleSystemDao(ruleSystemDao);
-    }
-
-    private Connection getConnection() throws SQLException, IOException {
-        return DataSource.getInstance(null).getConnection();
     }
 
     @Override
@@ -84,7 +85,7 @@ public class MysqlDataProvider implements IDataProvider {
         Connection conn = null;
         boolean executionSuccess = false;
         try {
-            conn = getConnection();
+            conn = dataSource.getConnection();
             conn.setAutoCommit(false);
             ruleSystemDao.createRuleSystem(ruleSystemMetaData, conn);
             if (ruleSystemMetaData.getInputColumnList() != null) {
@@ -96,7 +97,7 @@ public class MysqlDataProvider implements IDataProvider {
 
             // Reload rule system metadata
             ruleSystemDao.reloadRuleSystemMetaData(ruleSystemName, conn);
-        } catch (IOException | SQLException ex) {
+        } catch (SQLException ex) {
             throw new DataAccessException("Error getting database connection", ex);
         } finally {
             handleTransactionCompletion(conn, executionSuccess);
@@ -117,7 +118,7 @@ public class MysqlDataProvider implements IDataProvider {
         Connection conn = null;
         boolean executionSuccess = false;
         try {
-            conn = getConnection();
+            conn = dataSource.getConnection();
             conn.setAutoCommit(false);
             // First delete the inputs, then the rule system
             if (existingRuleSystem.getInputColumnList() != null) {
@@ -127,7 +128,7 @@ public class MysqlDataProvider implements IDataProvider {
             }
             ruleSystemDao.deleteRuleSystem(ruleSystemName, conn);
             executionSuccess = true;
-        } catch (IOException | SQLException ex) {
+        } catch (SQLException ex) {
             throw new DataAccessException("Error getting database connection", ex);
         } finally {
             handleTransactionCompletion(conn, executionSuccess);

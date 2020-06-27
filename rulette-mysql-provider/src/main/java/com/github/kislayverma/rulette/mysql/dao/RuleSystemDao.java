@@ -20,6 +20,10 @@ public class RuleSystemDao extends BaseDao {
 
     private RuleInputDao ruleInputDao;
 
+    public RuleSystemDao(DataSource dataSource) {
+        super(dataSource);
+    }
+
     public RuleSystemMetadataMysqlModel getRuleSystemMetaData(String ruleSystemName, Connection conn) {
         RuleSystemMetadataMysqlModel rsMetadataMysqlModel = metaDataMap.get(ruleSystemName);
 
