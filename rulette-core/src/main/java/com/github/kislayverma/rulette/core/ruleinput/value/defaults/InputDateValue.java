@@ -33,7 +33,7 @@ class InputDateValue implements IInputValue<Date>, Serializable {
 
     @Override
     public int compareTo(String obj) {
-        return this.value.compareTo(this.DatefromLocalDateTime(LocalDateTime.parse(obj, formatter)));
+        return this.value.compareTo(DatefromLocalDateTime(LocalDateTime.parse(obj, formatter)));
     }
 
     @Override
