@@ -33,7 +33,7 @@ public class RuletteInputProcessor {
                 fieldValueString = "";
             }else {
                 if(fieldValue instanceof Date){
-                    fieldValueString = LocalDateTime.parse((CharSequence)fieldValue).format(formatter);
+                    fieldValueString = LocalDateTime.parse((CharSequence)fieldValue, formatter).format(formatter);
                 }else {
                     fieldValueString = fieldValue.toString();
                 }
