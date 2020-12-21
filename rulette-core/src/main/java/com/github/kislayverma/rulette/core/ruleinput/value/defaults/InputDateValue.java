@@ -15,10 +15,10 @@ class InputDateValue implements IInputValue<Date>, Serializable {
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_PATTERN);
     private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat(DATE_PATTERN);
 
-    private final LocalDateTime value;
+    private final Date value;
 
     public InputDateValue (String value) {
-        this.value = value == null || value.isEmpty() ? null : LocalDateTime.parse((CharSequence)value, formatter);
+        this.value = value == null || value.isEmpty() ? null : this.DatefromLocalDateTime(LocalDateTime.parse((CharSequence)value, formatter));
     }
     
     @Override
@@ -28,12 +28,12 @@ class InputDateValue implements IInputValue<Date>, Serializable {
 
     @Override
     public Date getValue() {
-        return this.DatefromLocalDateTime(this.value);
+        return this.value;
     }
 
     @Override
     public int compareTo(String obj) {
-        return this.value.compareTo(LocalDateTime.parse((CharSequence)obj, formatter));
+        return this.value.compareTo(this.DatefromLocalDateTime(LocalDateTime.parse((CharSequence)obj, formatter)));
     }
 
     @Override
@@ -46,7 +46,7 @@ class InputDateValue implements IInputValue<Date>, Serializable {
         if (this.isEmpty() && obj.isEmpty()) {
             return 0;
         } else {
-            return this.DatefromLocalDateTime(this.value).compareTo(obj.getValue());
+            return this.value.compareTo(obj.getValue());
         }
     }
 
