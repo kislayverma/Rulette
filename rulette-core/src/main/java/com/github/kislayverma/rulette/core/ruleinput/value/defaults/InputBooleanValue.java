@@ -10,8 +10,8 @@ public class InputBooleanValue implements IInputValue<Boolean>, Serializable {
 
     private final Boolean value;
 
-    InputBooleanValue(String value){
-        this.value = Boolean.valueOf(value);
+    InputBooleanValue(String value) {
+        this.value = value == null || value.isEmpty() ? null : Boolean.valueOf(value);
     }
 
     @Override
@@ -25,18 +25,46 @@ public class InputBooleanValue implements IInputValue<Boolean>, Serializable {
     }
 
     @Override
-    public int compareTo(String obj) {
-        return this.value.compareTo(Boolean.valueOf(obj));
+    public boolean equals(Object obj) {
+        IInputValue<Boolean> that = (IInputValue<Boolean>) obj;
+        if (this.isEmpty() && that.isEmpty()) {
+            return true;
+        } else if (!this.isEmpty()) {
+            return this.value.equals(that.getValue());
+        } else {
+            return that.getValue().equals(this.value);
+        }
     }
 
     @Override
-    public int compareTo(IInputValue<Boolean> obj) {
-        return this.compareTo(obj);
+    public int compareTo(String obj) {
+        if ((obj == null || "".equals(obj)) && (this.value == null)) {
+            return 0;
+        } else if (obj == null || "".equals(obj)) {
+            return 1;
+        } else if (this.value == null) {
+            return -1;
+        } else {
+            return this.value.compareTo(Boolean.valueOf(obj));
+        }
+    }
+
+    @Override
+    public int compareTo(IInputValue obj) {
+        if ((obj == null) && (this.value == null)) {
+            return 0;
+        } else if (obj == null || obj.isEmpty()) {
+            return 1;
+        } else if (this.value == null) {
+            return -1;
+        } else {
+            return this.value.compareTo((Boolean)obj.getValue());
+        } 
     }
 
     @Override
     public boolean isEmpty() {
-        return this.value == Boolean.FALSE;
+        return this.value == null;
     }
-    
+
 }
