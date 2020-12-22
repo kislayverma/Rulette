@@ -19,7 +19,7 @@ public class DefaultBooleanInputBuilderTest {
 
     @Test
     @DisplayName("should return true for a String TRUE value")
-    void shouldReturnFalseForTRUEValue() {
+    void shouldReturnTrueForTRUEValue() {
         IInputValue<Boolean> ivb = new DefaultBooleanInputBuilder().build("true");
         assertEquals(Boolean.TRUE, ivb.getValue(), "A String True Value treated as true");
     }
