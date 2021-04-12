@@ -17,6 +17,8 @@ public class DefaultBuilderRegistry {
         this.builderRegister.put("STRING", new DefaultStringInputBuilder());
         this.builderRegister.put("DATE", new DefaultDateInputBuilder());
         this.builderRegister.put("NUMBER", new DefaultNumberInputBuilder());
+        this.builderRegister.put("BOOLEAN", new DefaultBooleanInputBuilder());
+
     }
 
     public IInputValueBuilder getDefaultBuilder(String dataType) {
