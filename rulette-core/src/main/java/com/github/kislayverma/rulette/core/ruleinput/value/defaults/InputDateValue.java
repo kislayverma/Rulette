@@ -4,21 +4,23 @@ import com.github.kislayverma.rulette.core.ruleinput.value.IInputValue;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+
+import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 class InputDateValue implements IInputValue<Date>, Serializable {
     private static final long serialVersionUID = 5666450390675442878L;
     private static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
-    private static final DateTimeFormatter formatter = DateTimeFormat.forPattern(DATE_PATTERN);
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_PATTERN);
     private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat(DATE_PATTERN);
 
     private final Date value;
 
     public InputDateValue (String value) {
-        this.value = value == null || value.isEmpty() ? null : formatter.parseDateTime(value).toDate();
+        this.value = value == null || value.isEmpty() ? null : this.DatefromLocalDateTime(LocalDateTime.parse((CharSequence)value, formatter));
     }
-
+    
     @Override
     public boolean isEmpty() {
         return value == null;
@@ -31,7 +33,7 @@ class InputDateValue implements IInputValue<Date>, Serializable {
 
     @Override
     public int compareTo(String obj) {
-        return this.value.compareTo(formatter.parseDateTime(obj).toDate());
+        return this.value.compareTo(DatefromLocalDateTime(LocalDateTime.parse(obj, formatter)));
     }
 
     @Override
@@ -59,9 +61,14 @@ class InputDateValue implements IInputValue<Date>, Serializable {
             return that.getValue().equals(this.value);
         }
     }
-
+    
     @Override
     public String toString() {
         return this.value  == null ? "" : SIMPLE_DATE_FORMAT.format(this.value);
     }
+
+    private Date DatefromLocalDateTime(LocalDateTime ldt){
+        return Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
+    }
+
 }
